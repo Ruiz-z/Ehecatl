@@ -27,6 +27,7 @@ Ehécatl es una herramienta de decisión para **rotación y cambio de cultivos**
 - SmartRiego MX (`~/personal/Hackregional`) se puede usar como referencia de specs, modelos y arquitectura.
 
 ## Git
+- Las ramas se crean siempre a partir de `origin/dev` (`git fetch origin && git switch -c feat/<nombre> origin/dev`), con prefijo según el tipo: `feat/...`, `fix/...` (y `docs/...`, `chore/...` cuando aplique). Nombre en kebab-case, p. ej. `feat/b2-identity`.
 - Commits con Conventional Commits en español: `tipo(alcance): descripción` (p. ej. `feat(api): agrega login con JWT`, `fix(geo): ...`, `docs(specs): ...`, `chore(infra): ...`).
 - Nunca agregar `Co-Authored-By` ni otra atribución en los commits.
 - Nunca hacer `git push` sin autorización explícita.
