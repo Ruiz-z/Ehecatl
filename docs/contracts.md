@@ -56,6 +56,15 @@ ORNL ya obtenidos prevalecen al combinar; un fallo recuperado por el respaldo
 no fuerza `partial`. Si ambos fallan, se conserva lo disponible y el estado
 parcial/no disponible. No cambian versión, endpoints ni las demás fuentes.
 
+Dentro del respaldo Planetary Computer, los meses sin NDVI válido de Terra
+pueden completarse con Aqua/MYD13Q1 del mismo punto y rango, tanto en histórico
+como en reciente. Cada mes conserva Terra si existe; de lo contrario usa el
+promedio Aqua con calidad 0/1, escala 0.0001 y resolución 250 m.
+`Indicator.source` distingue `MODIS MOD13Q1 / Microsoft Planetary Computer`
+de `MODIS MYD13Q1 / Microsoft Planetary Computer`. No se mezclan ni duplican
+meses entre productos. Un fallo de Aqua conserva los datos Terra y no cambia
+los campos, endpoints, prioridades, ventanas ni reglas del motor.
+
 ## API pública y protegida
 
 `GET /health` y `POST /auth/login` son públicos. El resto requiere

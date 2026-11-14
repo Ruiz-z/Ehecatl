@@ -1,4 +1,4 @@
-"""Respaldo anónimo MOD13Q1/Terra: STAC, SAS por contenedor y lectura COG puntual."""
+"""Respaldo MODIS anónimo: Terra y complemento mensual Aqua con la misma calidad."""
 import asyncio
 import json
 from datetime import date
@@ -38,10 +38,39 @@ def read_pixel(href: str, lat: float, lon: float) -> float | None:
 
 async def fetch_planetary_modis(client, lat: float, lon: float, start: date, end: date, budget: float = 90) -> ModisRows:
     deadline = asyncio.get_running_loop().time() + budget - .1
+    terra = await fetch_product(client, lat, lon, start, end, budget=budget)
+    months = set()
+    cursor = date(start.year, start.month, 1)
+    while cursor <= end:
+        months.add(cursor.isoformat())
+        cursor = date(cursor.year + cursor.month // 12, cursor.month % 12 + 1, 1)
+    missing = months - {row["date"] for row in terra}
+    if not missing:
+        return terra
+    remaining = deadline - asyncio.get_running_loop().time()
+    if remaining <= .1:
+        return terra
+    try:
+        aqua = await asyncio.wait_for(fetch_product(client, lat, lon, start, end,
+            budget=remaining, platform="aqua", months=missing), timeout=remaining)
+    except (TimeoutError, httpx.HTTPError, ValueError, KeyError, TypeError, OSError):
+        return terra
+    additions = {row["date"]: row for row in aqua if row["date"] in missing}
+    if not additions:
+        return terra
+    additions.update({row["date"]: row for row in terra})
+    return ModisRows([additions[key] for key in sorted(additions)],
+                     failed_batches=terra.failed_batches + aqua.failed_batches)
+
+
+async def fetch_product(client, lat: float, lon: float, start: date, end: date, budget: float = 90,
+                        platform: str = "terra", months: set[str] | None = None) -> ModisRows:
+    product = {"terra": "MOD13Q1", "aqua": "MYD13Q1"}[platform]
+    deadline = asyncio.get_running_loop().time() + budget - .1
     params = dict(collections=COLLECTION, limit=1000,
                   intersects=json.dumps(dict(type="Point", coordinates=[lon, lat])),
                   datetime=f"{start.isoformat()}T00:00:00Z/{end.isoformat()}T23:59:59Z",
-                  query=json.dumps({"platform": {"eq": "terra"}}))
+                  query=json.dumps({"platform": {"eq": platform}}))
     url = f"{BASE_URL}/api/stac/v1/search"
     scenes, visited = {}, set()
     while url:
@@ -53,8 +82,9 @@ async def fetch_planetary_modis(client, lat: float, lon: float, start: date, end
         page = response.json()
         for scene in page["features"]:
             stamp = scene_date(scene)
-            if (scene["properties"].get("platform") == "terra" and scene["id"].startswith("MOD13Q1.")
-                    and start.isoformat() <= stamp <= end.isoformat()):
+            if (scene["properties"].get("platform") == platform and scene["id"].startswith(f"{product}.")
+                    and start.isoformat() <= stamp <= end.isoformat()
+                    and (months is None or f"{stamp[:7]}-01" in months)):
                 scenes[scene["id"]] = scene
         url = next((link["href"] for link in page.get("links", []) if link.get("rel") == "next"), None)
         params = None
@@ -121,5 +151,5 @@ async def fetch_planetary_modis(client, lat: float, lon: float, start: date, end
     failures = len(pending) + sum(isinstance(chunk, Exception) for chunk in chunks)
     rows = normalize_modis({"subset": [row for chunk in chunks if not isinstance(chunk, Exception) for row in chunk]})
     for row in rows:
-        row["source"] = "MODIS MOD13Q1 / Microsoft Planetary Computer"
+        row["source"] = f"MODIS {product} / Microsoft Planetary Computer"
     return ModisRows(rows, failed_batches=failures)
