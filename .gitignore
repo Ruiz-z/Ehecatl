@@ -16,3 +16,6 @@ __pycache__/
 *.tsbuildinfo
 apps/api/src/generated/
 next-env.d.ts
+
+# Revisión visual local (herramientas de diseño)
+.taste-skill/

@@ -1,0 +1,184 @@
+import { demoClimateByOwner } from '@/features/identity/fixtures/users';
+import type { Parcel } from '@/features/parcels/types';
+import type { CropFamily, Strategy } from '../types';
+export function strategiesFor(parcel: Parcel): Strategy[] {
+  const humid = demoClimateByOwner[parcel.ownerId] === 'humid';
+  const families: Record<string, CropFamily> = {
+    Maíz: 'grain',
+    Sorgo: 'grain',
+    Cebada: 'grain',
+    Trigo: 'grain',
+    Avena: 'grain',
+    Frijol: 'legume',
+    Garbanzo: 'legume',
+    Caupí: 'legume',
+    Vicia: 'legume',
+    Soja: 'legume',
+    Alfalfa: 'legume',
+    Girasol: 'other'
+  };
+  const currentFamily = families[parcel.crop] ?? 'other';
+  const restricted = parcel.crop === 'Alfalfa';
+  const next = humid ? ['Trigo', 'Vicia', 'Maíz'] : restricted ? ['Cebada', 'Caupí', 'Sorgo'] : ['Sorgo', 'Frijol', 'Cebada'];
+  const alternative = humid ? ['Maíz', 'Soja', 'Avena'] : ['Girasol', 'Garbanzo', 'Avena'];
+  const common = {
+    confidence: parcel.dataState === 'error' ? 'Baja' as const : 'Media' as const,
+    confidenceReason: parcel.dataState === 'error' ? 'Falta la humedad del suelo; calculamos con el resto de los datos.' : 'Falta validar el suelo y el mercado en campo.'
+  };
+  return [{
+    ...common,
+    id: 'baseline',
+    baseline: true,
+    name: 'Mantener lo actual',
+    axes: humid ? {
+      water: 90,
+      soil: 30,
+      income: 95,
+      risk: 72
+    } : {
+      water: 28,
+      soil: 42,
+      income: 96,
+      risk: 35
+    },
+    windows: restricted ? [{
+      crop: parcel.crop,
+      family: currentFamily,
+      startMonth: 0,
+      months: 24,
+      current: true
+    }] : [{
+      crop: parcel.crop,
+      family: currentFamily,
+      startMonth: 0,
+      months: 5,
+      current: true
+    }, {
+      crop: parcel.crop,
+      family: currentFamily,
+      startMonth: 7,
+      months: 5
+    }, {
+      crop: parcel.crop,
+      family: currentFamily,
+      startMonth: 17,
+      months: 5
+    }],
+    changeAt: 'Sin cambio de cultivo',
+    reasons: [{
+      origin: 'Tu parcela',
+      text: `Conservas la experiencia y la maquinaria de ${parcel.crop.toLowerCase()}.`,
+      axis: 'income'
+    }, {
+      origin: 'Dato NASA',
+      text: humid ? 'Las lluvias cubren la demanda del cultivo actual.' : 'La lluvia del último año está 38 % debajo de lo normal.',
+      axis: 'water'
+    }, {
+      origin: 'Regla de rotación',
+      text: 'Repetir familia mantiene la presión de plagas.',
+      axis: 'soil'
+    }],
+    risks: ['Repetir el cultivo puede agotar los mismos nutrientes.']
+  }, {
+    ...common,
+    id: 'resilient',
+    baseline: false,
+    name: next.join(' → '),
+    axes: humid ? {
+      water: 70,
+      soil: 98,
+      income: 68,
+      risk: 86
+    } : {
+      water: 96,
+      soil: 88,
+      income: 57,
+      risk: restricted ? 98 : 82
+    },
+    windows: [{
+      crop: parcel.crop,
+      family: currentFamily,
+      startMonth: 0,
+      months: 3,
+      current: true
+    }, {
+      crop: next[0],
+      family: 'grain',
+      startMonth: 4,
+      months: 5
+    }, {
+      crop: next[1],
+      family: 'legume',
+      startMonth: 11,
+      months: 4
+    }, {
+      crop: next[2],
+      family: 'grain',
+      startMonth: 18,
+      months: 5
+    }],
+    changeAt: humid ? '1 de marzo de 2027' : '1 de marzo de 2027',
+    reasons: [{
+      origin: 'Dato NASA',
+      text: humid ? 'La humedad disponible favorece una cobertura de invierno.' : 'El sorgo necesita menos agua que el maíz en esta zona.',
+      axis: 'water'
+    }, {
+      origin: 'Regla de rotación',
+      text: 'La leguminosa aporta nitrógeno y rompe el ciclo de plagas.',
+      axis: 'soil'
+    }, {
+      origin: 'Tu parcela',
+      text: parcel.irrigation ? 'El riego permite asegurar el establecimiento.' : 'La secuencia aprovecha las ventanas de lluvia.',
+      axis: 'risk'
+    }],
+    risks: ['Confirma semilla y comprador antes de cambiar.', 'Las fechas pueden moverse si se retrasa la lluvia.']
+  }, {
+    ...common,
+    id: 'balanced',
+    baseline: false,
+    name: alternative.join(' → '),
+    axes: {
+      water: 66,
+      soil: 72,
+      income: 86,
+      risk: 94
+    },
+    windows: [{
+      crop: parcel.crop,
+      family: currentFamily,
+      startMonth: 0,
+      months: 3,
+      current: true
+    }, {
+      crop: alternative[0],
+      family: 'other',
+      startMonth: 4,
+      months: 5
+    }, {
+      crop: alternative[1],
+      family: 'legume',
+      startMonth: 11,
+      months: 5
+    }, {
+      crop: alternative[2],
+      family: 'cover',
+      startMonth: 18,
+      months: 5
+    }],
+    changeAt: humid ? '22 de marzo de 2027' : '1 de marzo de 2027',
+    reasons: [{
+      origin: 'Dato NASA',
+      text: 'La temperatura de la zona permite completar el ciclo.',
+      axis: 'risk'
+    }, {
+      origin: 'Regla de rotación',
+      text: 'Alternar familias reduce la presión de enfermedades.',
+      axis: 'soil'
+    }, {
+      origin: 'Tu parcela',
+      text: 'Diversificas las cosechas y las opciones de venta.',
+      axis: 'income'
+    }],
+    risks: ['El ingreso usa categorías del catálogo, no precios de mercado.', 'Puede requerir ajustar la maquinaria de cosecha.']
+  }];
+}
