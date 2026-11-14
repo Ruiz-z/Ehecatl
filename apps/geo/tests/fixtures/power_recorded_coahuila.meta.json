@@ -1,0 +1,10 @@
+{
+  "url": "https://power.larc.nasa.gov/api/temporal/monthly/point?parameters=T2M%2CT2M_MAX%2CT2M_MIN%2CPRECTOTCORR%2CRH2M%2CALLSKY_SFC_SW_DWN%2CGWETTOP%2CGWETROOT&community=AG&latitude=25.4&longitude=-101&start=2024&end=2024&format=JSON",
+  "recordedAt": "2026-11-14T19:08:21.861765+00:00",
+  "origin": "live",
+  "point": {
+    "lat": 25.4,
+    "lon": -101
+  },
+  "description": "Respuesta real; exclusiva de tests, no precarga demo"
+}
