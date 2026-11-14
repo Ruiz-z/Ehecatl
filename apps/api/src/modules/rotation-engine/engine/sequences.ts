@@ -28,6 +28,7 @@ export function recommend(input: { currentCropId: string; history: History[]; pr
   if (windows.length < 2) warnings.push('Menos de dos ventanas en 24 meses: secuencia reducida; considerar cobertura o barbecho');
   const confidence = missing ? 'low' as const : !history.length || warnings.length ? 'medium' as const : 'high' as const;
   const failures = new Set<string>();
+  const schedules = new Map<string, ReturnType<typeof schedule>>();
   let beam: Candidate[] = [{ id: '', score: 0, sequence: [], components: { water: 0, soil: 0, income: 0, risk: 0 }, explanation: [], risks: [] }];
   for (let index = 0; index < windows.length; index++) {
     const window = windows[index];
@@ -40,7 +41,9 @@ export function recommend(input: { currentCropId: string; history: History[]; pr
       const previous = previousStep ? findCrop(previousStep.cropId)! : current;
       let expanded = false;
       for (const crop of catalog) {
-        const plan = schedule(crop, window, indicators, start);
+        const key = `${crop.id}:${window.id}:${start}`;
+        let plan = schedules.get(key);
+        if (!plan) { plan = schedule(crop, window, indicators, start); schedules.set(key, plan); }
         if (!plan.scheduled) { failures.add(`${crop.name}: ${plan.reasons.join('; ')}`); continue; }
         const { result, effective, start: planted, end, occupiedWindowIds } = plan.scheduled;
         const tr = transition(previous, crop, [...history, ...partial.sequence.map(s => ({ cropId: s.cropId, plantedAt: s.start, harvestedAt: s.end }))]);
