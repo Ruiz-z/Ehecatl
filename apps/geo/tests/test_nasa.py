@@ -33,6 +33,14 @@ def test_power_fill_annual_and_leap_month():
     assert all(x["source"] and x["resolution"] for x in values)
 
 
+def test_recorded_power_response():
+    payload = json.loads((Path(__file__).parent / "fixtures/power_recorded_coahuila.json").read_text(encoding="utf8"))
+    rows = normalize_power(payload)
+    assert len(rows) == 8 * 12
+    assert all(row["value"] is None or row["value"] != -999 for row in rows)
+    assert next(row for row in rows if row["variable"] == "PRECTOTCORR")["unit"] == "mm/month"
+
+
 def test_modis_scale_fill_quality_and_monthly_average():
     data = json.loads((Path(__file__).parent / "fixtures/modis.json").read_text())
     values = normalize_modis(data)
