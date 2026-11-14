@@ -3,6 +3,7 @@ export type DataState = 'ready' | 'empty' | 'error' | 'no-windows';
 export interface Parcel {
   id: string;
   ownerId: string;
+  zoneId?: string;
   name: string;
   place: string;
   latitude: number;
@@ -15,6 +16,8 @@ export interface Parcel {
 }
 export interface DemoUser {
   id: string;
+  email: string;
+  role: 'farmer' | 'admin';
   name: string;
   initials: string;
   region: string;

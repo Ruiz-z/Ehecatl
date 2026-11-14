@@ -1,9 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname, useSearchParams } from 'next/navigation';
-import { Suspense } from 'react';
-import { Map, Sprout, ChartNoAxesCombined, SlidersHorizontal, LogOut, ArrowRight } from 'lucide-react';
+import { usePathname, useSearchParams, useRouter } from 'next/navigation';
+import { Suspense, useEffect } from 'react';
+import { Map, Sprout, ChartNoAxesCombined, SlidersHorizontal, LogOut } from 'lucide-react';
 import { useDemo } from '@/features/identity/demo-provider';
 import { Brand, DemoChip, LoadingState } from './ui';
 export function AppShell({
@@ -22,7 +22,8 @@ function Shell({
     user,
     ready,
     logout,
-    parcels
+    parcels,
+    error
   } = useDemo();
   const path = usePathname();
   const search = useSearchParams();
@@ -46,13 +47,10 @@ function Shell({
     icon: SlidersHorizontal,
     name: 'Prioridades'
   }];
-  if (!ready) return <LoadingState />;
-  if (!user) return <main id="main" className="session-empty">
-    <Brand />
-    <h1>Tu campo, en perspectiva.</h1>
-    <p>Elige un perfil de ejemplo para explorar sus parcelas.</p>
-    <Link className="button primary" href="/login">Elegir perfil<ArrowRight size={18} /></Link>
-  </main>;
+  const router = useRouter();
+  useEffect(() => { if (ready && !user) router.replace('/login'); }, [ready, user, router]);
+  if (!ready || !user) return <LoadingState />;
+  if (error) return <main className="session-empty"><h1>No pudimos cargar tus parcelas</h1><p role="alert">{error}</p><button className="button" onClick={logout}>Cerrar sesión</button></main>;
   return <div className="app-shell">
     <a className="skip-link" href="#main">Saltar al contenido</a>
     <aside className="rail">

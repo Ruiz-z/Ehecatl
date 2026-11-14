@@ -1,6 +1,8 @@
 import type { DemoUser } from '@/features/parcels/types';
 export const demoUsers: DemoUser[] = [{
   id: 'ana',
+  email: 'ana@demo.ehecatl.test',
+  role: 'farmer',
   name: 'Ana Martínez',
   initials: 'AM',
   region: 'Coahuila, México',
@@ -13,6 +15,8 @@ export const demoUsers: DemoUser[] = [{
   }
 }, {
   id: 'james',
+  email: 'james@demo.ehecatl.test',
+  role: 'farmer',
   name: 'James Wilson',
   initials: 'JW',
   region: 'Nevada, Estados Unidos',
@@ -25,6 +29,8 @@ export const demoUsers: DemoUser[] = [{
   }
 }, {
   id: 'lucia',
+  email: 'lucia@demo.ehecatl.test',
+  role: 'farmer',
   name: 'Lucía Fernández',
   initials: 'LF',
   region: 'Entre Ríos, Argentina',
@@ -36,6 +42,7 @@ export const demoUsers: DemoUser[] = [{
     risk: 10
   }
 }];
+demoUsers.push({ id: 'admin', email: 'admin@demo.ehecatl.test', role: 'admin', name: 'Administración', initials: 'AD', region: 'Todas las parcelas', description: 'Soporte de la demo', priorities: { water: 25, soil: 25, income: 25, risk: 25 } });
 export const demoClimateByOwner: Record<string, 'dry' | 'humid'> = {
   ana: 'dry',
   james: 'dry',

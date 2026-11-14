@@ -116,3 +116,14 @@ test('los empates se resuelven por seguridad y luego por nombre', () => {
     risk: 25
   }).map(item => item.name), ['Actual', 'Cebada', 'Sorgo']);
 });
+
+test('la actual permanece presente con puntaje y deltas bajo cada prioridad', () => {
+ for (const weights of [{water:100,soil:0,income:0,risk:0},{water:0,soil:100,income:0,risk:0},{water:0,soil:0,income:100,risk:0},{water:0,soil:0,income:0,risk:100},{water:0,soil:0,income:0,risk:0}]) {
+  const ranked = rankStrategies(candidates, weights);
+  const baseline = ranked.filter(s => s.baseline);
+  assert.equal(baseline.length, 1);
+  assert.equal(ranked.length, 3);
+  for (const item of ranked) assert.equal(item.delta, item.score - baseline[0].score);
+  assert.deepEqual(rankStrategies(candidates, weights), ranked);
+ }
+});

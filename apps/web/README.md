@@ -18,7 +18,7 @@ El servidor usa el puerto 3000. Si está ocupado: `pnpm --filter web dev --port 
 
 ## Recorrido de la demo
 
-- `/login`: selección de Ana (Coahuila árido), James (Nevada con agua restringida) o Lucía (Entre Ríos húmedo).
+- `/login`: email y contraseña, con atajos a tres agricultores y un administrador de ejemplo.
 - `/parcelas`: búsqueda, lista y pins, capas satélite/calles/NDVI, zoom y ubicación del dispositivo.
 - `/parcelas/nueva`: ubicación por mapa o coordenadas globales; nombre, cultivo y riego. Guardado en el navegador.
 - `/parcelas/el-mezquite`: estado y observaciones explicadas; desplegables con variable, fuente, fecha y origen.
@@ -38,20 +38,50 @@ El panel móvil se puede arrastrar desde el asa o expandir y reducir con su bot�
 | Cualquiera | Buscar un nombre inexistente | Lista vacía con acción para limpiar búsqueda |
 | Cualquiera | Abrir una parcela de otro perfil | Parcela no disponible |
 
-## Contratos y límites
+## Autenticación y API
 
-Los contratos están en `features/parcels/types.ts`, `features/nasa/fixtures/observations.ts` y `features/rotation/types.ts`. Los datos están tipados en carpetas `fixtures/`. `rotation/ranking.ts` es puro: normaliza pesos, calcula puntajes 0–100 y deltas frente a la base; desempata por seguridad y nombre. Tiene tres pruebas para cambios de prioridad, pesos en cero y empates.
+`NEXT_PUBLIC_USE_MOCKS=true` por defecto usa fixtures marcados como ejemplo. `false` selecciona fetch contra `NEXT_PUBLIC_API_URL` (por defecto `http://localhost:3001`). Copia `.env.example` a `.env.local`; las variables públicas se fijan al construir Next.js.
 
-Esta entrega no llama a la API ni a NASA y no implementa autenticación real. El selector de perfiles es una sesión local de demostración. Se filtran las parcelas por perfil para mostrar el recorrido; esa separación no sustituye autorización del servidor. Los datos y secuencias son ilustrativos, se identifican en pantalla y no son recomendaciones agronómicas validadas. El clima de cada escenario pertenece al fixture del perfil; no se deduce del país ni de la latitud. Un punto nuevo puede tener cualquier lat/lon y cargar el escenario del perfil.
+`src/shared/api/types.ts` expone `ApiClient` y `AuthClient`. La sesión se guarda detrás de `AuthClient` en localStorage, con expiración; no guarda contraseña. Esto permite reemplazar el almacenamiento por una cookie mediante un adaptador. La protección cliente evita mostrar rutas privadas sin sesión; la autorización real y la validación del JWT corresponden al servidor.
 
-La base satelital es Esri World Imagery y la capa de calles es OpenStreetMap, ambas con atribución y conexión a internet. La miniatura satelital muestra el punto real, no un límite de parcela. La capa NDVI muestra círculos ilustrativos, no un raster NASA ni mediciones de un polígono. La UI y la fuente se sirven localmente; los mapas requieren red.
+Las cuatro cuentas locales usan `ana@demo.ehecatl.test`, `james@demo.ehecatl.test`, `lucia@demo.ehecatl.test` y `admin@demo.ehecatl.test`, con contraseña pública `Ehecatl-demo-2026`. Los botones solo rellenan el formulario. **No hay seed de identidad en esta rama**: estas credenciales pertenecen a fixtures web y deben alinearse con B18 antes de conectar. El admin local ve todas las parcelas. No se crean ni modifican usuarios del backend.
 
-## Revisión visual
+| Método del cliente | Endpoint definido | Situación |
+|---|---|---|
+| `login` | `POST /auth/login` (001 RF-1) | Envía `{email,password}`. Adaptador provisional espera `{accessToken,user,expiresAt}`; `expiresAt` en milisegundos Unix. `user` usa el modelo de vista tipado. Falta acordar el JSON con B1. |
+| `listParcels` | No definido por las specs | Falla explícitamente en modo remoto; no inventa ruta. |
+| `createParcel` | No definido por las specs | Falla explícitamente en modo remoto. |
+| `getIndicators` | `GET /indicators` pertenece a geo (B10) | No existe contrato del proxy web→API, parámetros ni JSON acordados. Falla explícitamente; no accede directamente a geo. |
+| `getRecommendations` | `GET /zones/:id/recommendations` (B17) | Requiere `parcel.zoneId`, nunca sustituye el id de parcela. Respuesta provisional `RankedStrategy[]`; falta B1. Usa prioridades previamente guardadas. |
+| `savePriorities` | `PUT /me/priorities` (B4) | Envía pesos `{water,soil,income,risk}`; espera los pesos normalizados. JSON por confirmar con B1. |
 
-Capturas locales en `screenshots/` (ignoradas por Git): `login`, `parcelas`, `nueva`, `estado`, `datos`, `sembrar`, `sin-datos`, `error` y `sin-ventanas`, cada una a 1440 y 390 px. Se agregan vistas móviles expandidas, prioridades con ingreso dominante, skeleton y variantes de tablet.
+`docs/contracts.md` aún no existe. Los tipos exportados son modelos provisionales de la web basados en 005/006, **no un contrato aprobado del backend**. No se inventan endpoints de logout, registro o recuperación. Los errores HTTP se muestran sin revelar cuál credencial falló. No hay fallback silencioso a fixtures en modo remoto. Actualmente el modo remoto queda detenido al listar parcelas por la falta de contrato; indicadores y ranking de las pantallas demo siguen usando fixtures. La capa tipada deja esos puntos explícitos para la integración.
 
-Revisión con `general-design-review`, accesibilidad y craft: se aumentaron las explicaciones y leyendas, se compactó la cabecera de comparación, se corrigió la salida de sesión móvil, se ocultó la serie faltante al fallar la fuente y se agregó alternativa de botón al arrastre. La comparación se amplía sobre el mapa para mostrar las tres estrategias lado a lado en escritorio; en móvil se apilan. Las tramas del cultivo actual distinguen el ciclo vigente sin depender del color.
+La base satelital usa Esri World Imagery y las calles OpenStreetMap, con atribución y conexión a internet. NDVI y recomendaciones demo son ilustrativos, identificados en pantalla. Los puntos nuevos aceptan cualquier latitud y longitud.
 
-Verificado en Chromium con ChromeDriver: login, creación y persistencia local, perfiles separados, ranking reactivo, estado vacío, carga, error parcial, confianza, ausencia de ventanas, foco visible de teclado y ausencia de desbordamiento a 320/390/768/1024/1440 px. No equivale a una certificación WCAG ni a pruebas con lector de pantalla, dispositivo táctil físico o API integrada.
+## Verificación visual
 
-El gate automático de `taste-skill` no se considera aprobado: emitió `GATE: FAIL 20` en la raíz del monorepo, incluyendo reglas comerciales (hero, secciones de pantalla completa, `.wrap`, imágenes y animación de marketing) incompatibles con el login centrado de `docs/design.md`. Se corrigieron el contraste del ámbar sobre su fondo suave (tinta `--earth-text`, conservando los tokens oficiales), la visibilidad del radio nativo y el indicador de desarrollo de Next. El gate reutilizó aquel resultado por caché; el nuevo pase desde `apps/web` fue interrumpido por el entorno. La revisión directa de Chromium sí se completó. No se agregaron excepciones para hacer pasar el comprobador.
+Capturas locales nuevas en `screenshots/` (ignoradas por Git) a 1440 y 390 px: login, parcelas, nueva, estado, datos, sembrar, sin-datos, error y sin-ventanas, incluidas vistas móviles expandidas. La revisión no equivale a certificación WCAG o prueba con lector de pantalla.
+
+## Resultado de esta segunda pasada
+
+- `pnpm lint`: pasa en los tres paquetes.
+- `pnpm test`: pasa; 6 tests web (validación, credenciales de las cuatro cuentas, ranking y permanencia de la estrategia actual), 1 API y 1 geo.
+- `pnpm --filter web build`: pasa.
+- Chromium a 1440/390: capturas revisadas, sin desbordamiento horizontal ni errores graves de consola. Probados redirección privada, errores de formulario y credenciales, atajos sin entrada automática, login, parcelas propias, cierre de sesión y admin.
+- El entorno usa Node 26 y avisa que el proyecto requiere Node 24. Se usó el ejecutable pnpm ya disponible en `/tmp/ehecatl-bin` y caché uv en `/tmp` por restricciones de escritura; no se instalaron dependencias.
+
+Contraste y accesibilidad: se conservan los tokens, se amplían controles a 44 px, se añaden etiquetas persistentes y errores anunciados, y se conserva la alternativa de tabla para gráficas y botón para arrastrar el panel. No se verificaron lectores de pantalla ni dispositivos táctiles físicos.
+
+### Comprobación contra identity 001
+
+| RF | Evidencia / límite |
+|---|---|
+| RF-1 | Formulario email/password y adaptador POST implementados; prueba real de JWT pendiente del backend. |
+| RF-2 | Error genérico para credenciales incorrectas, probado en fixtures y navegador. Adaptador trata HTTP 401. |
+| RF-3 | No se persisten contraseñas de usuario en web; bcrypt corresponde al backend, no verificado. |
+| RF-4 | Interfaz oculta parcelas ajenas, probado con Ana/James. El 403 real y ownership del servidor siguen pendientes. |
+| RF-5 | Admin fixture ve todas las parcelas, probado en navegador. Permiso real pendiente del servidor. |
+| RF-6 | Cuatro cuentas fixture disponibles. No hay seed B18 en esta rama, por lo que este RF no está cumplido de extremo a extremo. |
+
+No se modificaron el motor del backend ni la ingesta NASA. Los tests de ranking verifican solamente la comparación ilustrativa de la web; no certifican el cumplimiento completo de spec 005. F1–F5 no se marcan terminadas en `tasks/todo.md` porque requieren integración real.

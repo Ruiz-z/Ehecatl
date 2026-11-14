@@ -79,7 +79,7 @@ export function FieldCharts({
             }} accessibilityLayer><CartesianGrid vertical={false} stroke="var(--border)" strokeDasharray="2 4" /><XAxis dataKey="month" tickLine={false} axisLine={false} tick={{
                 fill: 'var(--muted-foreground)',
                 fontSize: 12
-              }} minTickGap={18} /><YAxis tickLine={false} axisLine={false} tick={{
+              }} ticks={data.filter((_, index) => index % Math.ceil(data.length / 6) === 0).map(row => row.month)} tickFormatter={value => String(value).slice(0, 3)} interval={0} minTickGap={8} /><YAxis tickLine={false} axisLine={false} tick={{
                 fill: 'var(--muted-foreground)',
                 fontSize: 12
               }} width={58} domain={[0, 'auto']} /><Tooltip contentStyle={{

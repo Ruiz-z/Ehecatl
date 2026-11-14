@@ -1,43 +1,34 @@
 'use client';
-
-import { ArrowRight, MapPin } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { useState } from 'react';
 import { demoUsers } from './fixtures/users';
 import { useDemo } from './demo-provider';
+import { validateLogin } from './validation';
+import { demoPassword, useMocks } from '@/shared/api/client';
 import { Brand, DemoChip } from '@/shared/components/ui';
 export function LoginScreen() {
-  const [selected, setSelected] = useState(demoUsers[0].id);
-  const {
-    login
-  } = useDemo();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [pending, setPending] = useState(false);
+  const { login } = useDemo();
   return <main id="main" className="login-page">
-    <div className="login-top">
-      <Brand />
-      <span>El siguiente ciclo empieza con una buena decisión.</span>
-    </div>
+    <div className="login-top"><Brand /><span>El siguiente ciclo empieza con una buena decisión.</span></div>
     <section className="login-card">
-      <DemoChip />
+      {useMocks && <DemoChip />}
       <h1>Conoce tu tierra.<br />Decide qué sigue.</h1>
-      <p>El clima, tu parcela y tus prioridades, en un mismo lugar.</p>
-      <form onSubmit={event => {
-        event.preventDefault();
-        login(selected);
+      <p>Inicia sesión para ver tus parcelas.</p>
+      <form noValidate onSubmit={async event => {
+        event.preventDefault(); const invalid = validateLogin({ email, password }); setError(invalid ?? ''); if (invalid) return;
+        setPending(true); try { await login({ email, password }); } catch (e) { setError(e instanceof Error ? e.message : 'No pudimos iniciar sesión. Intenta de nuevo.'); } finally { setPending(false); }
       }}>
-        <fieldset>
-          <legend>Explora con un perfil de campo</legend>
-          {demoUsers.map(user => <label key={user.id} className={`profile-option ${selected === user.id ? 'selected' : ''}`}>
-            <input type="radio" name="profile" value={user.id} checked={selected === user.id} onChange={() => setSelected(user.id)} />
-            <span className="avatar">{user.initials}</span>
-            <span className="profile-copy"><strong>{user.name}</strong><span><MapPin size={12} />{user.region}</span><small>{user.description}</small></span>
-          </label>)}
-        </fieldset>
-        <button type="submit" className="button primary login-submit">Entrar a mis parcelas<ArrowRight size={18} /></button>
+        <label className="login-field">Correo electrónico<input name="email" type="email" autoComplete="username" required value={email} aria-describedby={error ? 'login-error' : undefined} onChange={e => setEmail(e.target.value)} /></label>
+        <label className="login-field">Contraseña<input name="password" type="password" autoComplete="current-password" required value={password} aria-describedby={error ? 'login-error' : undefined} onChange={e => setPassword(e.target.value)} /></label>
+        {error && <p id="login-error" className="error-text" role="alert">{error}</p>}
+        <button disabled={pending} className="button primary login-submit" type="submit">{pending ? 'Entrando…' : 'Entrar a mis parcelas'}<ArrowRight size={18} /></button>
       </form>
-      <p className="login-note">Demo sin contraseña. Puedes cambiar de perfil al salir.</p>
+      {useMocks && <fieldset className="demo-shortcuts"><legend>Usar cuenta demo</legend>{demoUsers.map(user => <button key={user.id} type="button" className="demo-account" onClick={() => { setEmail(user.email); setPassword(demoPassword); setError(''); }}><strong>{user.name}</strong><span>{user.region}</span></button>)}<p className="login-note">Los atajos rellenan el formulario. Contraseña pública de demo: {demoPassword}</p></fieldset>}
     </section>
-    <footer className="login-footer">
-      <span>NASA Space Apps 2026 · Field Shift</span>
-      <span>Observa hoy. Siembra con perspectiva.</span>
-    </footer>
+    <footer className="login-footer"><span>NASA Space Apps 2026 · Field Shift</span><span>Observa hoy. Siembra con perspectiva.</span></footer>
   </main>;
 }

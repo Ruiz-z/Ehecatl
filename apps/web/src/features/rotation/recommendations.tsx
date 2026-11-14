@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { Droplets, Sprout, TrendingUp, ShieldCheck, CalendarDays, ChevronDown, Info, Check, RotateCcw } from 'lucide-react';
 import type { Parcel, Priorities } from '@/features/parcels/types';
 import { useDemo } from '@/features/identity/demo-provider';
+import { apiClient } from '@/shared/api/client';
 import { Notice } from '@/shared/components/ui';
 import { strategiesFor } from './fixtures/strategies';
 import { axes, normalizedWeights, rankStrategies } from './ranking';
@@ -14,7 +15,7 @@ const icons = {
   income: TrendingUp,
   risk: ShieldCheck
 };
-const months = ['N', 'D', 'E', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O'];
+const months = ['Nov', 'Dic', 'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct'];
 const validation = 'Esta sugerencia se basa en datos satelitales de 10 años y reglas FAO/SARE; valida disponibilidad de semilla, maquinaria y mercado con tu agrónomo local';
 function SequenceCard({
   strategy,
@@ -47,7 +48,7 @@ function SequenceCard({
         <span>2028</span>
       </div>
       <div className="timeline-months">
-        {[...months, ...months].map((month, i) => <span key={i}>{month}</span>)}
+        {[...months, ...months].map((month, i) => i % 2 === 0 ? <span key={i} style={{ gridColumn: `${i + 1} / span 2` }}>{month}</span> : null)}
       </div>
       <div className="timeline-tracks">
         {strategy.windows.map((window, i) => <div key={i} className={`crop-window family-${window.family} ${window.current ? 'current-crop' : ''}`} style={{
@@ -117,6 +118,7 @@ export function Recommendations({
     risk: 25
   };
   const [weights, setWeights] = useState<Priorities>(defaults);
+  const [saveError, setSaveError] = useState('');
   const normalized = normalizedWeights(weights);
   const strategies = useMemo(() => strategiesFor(parcel), [parcel]);
   const ranked = rankStrategies(strategies, weights);
@@ -154,6 +156,7 @@ export function Recommendations({
         </div>
         <button className="text-button" onClick={() => setWeights(defaults)}><RotateCcw size={15} />Restablecer</button>
       </div>
+      <button className="button" onClick={async () => { try { await apiClient.savePriorities(weights); setSaveError('Prioridades guardadas.'); } catch (e) { setSaveError(e instanceof Error ? e.message : 'No se pudo guardar.'); } }}>Guardar prioridades</button><p role="status">{saveError}</p>
       <div className="sliders">
         {axes.map(({
           key,

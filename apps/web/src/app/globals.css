@@ -537,3 +537,36 @@ caption { text-align: left; margin: 8px 0; }
 .profile-option input { opacity: 1; appearance: none; position: absolute; width: 18px; height: 18px; inset: auto 12px auto auto; top: 50%; transform: translateY(-50%); border: 1px solid var(--earth); border-radius: 50%; background: var(--card); }
 .profile-option input:checked { border: 5px solid var(--primary); }
 .profile-copy { padding-right: 20px; }
+
+/* Segunda revisión: controles de campo y lectura de fechas. */
+.login-page { padding-top: 100px; padding-bottom: 100px; }
+.login-field { display: grid; gap: 8px; margin-top: 20px; font-size: 14px; }
+.login-field input { min-height: 44px; border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; background: var(--card); color: var(--foreground); font-size: 16px; }
+.demo-shortcuts { border: 0; padding: 0; margin-top: 24px; }
+.demo-shortcuts legend { font-size: 14px; margin-bottom: 12px; }
+.demo-account { width: 100%; display: flex; flex-wrap: wrap; gap: 4px 12px; justify-content: space-between; align-items: center; min-height: 44px; padding: 10px 0; border: 0; border-bottom: 1px solid var(--border); background: transparent; color: var(--primary); text-align: left; }
+.demo-account span { font-size: 12px; color: var(--muted-foreground); }
+.demo-account:hover { background: var(--surface); }
+.button:disabled { opacity: .65; cursor: wait; }
+.timeline-years { display: flex; justify-content: space-between; font-size: 12px; font-weight: 600; padding-bottom: 8px; border-bottom: 1px solid var(--border); margin-bottom: 10px; }
+.timeline-months { font-size: 10px; margin-bottom: 10px; }
+.timeline-note { font-size: 11px; line-height: 1.5; }
+.back-link, .text-button, summary, .range-label select, .priority-slider input, .sheet-handle { min-height: 44px; }
+summary { align-content: center; }
+.sheet-handle { height: 44px; }
+.sheet-handle::after { top: 20px; }
+.detail-back, .wide-panel .detail-back { height: 44px; }
+.detail-back .icon-button, .wide-panel .detail-back .icon-button, .wide-panel .detail-back .back-link { min-height: 44px; height: 44px; }
+@media (max-width: 767px) {
+  .mobile-logout { width: 44px; }
+  .new-panel .back-link { min-height: 44px; }
+  .leaflet-control-zoom a { width: 44px !important; height: 44px !important; line-height: 44px !important; }
+  .location-control button { width: 44px; height: 44px; }
+  .location-control { top: 172px; }
+  .field-visuals { grid-template-columns: 1fr; }
+  .detail-title { flex-wrap: wrap; gap: 8px; }
+  .detail-meta { flex-wrap: wrap; }
+  .timeline-months { font-size: 11px; }
+  .login-footer { position: static; margin-top: 24px; }
+  .login-page { flex-wrap: wrap; padding-bottom: 24px; }
+}

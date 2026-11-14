@@ -45,11 +45,11 @@ export function NewParcel() {
       <Link className="back-link" href="/parcelas"><ArrowLeft size={16} />Mis parcelas</Link>
       <h1>Agrega tu parcela</h1>
       <p className="muted">Pon un punto en el mapa. Nosotros vemos el contexto.</p>
-      <form onSubmit={event => {
+      <form onSubmit={async event => {
         event.preventDefault();
         if (!locate() || !user) return;
         const id = crypto.randomUUID();
-        addParcel({
+        try { await addParcel({
           id,
           ownerId: user.id,
           name: name.trim(),
@@ -62,7 +62,7 @@ export function NewParcel() {
           risk: 'moderate',
           dataState: 'empty'
         });
-        router.push(`/parcelas/${id}`);
+        router.push(`/parcelas/${id}`); } catch (e) { setError(e instanceof Error ? e.message : 'No se pudo guardar la parcela.'); }
       }}>
         <div className="form-section">
           <h2><MapPin size={18} />Ubicación</h2>
