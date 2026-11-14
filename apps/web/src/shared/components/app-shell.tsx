@@ -1,5 +1,6 @@
 'use client';
 
+import { parcelUrl, resolveParcelTab } from '@/features/parcels/parcel-tabs';
 import Link from 'next/link';
 import { usePathname, useSearchParams, useRouter } from 'next/navigation';
 import { Suspense, useEffect } from 'react';
@@ -27,23 +28,24 @@ function Shell({
   } = useDemo();
   const path = usePathname();
   const search = useSearchParams();
-  const activeIndex = search.get('tab') === 'datos' ? 2 : search.get('tab') === 'sembrar' ? 1 : 0;
+  const activeIndex = path.startsWith('/parcelas/') && path !== '/parcelas/nueva' ? (resolveParcelTab(search.get('tab')) === 'datos' ? 2 : resolveParcelTab(search.get('tab')) === 'sembrar' ? 1 : 0) : 0;
   const parcelId = path.split('/')[2];
-  const base = `/parcelas/${parcelId && parcelId !== 'nueva' ? parcelId : parcels[0]?.id ?? ''}`;
+  const targetId = parcelId && parcelId !== 'nueva' ? parcelId : parcels[0]?.id;
+  const decisionUrl = targetId ? parcelUrl(targetId) : '/parcelas';
   const nav = [{
     href: '/parcelas',
     icon: Map,
     name: 'Parcelas'
   }, {
-    href: `${base}?tab=sembrar`,
+    href: decisionUrl,
     icon: Sprout,
     name: 'Qué sembrar'
   }, {
-    href: `${base}?tab=datos`,
+    href: targetId ? parcelUrl(targetId, 'datos') : '/parcelas',
     icon: ChartNoAxesCombined,
     name: 'Datos NASA'
   }, {
-    href: `${base}?tab=sembrar#prioridades`,
+    href: `${decisionUrl}#prioridades`,
     icon: SlidersHorizontal,
     name: 'Prioridades'
   }];

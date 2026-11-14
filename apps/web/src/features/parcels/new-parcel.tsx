@@ -1,4 +1,5 @@
 'use client';
+import { parcelUrl } from '@/features/parcels/parcel-tabs';
 
 import { useState } from 'react';
 import { SheetHandle } from '@/shared/components/sheet-handle';
@@ -62,7 +63,7 @@ export function NewParcel() {
           risk: 'moderate',
           dataState: 'empty'
         });
-        router.push(`/parcelas/${id}`); } catch (e) { setError(e instanceof Error ? e.message : 'No se pudo guardar la parcela.'); }
+        router.push(parcelUrl(id)); } catch (e) { setError(e instanceof Error ? e.message : 'No se pudo guardar la parcela.'); }
       }}>
         <div className="form-section">
           <h2><MapPin size={18} />Ubicación</h2>

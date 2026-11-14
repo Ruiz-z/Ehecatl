@@ -1,4 +1,5 @@
 'use client';
+import { parcelUrl } from '@/features/parcels/parcel-tabs';
 
 import { useState } from 'react';
 import { SheetHandle } from '@/shared/components/sheet-handle';
@@ -18,7 +19,7 @@ export function ParcelList() {
   const [expanded, setExpanded] = useState(false);
   const filtered = parcels.filter(parcel => `${parcel.name} ${parcel.place} ${parcel.crop}`.toLowerCase().includes(query.toLowerCase()));
   return <main id="main" className="map-workspace">
-    <FieldMap parcels={parcels} onSelect={id => router.push(`/parcelas/${id}`)} />
+    <FieldMap parcels={parcels} onSelect={id => router.push(parcelUrl(id))} />
     <section className={`side-panel list-panel ${collapsed ? 'collapsed' : ''} ${expanded ? 'sheet-expanded' : ''}`}>
       <SheetHandle expanded={expanded} onChange={setExpanded} />
       <div className="panel-heading">
@@ -39,7 +40,7 @@ export function ParcelList() {
 
       </div>
       <div className="parcel-list">
-        {filtered.map(parcel => <Link key={parcel.id} href={`/parcelas/${parcel.id}`} className="parcel-row"><div className="parcel-row-top">
+        {filtered.map(parcel => <Link key={parcel.id} href={parcelUrl(parcel.id)} className="parcel-row"><div className="parcel-row-top">
             <span className="field-symbol"><MapPin size={23} strokeWidth={1.5} /></span>
             <ArrowUpRight size={18} />
           </div><h2>{parcel.name}</h2><p>{parcel.place}</p><div className="parcel-meta">

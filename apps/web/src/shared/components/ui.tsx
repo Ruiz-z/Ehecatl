@@ -1,4 +1,4 @@
-import { FlaskConical, Sprout, AlertTriangle } from 'lucide-react';
+import { FlaskConical, Sprout } from 'lucide-react';
 import Link from 'next/link';
 export function Brand({
   compact = false
@@ -32,17 +32,16 @@ export function LoadingState() {
     <span>Cargando tu parcela…</span>
   </div>;
 }
-export function Notice({
-  children,
-  danger = false
-}: {
+export function Notice({ children, variant = 'warning', label, title, error = false }: {
   children: React.ReactNode;
-  danger?: boolean;
+  variant?: 'risk' | 'warning' | 'info';
+  label: string;
+  title: string;
+  error?: boolean;
 }) {
-  return <div className={`notice ${danger ? 'danger' : ''}`}>
-    <AlertTriangle size={20} />
-    <div>
-      {children}
-    </div>
+  return <div className={`notice notice-${variant}`} role={error ? 'alert' : undefined}>
+    <span className="notice-label">{label}</span>
+    <h3>{title}</h3>
+    <div className="notice-body">{children}</div>
   </div>;
 }

@@ -5,6 +5,9 @@ import { Droplets, Sprout, TrendingUp, ShieldCheck, CalendarDays, ChevronDown, C
 import type { Parcel, Priorities } from '@/features/parcels/types';
 import { useDemo } from '@/features/identity/demo-provider';
 import { apiClient } from '@/shared/api/client';
+import Link from 'next/link';
+import { parcelUrl } from '@/features/parcels/parcel-tabs';
+import { observationsFor } from '@/features/nasa/fixtures/observations';
 import { Notice } from '@/shared/components/ui';
 import { strategiesFor } from './fixtures/strategies';
 import { axes, normalizedWeights, rankStrategies } from './ranking';
@@ -99,7 +102,7 @@ function SequenceCard({
       <span className="chip neutral-chip"><ShieldCheck size={13} />Confianza {strategy.confidence.toLowerCase()}</span>
       <p>{strategy.confidenceReason}</p>
     </div>
-    <p className="validation-note">{validation}</p>
+    <Notice variant="info" label="INFO · VALIDACIÓN LOCAL" title="Valida antes de sembrar"><p>{validation}</p></Notice>
   </article>;
 }
 export function Recommendations({
@@ -125,7 +128,7 @@ export function Recommendations({
     <CalendarDays size={32} />
     <h2>No hay una ventana segura para sembrar</h2>
     <p>En este ejemplo, el agua disponible no alcanza para completar un ciclo en los próximos 24 meses.</p>
-    <Notice>Conserva la cobertura del suelo y revisa la disponibilidad de agua con tu agrónomo antes de planear una siembra.</Notice>
+    <Notice variant="risk" label="RIESGO · AGUA" title="Sin ventana segura"><p><strong>0 ventanas viables en los próximos 24 meses.</strong> Conserva la cobertura del suelo y revisa la disponibilidad de agua con tu agrónomo antes de planear una siembra.</p></Notice>
     <p className="muted">No mostramos puntajes de cultivos que no son viables.</p>
   </div>;
   return <div className="recommendations">
@@ -136,7 +139,10 @@ export function Recommendations({
       </div>
       <span className="chip neutral-chip">Nov 2026 — Oct 2028</span>
     </div>
-    {parcel.risk === 'high' && <Notice><strong>Agua insuficiente para el cultivo actual.</strong><p>{parcel.crop} requiere más agua de la disponible en este ejemplo. Planea el siguiente ciclo con una opción más tolerante.</p></Notice>}
+    {parcel.risk === 'high' && <Notice variant="risk" label="RIESGO · AGUA" title="Agua insuficiente para el cultivo actual">
+      <p><strong>{observationsFor(parcel)[0].value} de lluvia disponible.</strong> {observationsFor(parcel)[0].consequence} Datos de ejemplo.</p>
+      <Link className="text-button" href={parcelUrl(parcel.id, 'datos')}>Ver datos de lluvia →</Link>
+    </Notice>}
     {ranked[0].baseline && <div className="baseline-wins" role="status"><Check size={18} />Con tus prioridades, mantener lo actual es la mejor opción. Su potencial de ingreso compensa el menor aporte al suelo.</div>}
     <div className="inputs-used">
       <span><i />Datos NASA <small>clima de 10 años</small></span>

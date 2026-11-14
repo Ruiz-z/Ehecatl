@@ -1,4 +1,5 @@
 'use client';
+import { parcelUrl } from '@/features/parcels/parcel-tabs';
 
 import { demoClimateByOwner } from '@/features/identity/fixtures/users';
 import { Droplets, Thermometer, Sprout, ArrowUpRight, TriangleAlert, CheckCircle2, Satellite } from 'lucide-react';
@@ -83,7 +84,7 @@ export function FieldStatus({
       </article>;
       })}
     </div>
-    <Link className="next-decision" href={`/parcelas/${parcel.id}?tab=sembrar`}><div>
+    <Link className="next-decision" href={parcelUrl(parcel.id)}><div>
         <Sprout size={22} />
         <span><strong>Prepara el siguiente ciclo</strong><small>Compara qué sembrar y cuándo cambiar.</small></span>
       </div><ArrowUpRight size={22} /></Link>
