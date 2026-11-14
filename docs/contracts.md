@@ -47,6 +47,15 @@ terminados devuelve `monthly: []`; esa exclusión intencional no implica un
 fallo de cobertura de POWER si la consulta histórica fue satisfactoria.
 No se calcula una ventana si falta temperatura o agua suficiente.
 
+Respaldo MODIS: si ORNL falla o pierde lotes, se consulta MOD13Q1/Terra en
+Microsoft Planetary Computer sin cuenta ni API key, dentro del mismo presupuesto
+total de fuente. Se conservan escala, resolución, calidad 0/1 y agregación mensual.
+`sources.modis` mantiene su forma; `Indicator.source` identifica ORNL DAAC o
+Microsoft Planetary Computer según el proveedor que entregó el dato. Los meses
+ORNL ya obtenidos prevalecen al combinar; un fallo recuperado por el respaldo
+no fuerza `partial`. Si ambos fallan, se conserva lo disponible y el estado
+parcial/no disponible. No cambian versión, endpoints ni las demás fuentes.
+
 ## API pública y protegida
 
 `GET /health` y `POST /auth/login` son públicos. El resto requiere
