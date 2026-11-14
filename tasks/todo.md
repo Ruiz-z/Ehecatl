@@ -88,40 +88,42 @@ Cada tarea técnica: < 30 min, tests primero, deja el sistema funcionando. Forma
 
 ## B — Backend
 
+> Implementación y verificación local: `feat/backend-integracion`; ver `docs/backend-verification.md`. H2, H3 y H4 siguen pendientes. B7 tiene cliente y tests sintéticos, pero falta fixture real por timeouts/503 de ORNL. B18 tiene seed idempotente y precarga POWER real verificados; falta aprobación humana de perfiles H3. Los checkpoints NASA se verificaron con respuestas parciales: MODIS no disponible, confianza reducida.
+
 ### Contratos
-- [ ] **B1: Contratos JSON entre apps**
+- [x] **B1: Contratos JSON entre apps**
   - Hecho cuando: `docs/contracts.md` define `GET geo /indicators` (indicadores mensuales, anomalías, tendencias, ventanas, `origin`) y `GET api /zones/:id/recommendations` (secuencias, puntaje 0–100, explicación, riesgos, confianza) con ejemplos.
   - Verificar: aprobación en H2; los ejemplos se usan como fixtures de test.
   - Archivos: `docs/contracts.md`
   - Depende de: — · Specs: 003, 005
 
 ### API — identity y farm-context (NestJS)
-- [ ] **B2: Identity — modelo User, login JWT, guard**
+- [x] **B2: Identity — modelo User, login JWT, guard**
   - Hecho cuando: `POST /auth/login` devuelve JWT; credenciales malas → 401 genérico; password con bcrypt; guard de JWT y decorador de rol.
   - Verificar: tests unitarios del servicio + integración del endpoint.
   - Archivos: `prisma/schema.prisma`, `modules/identity/*`
   - Depende de: I2 · Specs: 001 RF-1..3
 
-- [ ] **B3: Parcelas y zonas con ownership**
+- [x] **B3: Parcelas y zonas con ownership**
   - Hecho cuando: CRUD de `Parcel` (lat/lon validados, 400 fuera de rango), zona por defecto al crear, CRUD de `Zone`; Agricultor ajeno → 403; Admin accede a todo; borrado en cascada.
   - Verificar: tests de ownership (propio, ajeno, admin) y de validación de coordenadas.
   - Archivos: `schema.prisma`, `modules/farm-context/parcels/*`, `modules/farm-context/zones/*`
   - Depende de: B2 · Specs: 001 RF-4..5, 002 RF-1, 2, 5, 5b, 6, 7
 
-- [ ] **B4: Historial de cultivos y prioridades**
+- [x] **B4: Historial de cultivos y prioridades**
   - Hecho cuando: `CropHistory` por zona con fechas reales; `PUT /me/priorities` normaliza pesos (25 cada uno por defecto); cultivo fuera del catálogo → 400.
   - Verificar: tests de normalización y de validación de cultivo.
   - Archivos: `schema.prisma`, `modules/farm-context/history/*`, `modules/farm-context/priorities/*`
   - Depende de: B3, B11 · Specs: 002 RF-3, 4
 
-- [ ] **B5: `GET /crops`**
+- [x] **B5: `GET /crops`**
   - Hecho cuando: expone el catálogo con la fuente de cada cultivo.
   - Verificar: test del endpoint.
   - Archivos: `modules/crop-knowledge/crops.controller.ts`
   - Depende de: B11 · Specs: 004 RF-2, 3
 
 ### Datos NASA (Python, `apps/geo`)
-- [ ] **B6: Cliente NASA POWER + normalización**
+- [x] **B6: Cliente NASA POWER + normalización**
   - Hecho cuando: obtiene `T2M`, `T2M_MAX`, `T2M_MIN`, `PRECTOTCORR`, `RH2M`, `ALLSKY_SFC_SW_DWN`, `GWETTOP`, `GWETROOT` mensuales; `-999` → faltante; indicador con valor, unidad, fuente, fecha y resolución.
   - Verificar: pytest con respuesta grabada (fixture) + una prueba manual en vivo.
   - Archivos: `apps/geo/app/sources/power.py`, `apps/geo/tests/test_power.py`, `tests/fixtures/power_*.json`
@@ -133,19 +135,19 @@ Cada tarea técnica: < 30 min, tests primero, deja el sistema funcionando. Forma
   - Archivos: `apps/geo/app/sources/modis.py`, `apps/geo/tests/test_modis.py`
   - Depende de: I3, B1 · Specs: 003 RF-2
 
-- [ ] **B8: Climatología, anomalías y tendencias**
+- [x] **B8: Climatología, anomalías y tendencias**
   - Hecho cuando: normal mensual de 10 años por punto; anomalía del periodo reciente; clasificación sequía / calor / lluvia errática / vegetación estresada con umbrales documentados.
   - Verificar: pytest con series sintéticas que disparan cada tendencia.
   - Archivos: `apps/geo/app/analysis/climatology.py`, `apps/geo/tests/test_climatology.py`
   - Depende de: B6, B7 · Specs: 003 RF-4
 
-- [ ] **B9: Ventanas de cultivo por zona**
+- [x] **B9: Ventanas de cultivo por zona**
   - Hecho cuando: desde la climatología mensual calcula ventanas (meses consecutivos con temperatura útil y agua suficiente; `irrigated=true` relaja la condición de agua); funciona en ambos hemisferios y cruzando fin de año.
   - Verificar: pytest con casos: tropical (1 ventana larga), semiárido (0 sin riego, ≥1 con riego), hemisferio sur, ventana diciembre–febrero.
   - Archivos: `apps/geo/app/analysis/windows.py`, `apps/geo/tests/test_windows.py`
   - Depende de: B8 · Specs: 003 RF-3b
 
-- [ ] **B10: Endpoint `GET /indicators`**
+- [x] **B10: Endpoint `GET /indicators`**
   - Hecho cuando: responde según el contrato; si una fuente falla devuelve el resto con la faltante marcada; timeout configurable; 400 para rango inválido.
   - Verificar: pytest con una fuente simulada caída.
   - Archivos: `apps/geo/app/routes/indicators.py`, `apps/geo/tests/test_indicators.py`
@@ -158,13 +160,13 @@ Cada tarea técnica: < 30 min, tests primero, deja el sistema funcionando. Forma
   - Archivos: `modules/crop-knowledge/data/crops.json`, `data/family-transitions.json`, `crop-catalog.ts`, `crop-catalog.spec.ts`
   - Depende de: I2 · Specs: 004 RF-1, 2, 4, 5
 
-- [ ] **B12: Reglas de transición A → B**
+- [x] **B12: Reglas de transición A → B**
   - Hecho cuando: puntaje de transición por familia, balance de N, ruptura de plagas y cobertura, cada regla con su razón legible.
   - Verificar: tests (cereal → leguminosa favorable, misma familia penalizada).
   - Archivos: `modules/rotation-engine/engine/transitions.ts`, `transitions.spec.ts`
   - Depende de: B11 · Specs: 005 RF-2
 
-- [ ] **B13: Viabilidad de cultivo en una ventana**
+- [x] **B13: Viabilidad de cultivo en una ventana**
   - Hecho cuando: compara requisitos del cultivo con la ventana (temperatura, agua, duración, heladas) y las tendencias NASA; marca riesgo alto del cultivo actual ante sequía o calor.
   - Verificar: tests con los indicadores de ejemplo del contrato (B1).
   - Archivos: `engine/viability.ts`, `viability.spec.ts`
@@ -176,14 +178,14 @@ Cada tarea técnica: < 30 min, tests primero, deja el sistema funcionando. Forma
   - Archivos: `engine/sequences.ts`, `engine/score.ts`, `*.spec.ts`
   - Depende de: B12, B13 · Specs: 005 RF-1, 1c, 5, 6, 9
 
-- [ ] **B15: Casos límite del motor**
+- [x] **B15: Casos límite del motor**
   - Hecho cuando: sin opciones viables → "ninguna viable" con razones; menos de 2 ventanas → secuencia reducida o cobertura/barbecho; datos faltantes o sin historial → confianza menor; desempate estable.
   - Verificar: tests de cada caso.
   - Archivos: `engine/*.ts`, `engine/edge-cases.spec.ts`
   - Depende de: B14 · Specs: 005 RF-1b, 7, 8
 
 ### Integración
-- [ ] **B16: Caché NASA en `api`**
+- [x] **B16: Caché NASA en `api`**
   - Hecho cuando: cliente HTTP `api → geo`, tabla `NasaCache`, se sirve de caché si está vigente, `origin` correcto (`live`/`cache`).
   - Verificar: test de integración con `geo` simulado (hit y miss).
   - Archivos: `schema.prisma`, `modules/nasa-data/*`
@@ -202,9 +204,9 @@ Cada tarea técnica: < 30 min, tests primero, deja el sistema funcionando. Forma
   - Depende de: B17, H3 · Specs: 001 RF-6, 003 RF-8
 
 ### Checkpoints B
-- [ ] Dos agricultores distintos no ven sus parcelas mutuamente; el admin ve todas (B2–B3).
-- [ ] `GET /indicators` devuelve datos reales para Coahuila, Nevada y un punto del hemisferio sur (B6–B10).
-- [ ] `pnpm test` y `pytest` en verde; una zona real devuelve recomendaciones explicadas con datos NASA reales (B17).
+- [x] Dos agricultores distintos no ven sus parcelas mutuamente; el admin ve todas (B2–B3).
+- [x] `GET /indicators` devuelve datos reales para Coahuila, Nevada y un punto del hemisferio sur (B6–B10).
+- [x] `pnpm test` y `pytest` en verde; una zona real devuelve recomendaciones explicadas con datos NASA reales (B17).
 
 ---
 
