@@ -1194,7 +1194,7 @@
         }
       ],
       "warnings": [
-        "Fixture sint?tico exclusivo de tests"
+        "Fixture sintético exclusivo de tests"
       ]
     }
   },
@@ -1205,7 +1205,7 @@
       "sequence": [
         {
           "cropId": "cowpea",
-          "cropName": "Caup?",
+          "cropName": "Caupí",
           "windowId": "window-1",
           "start": "2025-01-01",
           "end": "2025-03-31",
@@ -1221,7 +1221,7 @@
         "risk": 80
       },
       "explanation": [
-        "Leguminosa despu?s de cereal; pesos 25/25/25/25"
+        "Leguminosa después de cereal; pesos 25/25/25/25"
       ],
       "risks": [
         "Validar disponibilidad de semilla"

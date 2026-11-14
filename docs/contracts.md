@@ -77,6 +77,7 @@ Cada recomendación tiene `id`, `score` 0–100, `sequence` con
 (water,soil,income,risk, cada uno 0–100), `explanation: string[]`,
 `risks: string[]`. `changeAt` indica el comienzo de la primera ventana
 viable. Se generan hasta tres resultados sobre hasta tres ventanas en 24 meses.
+La fecha de siembra no antecede al día UTC de obtención de los indicadores.
 Empates: menor riesgo, nombre e identificador de secuencia; salida determinista.
 Si ninguna opción cabe: lista vacía, razones y sugerencia de cobertura/barbecho.
 Ingreso es un indicador heurístico de oportunidad (no precio ni rentabilidad).
