@@ -17,7 +17,7 @@ Agricultor (dueño de sus parcelas), Administrador (superset).
 - RF-3: EL SISTEMA guarda passwords solo con hash bcrypt.
 - RF-4: CUANDO un Agricultor pide una parcela cuyo `ownerId` no es el suyo, EL SISTEMA responde 403.
 - RF-5: EL SISTEMA permite al Administrador leer cualquier parcela.
-- RF-6: CUANDO se ejecuta el seed, EL SISTEMA crea al menos 3 agricultores demo con ubicaciones, cultivos y prioridades distintas, y 1 administrador.
+- RF-6: CUANDO se ejecuta el seed, EL SISTEMA crea al menos 3 agricultores demo con ubicaciones, cultivos y prioridades distintas, y 1 administrador. Los perfiles representan realidades contrastantes (p. ej. zona árida con estrés hídrico y monocultivo de maíz/forraje; agua subterránea restringida; zona templada/húmeda con exceso de lluvia o erosión), sin hardcodear regiones en el código.
 
 ## Requisitos no funcionales
 - JWT con expiración; secreto vía `.env`.

@@ -23,7 +23,7 @@ Cada tarea técnica: < 30 min, tests primero, deja el sistema funcionando. Forma
   - Depende de: B1
 
 - [ ] **H3: Elegir puntos y perfiles demo**
-  - Hecho cuando: hay ≥3 agricultores definidos (Coahuila, Nevada y uno del hemisferio sur) con cultivo actual, historial, riego sí/no y prioridades distintas.
+  - Hecho cuando: hay ≥3 agricultores definidos (Coahuila, Nevada y uno del hemisferio sur) con cultivo actual, historial, riego sí/no y prioridades distintas, y realidades contrastantes (árido con estrés hídrico y monocultivo, agua subterránea restringida, zona húmeda con erosión).
   - Depende de: — · Alimenta: B18
 
 - [ ] **H4: Revisar fuentes agronómicas del catálogo**
@@ -154,8 +154,8 @@ Cada tarea técnica: < 30 min, tests primero, deja el sistema funcionando. Forma
   - Depende de: B9 · Specs: 003 RF-6, 7
 
 ### Motor de rotación y catálogo (TS, funciones puras)
-- [x] **B11: Catálogo de cultivos + validador**
-  - Hecho cuando: `crops.json` con 15–20 cultivos (familia, rango de temperatura, demanda hídrica, días de ciclo, sensibilidad a heladas, balance de N, cobertura, tolerancia a sequía, perenne, fuente) y tabla de compatibilidad entre familias con razón; la carga falla indicando cultivo y campo faltante.
+- [ ] **B11: Catálogo de cultivos + validador**
+  - Hecho cuando: `crops.json` con 15–20 cultivos (familia, rango de temperatura, demanda hídrica, días de ciclo, sensibilidad a heladas, balance de N, cobertura, tolerancia a sequía, `marketValueTier` bajo/medio/alto con fuente o «estimado», perenne, fuente) y tabla de compatibilidad entre familias con razón; la carga falla indicando cultivo y campo faltante.
   - Verificar: test del validador (catálogo válido y uno roto); revisión humana en H4.
   - Archivos: `modules/crop-knowledge/data/crops.json`, `data/family-transitions.json`, `crop-catalog.ts`, `crop-catalog.spec.ts`
   - Depende de: I2 · Specs: 004 RF-1, 2, 4, 5
@@ -172,11 +172,11 @@ Cada tarea técnica: < 30 min, tests primero, deja el sistema funcionando. Forma
   - Archivos: `engine/viability.ts`, `viability.spec.ts`
   - Depende de: B11, B1 · Specs: 005 RF-3, 4
 
-- [x] **B14: Generación de secuencias y scoring ponderado**
-  - Hecho cuando: genera secuencias para las siguientes 2–3 ventanas (perennes ocupan varias), puntaje 0–100 ponderado por prioridades, top 2–3 con explicación (variables y reglas que más pesaron) y riesgos.
-  - Verificar: tests: mismas condiciones + prioridades distintas → ranking distinto; determinismo.
+- [ ] **B14: Generación de secuencias y scoring ponderado**
+  - Hecho cuando: genera secuencias para las siguientes 2–3 ventanas (perennes ocupan varias), puntaje 0–100 ponderado por prioridades, 2 mejores alternativas más la estrategia 0 «mantener lo actual» calculada con las mismas reglas y pesos (con diferencia de puntaje), explicación (variables y reglas que más pesaron) y riesgos; el eje ingreso sale de `marketValueTier`.
+  - Verificar: tests: mismas condiciones + prioridades distintas → ranking distinto; determinismo; la estrategia 0 siempre presente y con las mismas reglas.
   - Archivos: `engine/sequences.ts`, `engine/score.ts`, `*.spec.ts`
-  - Depende de: B12, B13 · Specs: 005 RF-1, 5, 6, 9
+  - Depende de: B12, B13 · Specs: 005 RF-1, 1c, 5, 6, 9
 
 - [x] **B15: Casos límite del motor**
   - Hecho cuando: sin opciones viables → "ninguna viable" con razones; menos de 2 ventanas → secuencia reducida o cobertura/barbecho; datos faltantes o sin historial → confianza menor; desempate estable.
@@ -191,8 +191,8 @@ Cada tarea técnica: < 30 min, tests primero, deja el sistema funcionando. Forma
   - Archivos: `schema.prisma`, `modules/nasa-data/*`
   - Depende de: I2, B1 · Specs: 003 RF-5, 7
 
-- [x] **B17: `GET /zones/:id/recommendations`**
-  - Hecho cuando: junta zona + historial + prioridades + indicadores (caché) + catálogo, ejecuta el motor y responde según el contrato; respeta ownership.
+- [ ] **B17: `GET /zones/:id/recommendations`**
+  - Hecho cuando: junta zona + historial + prioridades + indicadores (caché) + catálogo, ejecuta el motor y responde según el contrato (3 estrategias: actual + 2 alternativas); respeta ownership.
   - Verificar: test de integración + `curl` contra una zona real.
   - Archivos: `modules/rotation-engine/rotation.controller.ts`, `rotation.service.ts`, `*.spec.ts`
   - Depende de: B4, B10, B15, B16 · Specs: 005 RF-1..9
@@ -228,9 +228,9 @@ Cada tarea técnica: < 30 min, tests primero, deja el sistema funcionando. Forma
   - Depende de: B16, F2 · Specs: 006 RF-3
 
 - [ ] **F4: Recomendaciones + prioridades**
-  - Hecho cuando: 2–3 tarjetas con puntaje, por qué, riesgos y los tres insumos visibles; los sliders de prioridades recalculan el ranking.
+  - Hecho cuando: 3 tarjetas (estrategia actual + 2 alternativas) con puntaje, diferencia contra la actual, por qué, riesgos, aviso de validación local y los tres insumos visibles; indicadores NASA en lenguaje llano con semáforo y dato crudo en desplegable; los sliders de prioridades recalculan el ranking.
   - Verificar: manual.
-  - Depende de: B17, F3 · Specs: 006 RF-4, 5, 7
+  - Depende de: B17, F3 · Specs: 006 RF-4, 4b, 4c, 5, 7
 
 - [ ] **F5: Estados de carga, vacío y error**
   - Hecho cuando: loaders, fuentes faltantes avisadas, zona sin datos con acción para cargar.
