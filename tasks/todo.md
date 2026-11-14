@@ -69,7 +69,7 @@ Cada tarea técnica: < 30 min, tests primero, deja el sistema funcionando. Forma
   - Archivos: `apps/geo/app/main.py`, `apps/geo/pyproject.toml`, `apps/geo/tests/test_health.py`, `apps/geo/Dockerfile`
   - Depende de: I1
 
-- [ ] **I4: Scaffold `apps/web` (Next.js + shadcn)**
+- [x] **I4: Scaffold `apps/web` (Next.js + shadcn)**
   - Hecho cuando: Next arranca con página vacía, shadcn inicializado, servicio `web` en compose.
   - Verificar: `pnpm --filter web build` y abrir `localhost:3000`.
   - Archivos: `apps/web/**`, `apps/web/Dockerfile`
@@ -82,7 +82,7 @@ Cada tarea técnica: < 30 min, tests primero, deja el sistema funcionando. Forma
   - Depende de: B18 · Specs: constitución #2
 
 ### Checkpoint I
-- [ ] `docker compose up --build` levanta postgres, api, geo y web con `/health` en verde (I1–I4).
+- [x] `docker compose up --build` levanta postgres, api, geo y web con `/health` en verde (I1–I4).
 
 ---
 

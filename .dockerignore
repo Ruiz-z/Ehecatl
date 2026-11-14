@@ -9,3 +9,5 @@
 !**/.env.example
 .turbo
 sdd
+**/next-env.d.ts
+**/*.tsbuildinfo
