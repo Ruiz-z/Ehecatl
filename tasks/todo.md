@@ -57,7 +57,7 @@ Cada tarea técnica: < 30 min, tests primero, deja el sistema funcionando. Forma
   - Archivos: `package.json`, `pnpm-workspace.yaml`, `turbo.json`, `docker-compose.yml`, `.env.example`, `.gitignore`
   - Depende de: — · Specs: constitución #2, #13
 
-- [ ] **I2: Scaffold `apps/api` (NestJS + Prisma) con `/health`**
+- [x] **I2: Scaffold `apps/api` (NestJS + Prisma) con `/health`**
   - Hecho cuando: Nest arranca, Prisma conectado a Postgres, `GET /health` → 200; servicio `api` en compose.
   - Verificar: `pnpm --filter api test` y `curl localhost:3001/health`.
   - Archivos: `apps/api/**` (main, app.module, prisma module, health), `apps/api/Dockerfile`
