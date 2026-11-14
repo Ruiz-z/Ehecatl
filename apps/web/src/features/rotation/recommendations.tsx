@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { Droplets, Sprout, TrendingUp, ShieldCheck, CalendarDays, ChevronDown, Info, Check, RotateCcw } from 'lucide-react';
+import { Droplets, Sprout, TrendingUp, ShieldCheck, CalendarDays, ChevronDown, Check, RotateCcw } from 'lucide-react';
 import type { Parcel, Priorities } from '@/features/parcels/types';
 import { useDemo } from '@/features/identity/demo-provider';
 import { apiClient } from '@/shared/api/client';
@@ -28,7 +28,7 @@ function SequenceCard({
 }) {
   const [expanded, setExpanded] = useState<boolean | null>(null);
   const open = expanded ?? index === 0;
-  return <article className={`sequence-card ${index === 0 ? 'best' : ''} ${strategy.baseline ? 'baseline' : ''}`}>
+  return <article tabIndex={0} aria-label={`Opción ${index + 1}: ${strategy.name}`} className={`sequence-card ${index === 0 ? 'best' : ''} ${strategy.baseline ? 'baseline' : ''}`}>
     <div className="sequence-label">
       <span>{index === 0 ? <><Check size={13} />Mejor ajuste para ti</> : strategy.baseline ? 'Si no cambias' : 'Otra opción viable'}</span>
       <span>0{index + 1}</span>
@@ -40,15 +40,15 @@ function SequenceCard({
         <small>/100</small>
       </div>
     </div>
-    <p className={`score-delta ${strategy.baseline ? 'muted' : ''}`}>{strategy.baseline ? 'Estrategia actual · referencia' : `${strategy.delta >= 0 ? '+' : ''}${strategy.delta} puntos frente a mantener lo actual`}</p>
-    <div className="timeline">
+    <p className={`score-delta ${strategy.baseline ? 'muted' : strategy.delta < 0 ? 'negative' : ''}`}>{strategy.baseline ? 'Estrategia actual · referencia' : `${strategy.delta >= 0 ? '+' : ''}${strategy.delta} puntos frente a mantener lo actual`}</p>
+    <div className="timeline" tabIndex={0} role="group" aria-label="Calendario de 24 meses; usa las flechas para recorrerlo">
       <div className="timeline-years">
         <span>2026</span>
         <span>2027</span>
         <span>2028</span>
       </div>
       <div className="timeline-months">
-        {[...months, ...months].map((month, i) => i % 2 === 0 ? <span key={i} style={{ gridColumn: `${i + 1} / span 2` }}>{month}</span> : null)}
+        {[...months, ...months].map((month, i) => i % 3 === 0 ? <span key={i} style={{ gridColumn: `${i + 1} / span 3` }}>{month}</span> : null)}
       </div>
       <div className="timeline-tracks">
         {strategy.windows.map((window, i) => <div key={i} className={`crop-window family-${window.family} ${window.current ? 'current-crop' : ''}`} style={{
@@ -71,9 +71,8 @@ function SequenceCard({
         key,
         label
       }) => {
-        const Icon = icons[key];
         return <div className="axis-row" key={key}>
-        <span><Icon size={13} />{label}</span>
+        <span>{label}</span>
         <div className="bar-track">
           <i style={{
               width: `${strategy.axes[key]}%`
@@ -100,7 +99,7 @@ function SequenceCard({
       <span className="chip neutral-chip"><ShieldCheck size={13} />Confianza {strategy.confidence.toLowerCase()}</span>
       <p>{strategy.confidenceReason}</p>
     </div>
-    <p className="validation-note"><Info size={14} />{validation}</p>
+    <p className="validation-note">{validation}</p>
   </article>;
 }
 export function Recommendations({
@@ -133,11 +132,11 @@ export function Recommendations({
     <div className="section-heading">
       <div>
         <h2>Qué sembrar después</h2>
-        <p>Tres caminos para tu tierra. Tú decides qué pesa más.</p>
+        <p>Compara la estrategia actual y dos alternativas.</p>
       </div>
       <span className="chip neutral-chip">Nov 2026 — Oct 2028</span>
     </div>
-    {parcel.risk === 'high' && <Notice><strong>El agua está cambiando las reglas.</strong><p>{parcel.crop} requiere más agua de la disponible en este ejemplo. Planea el siguiente ciclo con una opción más tolerante.</p></Notice>}
+    {parcel.risk === 'high' && <Notice><strong>Agua insuficiente para el cultivo actual.</strong><p>{parcel.crop} requiere más agua de la disponible en este ejemplo. Planea el siguiente ciclo con una opción más tolerante.</p></Notice>}
     {ranked[0].baseline && <div className="baseline-wins" role="status"><Check size={18} />Con tus prioridades, mantener lo actual es la mejor opción. Su potencial de ingreso compensa el menor aporte al suelo.</div>}
     <div className="inputs-used">
       <span><i />Datos NASA <small>clima de 10 años</small></span>
@@ -145,13 +144,14 @@ export function Recommendations({
       <span><i />Tus prioridades <small>ajustables abajo</small></span>
     </div>
     <p className="sr-only" aria-live="polite">Mejor opción: {ranked[0].name}, {ranked[0].score} puntos.</p>
-    <div className="sequence-grid">
+    <p className="comparison-hint">3 estrategias · Desplaza para comparar →</p>
+    <div className="sequence-grid" tabIndex={0} role="region" aria-label="Comparación de tres estrategias; usa las flechas para recorrerlas">
       {ranked.map((strategy, index) => <SequenceCard key={strategy.id} strategy={strategy} index={index} weights={normalized} />)}
     </div>
     <section id="prioridades" className="priorities">
       <div className="section-heading">
         <div>
-          <h2>Tu campo. Tus prioridades.</h2>
+          <h2>Ajusta tus prioridades</h2>
           <p>Mueve los controles y compara cómo cambia el orden.</p>
         </div>
         <button className="text-button" onClick={() => setWeights(defaults)}><RotateCcw size={15} />Restablecer</button>

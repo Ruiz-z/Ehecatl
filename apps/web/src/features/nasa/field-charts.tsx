@@ -10,7 +10,7 @@ const metrics = [{
   normal: 'rainfallNormal',
   title: 'Lluvia acumulada',
   unit: 'mm',
-  color: 'var(--data-rain)',
+  color: 'var(--foreground)',
   deviation: '38 % menos que lo normal',
   humid: 'Lluvia suficiente para el ciclo'
 }, {
@@ -18,7 +18,7 @@ const metrics = [{
   normal: 'temperatureNormal',
   title: 'Temperatura del aire',
   unit: '°C',
-  color: 'var(--data-temperature)',
+  color: 'var(--foreground)',
   deviation: '2.1 °C más que lo normal',
   humid: 'Dentro del rango habitual'
 }, {
@@ -26,7 +26,7 @@ const metrics = [{
   normal: 'moistureNormal',
   title: 'Humedad en raíz',
   unit: '%',
-  color: 'var(--data-moisture)',
+  color: 'var(--foreground)',
   deviation: 'Reserva de agua por debajo de lo normal',
   humid: 'Buena reserva de agua'
 }, {
@@ -34,7 +34,7 @@ const metrics = [{
   normal: 'ndviNormal',
   title: 'Verdor de la vegetación',
   unit: 'NDVI',
-  color: 'var(--ndvi-high)',
+  color: 'var(--foreground)',
   deviation: 'Menor actividad que lo normal',
   humid: 'Vegetación en crecimiento'
 }];
@@ -49,7 +49,7 @@ export function FieldCharts({
   return <div className="charts-section">
     <div className="section-heading">
       <div>
-        <h2>El clima, con perspectiva</h2>
+        <h2>Historial del clima</h2>
         <p>Compara este ciclo con el promedio de 10 años.</p>
       </div>
       <label className="range-label">
@@ -78,16 +78,16 @@ export function FieldCharts({
               bottom: 0
             }} accessibilityLayer><CartesianGrid vertical={false} stroke="var(--border)" strokeDasharray="2 4" /><XAxis dataKey="month" tickLine={false} axisLine={false} tick={{
                 fill: 'var(--muted-foreground)',
-                fontSize: 12
+                fontSize: 13
               }} ticks={data.filter((_, index) => index % Math.ceil(data.length / 6) === 0).map(row => row.month)} tickFormatter={value => String(value).slice(0, 3)} interval={0} minTickGap={8} /><YAxis tickLine={false} axisLine={false} tick={{
                 fill: 'var(--muted-foreground)',
-                fontSize: 12
-              }} width={58} domain={[0, 'auto']} /><Tooltip contentStyle={{
+                fontSize: 13
+              }} width={58} domain={[0, 'auto']} /><Tooltip itemStyle={{ color: 'var(--card)' }} contentStyle={{
                 background: 'var(--foreground)',
                 border: 'none',
                 borderRadius: 8,
                 color: 'var(--card)',
-                fontSize: 12
+                fontSize: 13
               }} labelStyle={{
                 color: 'var(--card)'
               }} formatter={(value, name) => [`${Number(value).toFixed(metric.key === 'ndvi' ? 2 : 1)} ${metric.unit}`, name]} />{metric.key === 'rainfall' ? <Area isAnimationActive={false} type="monotone" dataKey={metric.key} name="Este ciclo" fill={metric.color} fillOpacity={0.2} stroke={metric.color} strokeWidth={2} /> : <Line isAnimationActive={false} type="monotone" dataKey={metric.key} name="Este ciclo" stroke={metric.color} strokeWidth={2.5} dot={{

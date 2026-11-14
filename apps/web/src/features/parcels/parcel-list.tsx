@@ -24,7 +24,7 @@ export function ParcelList() {
       <div className="panel-heading">
         <div>
           <h1>Mis parcelas<span className="count">{parcels.length}</span></h1>
-          <p>Una mirada a lo que viene.</p>
+          <p>Ubicaciones y condiciones de tus campos.</p>
         </div>
         <button className="icon-button collapse-button" aria-label="Ocultar lista" onClick={() => setCollapsed(true)}><PanelLeftClose size={19} /></button>
       </div>
@@ -36,7 +36,7 @@ export function ParcelList() {
       </label>
       <div className="list-caption">
         {`${filtered.length} ${filtered.length === 1 ? 'parcela' : 'parcelas'}`}
-        <span>Tu terreno, de un vistazo</span>
+
       </div>
       <div className="parcel-list">
         {filtered.map(parcel => <Link key={parcel.id} href={`/parcelas/${parcel.id}`} className="parcel-row"><div className="parcel-row-top">
@@ -49,7 +49,7 @@ export function ParcelList() {
           </div><span className={`chip ${parcel.dataState === 'empty' ? 'neutral-chip' : parcel.risk === 'high' ? 'risk-chip' : 'ok-chip'}`}>{parcel.dataState === 'empty' ? 'Sin datos NASA aún' : parcel.risk === 'high' ? 'Atención · poca agua' : parcel.risk === 'low' ? 'Condiciones favorables' : 'Vigilar condiciones'}</span></Link>)}
         {!filtered.length && <EmptyState title={query ? 'Sin coincidencias' : 'Tu próxima cosecha empieza aquí'}><p>{query ? 'Prueba con otro nombre o cultivo.' : 'Agrega tu primera parcela para conocer su contexto.'}</p>{query ? <button className="button" onClick={() => setQuery('')}>Limpiar búsqueda</button> : <Link className="button primary" href="/parcelas/nueva">Agregar parcela</Link>}</EmptyState>}
       </div>
-      <footer className="panel-footnote"><span className="source-dot" />Observaciones de la Tierra, decisiones en campo.<br /><span>NASA POWER · MODIS</span></footer>
+      <footer className="panel-footnote"><span>NASA POWER · MODIS</span></footer>
     </section>
     {collapsed && <button className="button reopen-panel" onClick={() => setCollapsed(false)}><ChevronLeft size={18} />Mis parcelas</button>}
     <div className="map-context">

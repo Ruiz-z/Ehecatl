@@ -10,7 +10,7 @@ export function SheetHandle({
 }) {
   const start = useRef<number | null>(null);
   const dragged = useRef(false);
-  return <button className="sheet-handle" aria-label={expanded ? 'Reducir panel' : 'Expandir panel'} aria-expanded={expanded} onPointerDown={event => {
+  return <button className="sheet-handle" aria-label={expanded ? 'Mostrar mapa' : 'Ocultar mapa'} aria-expanded={expanded} onPointerDown={event => {
     start.current = event.clientY;
     dragged.current = false;
     event.currentTarget.setPointerCapture(event.pointerId);
@@ -25,5 +25,5 @@ export function SheetHandle({
   }} onClick={() => {
     if (!dragged.current) onChange(!expanded);
     dragged.current = false;
-  }} />;
+  }}>{expanded ? 'Mostrar mapa' : 'Ocultar mapa'}</button>;
 }

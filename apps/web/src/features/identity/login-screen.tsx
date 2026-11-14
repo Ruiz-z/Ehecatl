@@ -13,10 +13,11 @@ export function LoginScreen() {
   const [pending, setPending] = useState(false);
   const { login } = useDemo();
   return <main id="main" className="login-page">
-    <div className="login-top"><Brand /><span>El siguiente ciclo empieza con una buena decisión.</span></div>
+    <div className="login-top"><Brand /></div>
+    <div className="login-intro"><h1>Conoce tu tierra.<br />Decide qué sigue.</h1><p>Tu parcela, el clima y el siguiente cultivo.</p></div>
     <section className="login-card">
       {useMocks && <DemoChip />}
-      <h1>Conoce tu tierra.<br />Decide qué sigue.</h1>
+      <h2>Entra a tu campo</h2>
       <p>Inicia sesión para ver tus parcelas.</p>
       <form noValidate onSubmit={async event => {
         event.preventDefault(); const invalid = validateLogin({ email, password }); setError(invalid ?? ''); if (invalid) return;
@@ -29,6 +30,6 @@ export function LoginScreen() {
       </form>
       {useMocks && <fieldset className="demo-shortcuts"><legend>Usar cuenta demo</legend>{demoUsers.map(user => <button key={user.id} type="button" className="demo-account" onClick={() => { setEmail(user.email); setPassword(demoPassword); setError(''); }}><strong>{user.name}</strong><span>{user.region}</span></button>)}<p className="login-note">Los atajos rellenan el formulario. Contraseña pública de demo: {demoPassword}</p></fieldset>}
     </section>
-    <footer className="login-footer"><span>NASA Space Apps 2026 · Field Shift</span><span>Observa hoy. Siembra con perspectiva.</span></footer>
+    <footer className="login-footer"><span>NASA Space Apps 2026 · Field Shift</span></footer>
   </main>;
 }
