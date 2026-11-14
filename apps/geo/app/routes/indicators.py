@@ -33,23 +33,35 @@ async def indicators(lat: str = "", lon: str = "", start: str = "", end: str = "
     if complete_end.day != calendar.monthrange(complete_end.year, complete_end.month)[1]:
         complete_end = complete_end.replace(day=1)-timedelta(days=1)
     recent_start = first if first.day == 1 else add_months(first, 1)
+    expects_recent = recent_start <= complete_end
     timeout = max(.1, float(os.getenv("NASA_TIMEOUT_SECONDS", "30")))
     budget = max(.1, float(os.getenv("NASA_TOTAL_TIMEOUT_SECONDS", "120")))
     sources, monthly, history, warnings = {}, [], [], []
     async with httpx.AsyncClient(timeout=timeout, follow_redirects=True) as client:
         async def source(name, fetcher):
             async def load():
-                return await asyncio.gather(
-                    fetcher(client, latitude, longitude, recent_start, complete_end) if recent_start <= complete_end else asyncio.sleep(0, result=[]),
+                if name == "modis":
+                    # Una consulta de fechas y lotes compartidos para ambos periodos.
+                    rows = await fetcher(client, latitude, longitude,
+                                         min(baseline_start, recent_start) if expects_recent else baseline_start,
+                                         max(baseline_end, complete_end) if expects_recent else baseline_end)
+                    recent = [r for r in rows if expects_recent and recent_start.isoformat() <= r["date"] <= complete_end.isoformat()]
+                    historic = [r for r in rows if baseline_start.isoformat() <= r["date"] <= baseline_end.isoformat()]
+                    return recent, historic, getattr(rows, "failed_batches", 0)
+                recent, historic = await asyncio.gather(
+                    fetcher(client, latitude, longitude, recent_start, complete_end) if expects_recent else asyncio.sleep(0, result=[]),
                     fetcher(client, latitude, longitude, baseline_start, baseline_end), return_exceptions=True)
+                return recent, historic, 0
             try:
-                recent, historic = await asyncio.wait_for(load(), timeout=budget)
+                recent, historic, failed_batches = await asyncio.wait_for(load(), timeout=budget)
                 failures = [x for x in (recent, historic) if isinstance(x, Exception)]
                 recent = [] if isinstance(recent, Exception) else recent
                 historic = [] if isinstance(historic, Exception) else historic
-                status = "available" if recent and historic and not failures else "partial" if recent or historic else "unavailable"
+                status = "available" if (recent or not expects_recent) and historic and not failures and not failed_batches else "partial" if recent or historic else "unavailable"
                 reason = "Fuente incompleta o sin cobertura" if status != "available" else None
-                if name == "power" and status == "available" and any(
+                if failed_batches:
+                    reason = f"{failed_batches} lotes MODIS fallidos; se conservaron los lotes exitosos"
+                if name == "power" and expects_recent and status == "available" and any(
                     not any(r["variable"] == v and r["value"] is not None for r in recent) for v in PARAMETERS):
                     status, reason = "partial", "Variables POWER faltantes"
             except (TimeoutError, httpx.HTTPError, ValueError, KeyError, TypeError):

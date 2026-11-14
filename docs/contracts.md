@@ -39,6 +39,12 @@ Cada fuente se consulta con timeout configurable `NASA_TIMEOUT_SECONDS`
 (por defecto 30 por petición) y presupuesto total `NASA_TOTAL_TIMEOUT_SECONDS`
 (por defecto 120). Un fallo devuelve las demás variables; no se inventan datos.
 MODIS solicita lotes de máximo diez fechas y filtra relleno y calidad.
+Los rangos reciente e histórico comparten una consulta MODIS `/dates` por punto
+y petición de indicadores. Si falla un lote `/subset`, se conservan los lotes
+exitosos y MODIS se marca `partial` (o `unavailable` si no quedan observaciones).
+No se añade un fallback de datos simulados. Un rango sin meses completos
+terminados devuelve `monthly: []`; esa exclusión intencional no implica un
+fallo de cobertura de POWER si la consulta histórica fue satisfactoria.
 No se calcula una ventana si falta temperatura o agua suficiente.
 
 ## API pública y protegida
@@ -62,7 +68,10 @@ No se calcula una ventana si falta temperatura o agua suficiente.
   no negativos; suma cero usa 25 cada uno; se normalizan a enteros sumando 100.
 - `GET /zones/:id/indicators?start=&end=`: el API obtiene coordenadas y riego
   de la zona, usa caché persistida y devuelve el contrato geo. Por defecto
-  usa los últimos doce meses completos; TTL `NASA_CACHE_TTL_HOURS=24`.
+  usa los últimos doce meses completos; los parámetros vacíos se tratan como
+  omitidos. Fechas no vacías inválidas siguen devolviendo 400.
+  TTL `NASA_CACHE_TTL_HOURS=24`, timeout `GEO_TIMEOUT_MS=130000`;
+  valores vacíos, no finitos o no positivos usan esos valores por defecto.
 
 ## GET api /zones/:id/recommendations
 
@@ -76,7 +85,14 @@ Cada recomendación tiene `id`, `score` 0–100, `sequence` con
 `{cropId,cropName,windowId,start,end,occupiedWindowIds}`, `components`
 (water,soil,income,risk, cada uno 0–100), `explanation: string[]`,
 `risks: string[]`. `changeAt` indica el comienzo de la primera ventana
-viable. Se generan hasta tres resultados sobre hasta tres ventanas en 24 meses.
+viable. Se generan hasta tres resultados con hasta tres ciclos sobre las
+primeras tres ventanas en 24 meses. Una ventana continua puede alojar varios
+ciclos, cada uno validado en sus meses y sin solaparse (siembra >= cosecha
+anterior + 1 día). `windowId` y `occupiedWindowIds` conservan los identificadores
+climatológicos originales, que pueden repetirse entre pasos de una secuencia.
+Se explica la reducción cuando no caben dos ciclos viables. Para un mismo
+identificador de secuencia se conserva el candidato de mayor puntaje y luego
+se aplican los desempates indicados abajo.
 La fecha de siembra no antecede al día UTC de obtención de los indicadores.
 Empates: menor riesgo, nombre e identificador de secuencia; salida determinista.
 Si ninguna opción cabe: lista vacía, razones y sugerencia de cobertura/barbecho.

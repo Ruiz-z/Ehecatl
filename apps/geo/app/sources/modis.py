@@ -10,6 +10,14 @@ import httpx
 BASE_URL = "https://modis.ornl.gov/rst/api/v1/MOD13Q1"
 
 
+class ModisRows(list):
+    """Observaciones conservadas y fallos de lote para el estado de la fuente."""
+
+    def __init__(self, rows, failed_batches=0):
+        super().__init__(rows)
+        self.failed_batches = failed_batches
+
+
 def normalize_modis(payload: dict) -> list[dict]:
     groups = defaultdict(list)
     subsets = payload.get("subset", [])
@@ -47,5 +55,8 @@ async def fetch_modis(client: httpx.AsyncClient, lat: float, lon: float, start: 
             res.raise_for_status()
             return res.json().get("subset", [])
 
-    chunks = await asyncio.gather(*(batch(dates[i:i+10]) for i in range(0, len(dates), 10)))
-    return normalize_modis({"subset": [row for chunk in chunks for row in chunk]})
+    chunks = await asyncio.gather(*(batch(dates[i:i+10]) for i in range(0, len(dates), 10)),
+                                  return_exceptions=True)
+    failures = sum(isinstance(chunk, Exception) for chunk in chunks)
+    rows = normalize_modis({"subset": [row for chunk in chunks if not isinstance(chunk, Exception) for row in chunk]})
+    return ModisRows(rows, failed_batches=failures)
