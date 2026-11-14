@@ -12,7 +12,7 @@ Motor de rotación; el agricultor lo consulta al elegir cultivos; Administrador 
 - H3: Como agricultor quiero ver de dónde sale cada dato del catálogo para confiar en él.
 
 ## Requisitos funcionales (EARS)
-- RF-1: EL SISTEMA mantiene un catálogo versionado en el repo con, por cultivo: nombre, familia botánica, rango de temperatura, demanda hídrica, duración del ciclo, ventana de siembra por clima, balance de nitrógeno (fija/consume), cobertura de suelo y tolerancia a sequía.
+- RF-1: EL SISTEMA mantiene un catálogo versionado en el repo con, por cultivo: nombre, familia botánica, rango de temperatura, demanda hídrica, duración del ciclo, ventana de siembra por clima, balance de nitrógeno (fija/consume), cobertura de suelo, tolerancia a sequía y `marketValueTier` (`bajo` | `medio` | `alto`, nivel categórico de valor comercial o forrajero por hectárea, con su fuente, p. ej. SIAP/FAOSTAT; si no hay fuente verificable se marca «estimado»).
 - RF-2: EL SISTEMA guarda por cada cultivo su fuente (FAO/GAEZ u otra) y la expone en la API.
 - RF-3: CUANDO se consulta `GET /crops`, EL SISTEMA devuelve el catálogo completo.
 - RF-4: EL SISTEMA define compatibilidades de transición entre familias (buena, neutra, a evitar) con la razón agronómica.
@@ -26,7 +26,7 @@ Motor de rotación; el agricultor lo consulta al elegir cultivos; Administrador 
 - Mismo cultivo con ciclos distintos por clima: se modela como variantes.
 
 ## Fuera de alcance
-Variedades/cultivares, rendimientos por híbrido, precios de mercado (stretch).
+Variedades/cultivares, rendimientos por híbrido, precios de mercado en tiempo real (stretch). Sí se incluye el nivel categórico `marketValueTier`, que alimenta el eje ingreso de la spec 005.
 
 ## Criterios de finalización
 RF-1 a RF-5 con test en verde + revisión de que cada cultivo cita fuente.

@@ -40,7 +40,7 @@ Motor de rotación y dashboard (consumidores internos); el agricultor ve los ind
 - Punto en el océano o sin cobertura MODIS → NDVI no disponible.
 - Valores de relleno de POWER (`-999`) → se tratan como faltantes, nunca como datos.
 - Rango de fechas futuro o inválido → 400.
-- POWER tiene resolución gruesa (~50 km): se informa en la respuesta y en la UI.
+- POWER tiene resolución gruesa (~50 km): se informa en la respuesta y en la UI. Por diseño, POWER da la línea base climática macro de 10 años y MODIS (250 m) el vigor local de la parcela; la humedad medida en campo (nodos IoT/ESP32) entraría como verdad de terreno en una fase posterior y se muestra solo como «siguiente fase», nunca simulada como dato real.
 
 ## Fuera de alcance
 SMAP, IMERG, ECOSTRESS (requieren Earthdata), rásteres completos, Landsat, Sentinel-2 y datasets solo de EE. UU. (stretch).
