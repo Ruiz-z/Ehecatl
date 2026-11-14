@@ -4,6 +4,7 @@ import { normalizeWeights } from '../../farm-context/priorities/normalize.js';
 import { transition } from './transitions.js';
 import { currentRisk, viability } from './viability.js';
 import { weightedScore } from './score.js';
+import { schedule } from './schedule.js';
 
 interface Step { cropId: string; cropName: string; windowId: string; start: string; end: string; occupiedWindowIds: string[] }
 interface Candidate { id: string; score: number; sequence: Step[]; components: Weights; explanation: string[]; risks: string[] }
@@ -15,6 +16,7 @@ export function recommend(input: { currentCropId: string; history: History[]; pr
   const current = findCrop(input.currentCropId);
   if (!current) throw new Error('Current crop not in catalog');
   const { indicators, history } = input;
+  const decisionDay = day(indicators.fetchedAt.slice(0, 10));
   const priorities = normalizeWeights(input.priorities);
   const windows = indicators.windows.slice().sort((a, b) => a.start.localeCompare(b.start)).slice(0, 3);
   const warnings = [...indicators.warnings];
@@ -34,32 +36,14 @@ export function recommend(input: { currentCropId: string; history: History[]; pr
       const previousStep = partial.sequence.at(-1);
       // Una perenne ya ocupa esta ventana; no se superpone otro cultivo.
       if (previousStep && day(previousStep.end) >= day(window.end)) { next.push(partial); continue; }
-      const start = previousStep && day(previousStep.end) >= day(window.start) ? day(previousStep.end) + dayMs : day(window.start);
+      const start = Math.max(decisionDay, previousStep && day(previousStep.end) >= day(window.start) ? day(previousStep.end) + dayMs : day(window.start));
       const previous = previousStep ? findCrop(previousStep.cropId)! : current;
       let expanded = false;
       for (const crop of catalog) {
-        const end = start + (crop.cycleDays-1)*dayMs;
-        let occupied = [window];
-        let effective: Window = window;
-        if (crop.perennial) {
-          occupied = indicators.windows.filter(w => day(w.start) >= day(window.start) && day(w.start) <= end);
-          // La perenne se evalúa durante toda la ocupación, incluyendo meses fríos entre ventanas.
-          const horizonEnd = Math.max(...indicators.windows.map(w => day(w.end)));
-          if (end > horizonEnd) { failures.add(`${crop.name}: perenne excede el horizonte disponible`); continue; }
-          const normals = indicators.climatology;
-          let unsafe = false;
-          for (let time = new Date(start); time.getTime() <= end; time = new Date(Date.UTC(time.getUTCFullYear(), time.getUTCMonth()+1, 1))) {
-            const t = normals.find(n => n.variable === 'T2M' && n.month === time.getUTCMonth()+1)?.value;
-            if (t !== undefined && (t < crop.tempMin || t > crop.tempMax)) unsafe = true;
-          }
-          if (unsafe) { failures.add(`${crop.name}: meses intermedios fuera del rango térmico de la perenne`); continue; }
-          const duration = occupied.reduce((sum, w) => sum+w.durationDays, 0);
-          effective = { ...window, durationDays: duration, precipitationMm: occupied.some(w => w.precipitationMm === null) ? null : occupied.reduce((sum, w) => sum+w.precipitationMm!, 0) };
-        }
-        const available = crop.perennial ? Math.floor((Math.max(...indicators.windows.map(w => day(w.end)))-start)/dayMs)+1 : Math.floor((day(window.end)-start)/dayMs)+1;
-        const result = viability(crop, effective, indicators, available);
-        if (!result.viable) { failures.add(`${crop.name}: ${result.reasons.join('; ')}`); continue; }
-        const tr = transition(previous, crop, history);
+        const plan = schedule(crop, window, indicators, start);
+        if (!plan.scheduled) { failures.add(`${crop.name}: ${plan.reasons.join('; ')}`); continue; }
+        const { result, effective, start: planted, end, occupiedWindowIds } = plan.scheduled;
+        const tr = transition(previous, crop, [...history, ...partial.sequence.map(s => ({ cropId: s.cropId, plantedAt: s.start, harvestedAt: s.end }))]);
         const components: Weights = {
           water: Math.max(0, Math.min(100, (1-crop.waterMm/1300)*70 + crop.droughtTolerance*.3)),
           soil: tr.score, income: crop.incomeOpportunity,
@@ -67,15 +51,15 @@ export function recommend(input: { currentCropId: string; history: History[]; pr
         };
         const count = partial.sequence.length;
         const combined = Object.fromEntries((Object.keys(components) as (keyof Weights)[]).map(key => [key, (partial.components[key]*count+components[key])/(count+1)])) as unknown as Weights;
-        const sequence = [...partial.sequence, { cropId: crop.id, cropName: crop.name, windowId: window.id, start: iso(start), end: iso(end), occupiedWindowIds: occupied.map(w => w.id) }];
+        const sequence = [...partial.sequence, { cropId: crop.id, cropName: crop.name, windowId: window.id, start: iso(planted), end: iso(end), occupiedWindowIds }];
         next.push({ id: sequence.map(s => s.cropId).join('>'), sequence, components: combined, score: weightedScore(combined, priorities),
           explanation: [...partial.explanation, ...tr.reasons.map(r => `${previous.name} → ${crop.name}: ${r}`),
-            `${crop.name}: NASA T2M=${window.meanTemperature ?? 'faltante'} C; lluvia=${result.waterMm?.toFixed(0) ?? 'faltante'} mm/ciclo; ciclo=${crop.cycleDays} días`,
+            `${crop.name}: NASA T2M=${effective.meanTemperature ?? 'faltante'} C; lluvia=${result.waterMm?.toFixed(0) ?? 'faltante'} mm/ciclo; ciclo=${crop.cycleDays} días`,
             `Pesos agua=${priorities.water}, suelo=${priorities.soil}, ingreso=${priorities.income}, riesgo=${priorities.risk}; ingreso es una heurística, no precio`],
           risks: [...partial.risks, ...result.risks] });
         expanded = true;
       }
-      if (!expanded && partial.sequence.length) {
+      if (!expanded) {
         next.push({ ...partial, risks: [...partial.risks, `Sin continuación viable en ${window.id}; considerar barbecho`] });
       }
     }

@@ -55,11 +55,19 @@ describe('B12–B15 motor determinista y explicable', () => {
   });
   it('devuelve ninguna viable con razones y barbecho', () => {
     const data = input(); data.indicators.windows.forEach(w => { w.meanTemperature = -20; });
+    data.indicators.climatology.forEach(n => { n.value = -20; });
     const result = recommend(data);
     expect(result.status).toBe('no_viable_options'); expect(result.recommendations).toEqual([]);
-    expect(result.warnings.join()).toContain('Temperatura'); expect(result.warnings.join()).toContain('barbecho');
+    expect(result.warnings.join()).toContain('térmico'); expect(result.warnings.join()).toContain('barbecho');
     data.indicators.windows = [];
     expect(recommend(data).status).toBe('no_viable_options');
+  });
+  it('espera una ventana posterior cuando la primera no tiene cultivos viables', () => {
+    const data = input(); data.indicators.windows[0].end = '2025-01-03'; data.indicators.windows[0].durationDays = 3;
+    const result = recommend(data);
+    expect(result.status).toBe('ok');
+    expect(result.recommendations[0].sequence[0].windowId).toBe('w2');
+    expect(result.recommendations[0].risks.join()).toContain('barbecho');
   });
   it('una perenne ocupa varias ventanas y no se solapa con el siguiente cultivo', () => {
     const data = input();
@@ -76,6 +84,11 @@ describe('B12–B15 motor determinista y explicable', () => {
   });
   it('desempata de forma estable aunque cambie el orden del catálogo', () => {
     expect(recommend(input(), crops)).toEqual(recommend(input(), [...crops].reverse()));
+  });
+  it('no propone sembrar antes de obtener los indicadores', () => {
+    const data = input(); data.indicators.fetchedAt = '2025-02-14T10:00:00Z';
+    const result = recommend(data);
+    for (const item of result.recommendations) expect(item.sequence[0].start >= '2025-02-14').toBe(true);
   });
 });
 

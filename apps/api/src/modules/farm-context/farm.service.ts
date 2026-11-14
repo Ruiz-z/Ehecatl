@@ -29,7 +29,7 @@ export class FarmService {
   async updateParcel(id: string, body: unknown, actor: Actor) {
     const parcel = await this.parcel(id, actor);
     const input = objectBody(body, ['name', 'lat', 'lon']);
-    const point = 'lat' in input || 'lon' in input ? coordinates(input.lat ?? parcel.lat, input.lon ?? parcel.lon) : {};
+    const point = 'lat' in input || 'lon' in input ? coordinates('lat' in input ? input.lat : parcel.lat, 'lon' in input ? input.lon : parcel.lon) : {};
     return this.prisma.parcel.update({ where: { id }, data: { ...point, ...('name' in input ? { name: name(input.name) } : {}) }, include: { zones: true } });
   }
   async deleteParcel(id: string, actor: Actor) { await this.parcel(id, actor); await this.prisma.parcel.delete({ where: { id } }); }
