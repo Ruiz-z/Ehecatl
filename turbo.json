@@ -18,6 +18,17 @@
     "lint": {},
     "test": {
       "cache": false
+    },
+    "geo#build": {
+      "cache": false,
+      "outputs": []
     }
-  }
+  },
+  "globalPassThroughEnv": [
+    "UV_*",
+    "XDG_CACHE_HOME",
+    "DATABASE_URL",
+    "PORT",
+    "HOST"
+  ]
 }

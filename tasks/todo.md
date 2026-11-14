@@ -63,7 +63,7 @@ Cada tarea técnica: < 30 min, tests primero, deja el sistema funcionando. Forma
   - Archivos: `apps/api/**` (main, app.module, prisma module, health), `apps/api/Dockerfile`
   - Depende de: I1
 
-- [ ] **I3: Scaffold `apps/geo` (FastAPI) con `/health`**
+- [x] **I3: Scaffold `apps/geo` (FastAPI) con `/health`**
   - Hecho cuando: FastAPI + httpx + pytest; `GET /health` → 200; servicio `geo` en compose.
   - Verificar: `python -m pytest` en `apps/geo` y `curl localhost:8000/health`.
   - Archivos: `apps/geo/app/main.py`, `apps/geo/pyproject.toml`, `apps/geo/tests/test_health.py`, `apps/geo/Dockerfile`

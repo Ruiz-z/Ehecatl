@@ -1,0 +1,13 @@
+[project]
+name = "geo"
+version = "0.0.0"
+description = "Servicio geoespacial de Ehécatl"
+requires-python = ">=3.11"
+dependencies = ["fastapi", "httpx", "uvicorn"]
+
+[dependency-groups]
+dev = ["pytest"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
