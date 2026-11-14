@@ -24,7 +24,7 @@ Los valores de PostgreSQL en `.env.example` son exclusivamente para desarrollo l
 
 ## Desarrollo local
 
-Requisitos: Node.js 24 LTS, pnpm 10.34.9 y uv. Python 3.12 se selecciona mediante `apps/geo/.python-version`.
+Requisitos: Node.js 24 LTS (fijado en `.nvmrc`; usa `nvm use` o `fnm use`), pnpm 10.34.9 y uv. Python 3.12 se selecciona mediante `apps/geo/.python-version`.
 
 ```bash
 pnpm install
