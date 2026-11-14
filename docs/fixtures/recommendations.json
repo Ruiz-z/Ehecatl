@@ -1,0 +1,1231 @@
+{
+  "version": 1,
+  "zoneId": "00000000-0000-4000-8000-000000000001",
+  "status": "ok",
+  "origin": "mock",
+  "confidence": "low",
+  "warnings": [
+    "Sin historial; confianza reducida"
+  ],
+  "priorities": {
+    "water": 25,
+    "soil": 25,
+    "income": 25,
+    "risk": 25
+  },
+  "currentCropRisk": {
+    "level": "low",
+    "reasons": [],
+    "changeAt": "2025-01-01"
+  },
+  "inputs": {
+    "point": {
+      "lat": 25.4,
+      "lon": -101
+    },
+    "currentCropId": "maize",
+    "historyCount": 0,
+    "indicators": {
+      "version": 1,
+      "point": {
+        "lat": 25.4,
+        "lon": -101
+      },
+      "period": {
+        "start": "2024-01-01",
+        "end": "2024-12-31"
+      },
+      "origin": "mock",
+      "fetchedAt": "2025-01-01T00:00:00Z",
+      "sources": {
+        "power": {
+          "status": "available",
+          "reason": null
+        },
+        "modis": {
+          "status": "available",
+          "reason": null
+        }
+      },
+      "monthly": [
+        {
+          "variable": "T2M",
+          "date": "2024-01-01",
+          "value": 24,
+          "unit": "C",
+          "source": "NASA POWER",
+          "resolution": "0.5 degrees"
+        },
+        {
+          "variable": "T2M_MIN",
+          "date": "2024-01-01",
+          "value": 15,
+          "unit": "C",
+          "source": "NASA POWER",
+          "resolution": "0.5 degrees"
+        },
+        {
+          "variable": "T2M_MAX",
+          "date": "2024-01-01",
+          "value": 32,
+          "unit": "C",
+          "source": "NASA POWER",
+          "resolution": "0.5 degrees"
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "date": "2024-01-01",
+          "value": 90,
+          "unit": "mm/month",
+          "source": "NASA POWER",
+          "resolution": "0.5 degrees"
+        },
+        {
+          "variable": "GWETROOT",
+          "date": "2024-01-01",
+          "value": 0.6,
+          "unit": "fraction",
+          "source": "NASA POWER",
+          "resolution": "0.5 degrees"
+        },
+        {
+          "variable": "NDVI",
+          "date": "2024-01-01",
+          "value": 0.6,
+          "unit": "index",
+          "source": "MODIS MOD13Q1 / ORNL DAAC",
+          "resolution": "250 m"
+        },
+        {
+          "variable": "T2M",
+          "date": "2024-02-01",
+          "value": 24,
+          "unit": "C",
+          "source": "NASA POWER",
+          "resolution": "0.5 degrees"
+        },
+        {
+          "variable": "T2M_MIN",
+          "date": "2024-02-01",
+          "value": 15,
+          "unit": "C",
+          "source": "NASA POWER",
+          "resolution": "0.5 degrees"
+        },
+        {
+          "variable": "T2M_MAX",
+          "date": "2024-02-01",
+          "value": 32,
+          "unit": "C",
+          "source": "NASA POWER",
+          "resolution": "0.5 degrees"
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "date": "2024-02-01",
+          "value": 90,
+          "unit": "mm/month",
+          "source": "NASA POWER",
+          "resolution": "0.5 degrees"
+        },
+        {
+          "variable": "GWETROOT",
+          "date": "2024-02-01",
+          "value": 0.6,
+          "unit": "fraction",
+          "source": "NASA POWER",
+          "resolution": "0.5 degrees"
+        },
+        {
+          "variable": "NDVI",
+          "date": "2024-02-01",
+          "value": 0.6,
+          "unit": "index",
+          "source": "MODIS MOD13Q1 / ORNL DAAC",
+          "resolution": "250 m"
+        },
+        {
+          "variable": "T2M",
+          "date": "2024-03-01",
+          "value": 24,
+          "unit": "C",
+          "source": "NASA POWER",
+          "resolution": "0.5 degrees"
+        },
+        {
+          "variable": "T2M_MIN",
+          "date": "2024-03-01",
+          "value": 15,
+          "unit": "C",
+          "source": "NASA POWER",
+          "resolution": "0.5 degrees"
+        },
+        {
+          "variable": "T2M_MAX",
+          "date": "2024-03-01",
+          "value": 32,
+          "unit": "C",
+          "source": "NASA POWER",
+          "resolution": "0.5 degrees"
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "date": "2024-03-01",
+          "value": 90,
+          "unit": "mm/month",
+          "source": "NASA POWER",
+          "resolution": "0.5 degrees"
+        },
+        {
+          "variable": "GWETROOT",
+          "date": "2024-03-01",
+          "value": 0.6,
+          "unit": "fraction",
+          "source": "NASA POWER",
+          "resolution": "0.5 degrees"
+        },
+        {
+          "variable": "NDVI",
+          "date": "2024-03-01",
+          "value": 0.6,
+          "unit": "index",
+          "source": "MODIS MOD13Q1 / ORNL DAAC",
+          "resolution": "250 m"
+        },
+        {
+          "variable": "T2M",
+          "date": "2024-04-01",
+          "value": 24,
+          "unit": "C",
+          "source": "NASA POWER",
+          "resolution": "0.5 degrees"
+        },
+        {
+          "variable": "T2M_MIN",
+          "date": "2024-04-01",
+          "value": 15,
+          "unit": "C",
+          "source": "NASA POWER",
+          "resolution": "0.5 degrees"
+        },
+        {
+          "variable": "T2M_MAX",
+          "date": "2024-04-01",
+          "value": 32,
+          "unit": "C",
+          "source": "NASA POWER",
+          "resolution": "0.5 degrees"
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "date": "2024-04-01",
+          "value": 90,
+          "unit": "mm/month",
+          "source": "NASA POWER",
+          "resolution": "0.5 degrees"
+        },
+        {
+          "variable": "GWETROOT",
+          "date": "2024-04-01",
+          "value": 0.6,
+          "unit": "fraction",
+          "source": "NASA POWER",
+          "resolution": "0.5 degrees"
+        },
+        {
+          "variable": "NDVI",
+          "date": "2024-04-01",
+          "value": 0.6,
+          "unit": "index",
+          "source": "MODIS MOD13Q1 / ORNL DAAC",
+          "resolution": "250 m"
+        },
+        {
+          "variable": "T2M",
+          "date": "2024-05-01",
+          "value": 24,
+          "unit": "C",
+          "source": "NASA POWER",
+          "resolution": "0.5 degrees"
+        },
+        {
+          "variable": "T2M_MIN",
+          "date": "2024-05-01",
+          "value": 15,
+          "unit": "C",
+          "source": "NASA POWER",
+          "resolution": "0.5 degrees"
+        },
+        {
+          "variable": "T2M_MAX",
+          "date": "2024-05-01",
+          "value": 32,
+          "unit": "C",
+          "source": "NASA POWER",
+          "resolution": "0.5 degrees"
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "date": "2024-05-01",
+          "value": 90,
+          "unit": "mm/month",
+          "source": "NASA POWER",
+          "resolution": "0.5 degrees"
+        },
+        {
+          "variable": "GWETROOT",
+          "date": "2024-05-01",
+          "value": 0.6,
+          "unit": "fraction",
+          "source": "NASA POWER",
+          "resolution": "0.5 degrees"
+        },
+        {
+          "variable": "NDVI",
+          "date": "2024-05-01",
+          "value": 0.6,
+          "unit": "index",
+          "source": "MODIS MOD13Q1 / ORNL DAAC",
+          "resolution": "250 m"
+        },
+        {
+          "variable": "T2M",
+          "date": "2024-06-01",
+          "value": 24,
+          "unit": "C",
+          "source": "NASA POWER",
+          "resolution": "0.5 degrees"
+        },
+        {
+          "variable": "T2M_MIN",
+          "date": "2024-06-01",
+          "value": 15,
+          "unit": "C",
+          "source": "NASA POWER",
+          "resolution": "0.5 degrees"
+        },
+        {
+          "variable": "T2M_MAX",
+          "date": "2024-06-01",
+          "value": 32,
+          "unit": "C",
+          "source": "NASA POWER",
+          "resolution": "0.5 degrees"
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "date": "2024-06-01",
+          "value": 90,
+          "unit": "mm/month",
+          "source": "NASA POWER",
+          "resolution": "0.5 degrees"
+        },
+        {
+          "variable": "GWETROOT",
+          "date": "2024-06-01",
+          "value": 0.6,
+          "unit": "fraction",
+          "source": "NASA POWER",
+          "resolution": "0.5 degrees"
+        },
+        {
+          "variable": "NDVI",
+          "date": "2024-06-01",
+          "value": 0.6,
+          "unit": "index",
+          "source": "MODIS MOD13Q1 / ORNL DAAC",
+          "resolution": "250 m"
+        },
+        {
+          "variable": "T2M",
+          "date": "2024-07-01",
+          "value": 24,
+          "unit": "C",
+          "source": "NASA POWER",
+          "resolution": "0.5 degrees"
+        },
+        {
+          "variable": "T2M_MIN",
+          "date": "2024-07-01",
+          "value": 15,
+          "unit": "C",
+          "source": "NASA POWER",
+          "resolution": "0.5 degrees"
+        },
+        {
+          "variable": "T2M_MAX",
+          "date": "2024-07-01",
+          "value": 32,
+          "unit": "C",
+          "source": "NASA POWER",
+          "resolution": "0.5 degrees"
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "date": "2024-07-01",
+          "value": 90,
+          "unit": "mm/month",
+          "source": "NASA POWER",
+          "resolution": "0.5 degrees"
+        },
+        {
+          "variable": "GWETROOT",
+          "date": "2024-07-01",
+          "value": 0.6,
+          "unit": "fraction",
+          "source": "NASA POWER",
+          "resolution": "0.5 degrees"
+        },
+        {
+          "variable": "NDVI",
+          "date": "2024-07-01",
+          "value": 0.6,
+          "unit": "index",
+          "source": "MODIS MOD13Q1 / ORNL DAAC",
+          "resolution": "250 m"
+        },
+        {
+          "variable": "T2M",
+          "date": "2024-08-01",
+          "value": 24,
+          "unit": "C",
+          "source": "NASA POWER",
+          "resolution": "0.5 degrees"
+        },
+        {
+          "variable": "T2M_MIN",
+          "date": "2024-08-01",
+          "value": 15,
+          "unit": "C",
+          "source": "NASA POWER",
+          "resolution": "0.5 degrees"
+        },
+        {
+          "variable": "T2M_MAX",
+          "date": "2024-08-01",
+          "value": 32,
+          "unit": "C",
+          "source": "NASA POWER",
+          "resolution": "0.5 degrees"
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "date": "2024-08-01",
+          "value": 90,
+          "unit": "mm/month",
+          "source": "NASA POWER",
+          "resolution": "0.5 degrees"
+        },
+        {
+          "variable": "GWETROOT",
+          "date": "2024-08-01",
+          "value": 0.6,
+          "unit": "fraction",
+          "source": "NASA POWER",
+          "resolution": "0.5 degrees"
+        },
+        {
+          "variable": "NDVI",
+          "date": "2024-08-01",
+          "value": 0.6,
+          "unit": "index",
+          "source": "MODIS MOD13Q1 / ORNL DAAC",
+          "resolution": "250 m"
+        },
+        {
+          "variable": "T2M",
+          "date": "2024-09-01",
+          "value": 24,
+          "unit": "C",
+          "source": "NASA POWER",
+          "resolution": "0.5 degrees"
+        },
+        {
+          "variable": "T2M_MIN",
+          "date": "2024-09-01",
+          "value": 15,
+          "unit": "C",
+          "source": "NASA POWER",
+          "resolution": "0.5 degrees"
+        },
+        {
+          "variable": "T2M_MAX",
+          "date": "2024-09-01",
+          "value": 32,
+          "unit": "C",
+          "source": "NASA POWER",
+          "resolution": "0.5 degrees"
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "date": "2024-09-01",
+          "value": 90,
+          "unit": "mm/month",
+          "source": "NASA POWER",
+          "resolution": "0.5 degrees"
+        },
+        {
+          "variable": "GWETROOT",
+          "date": "2024-09-01",
+          "value": 0.6,
+          "unit": "fraction",
+          "source": "NASA POWER",
+          "resolution": "0.5 degrees"
+        },
+        {
+          "variable": "NDVI",
+          "date": "2024-09-01",
+          "value": 0.6,
+          "unit": "index",
+          "source": "MODIS MOD13Q1 / ORNL DAAC",
+          "resolution": "250 m"
+        },
+        {
+          "variable": "T2M",
+          "date": "2024-10-01",
+          "value": 24,
+          "unit": "C",
+          "source": "NASA POWER",
+          "resolution": "0.5 degrees"
+        },
+        {
+          "variable": "T2M_MIN",
+          "date": "2024-10-01",
+          "value": 15,
+          "unit": "C",
+          "source": "NASA POWER",
+          "resolution": "0.5 degrees"
+        },
+        {
+          "variable": "T2M_MAX",
+          "date": "2024-10-01",
+          "value": 32,
+          "unit": "C",
+          "source": "NASA POWER",
+          "resolution": "0.5 degrees"
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "date": "2024-10-01",
+          "value": 90,
+          "unit": "mm/month",
+          "source": "NASA POWER",
+          "resolution": "0.5 degrees"
+        },
+        {
+          "variable": "GWETROOT",
+          "date": "2024-10-01",
+          "value": 0.6,
+          "unit": "fraction",
+          "source": "NASA POWER",
+          "resolution": "0.5 degrees"
+        },
+        {
+          "variable": "NDVI",
+          "date": "2024-10-01",
+          "value": 0.6,
+          "unit": "index",
+          "source": "MODIS MOD13Q1 / ORNL DAAC",
+          "resolution": "250 m"
+        },
+        {
+          "variable": "T2M",
+          "date": "2024-11-01",
+          "value": 24,
+          "unit": "C",
+          "source": "NASA POWER",
+          "resolution": "0.5 degrees"
+        },
+        {
+          "variable": "T2M_MIN",
+          "date": "2024-11-01",
+          "value": 15,
+          "unit": "C",
+          "source": "NASA POWER",
+          "resolution": "0.5 degrees"
+        },
+        {
+          "variable": "T2M_MAX",
+          "date": "2024-11-01",
+          "value": 32,
+          "unit": "C",
+          "source": "NASA POWER",
+          "resolution": "0.5 degrees"
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "date": "2024-11-01",
+          "value": 90,
+          "unit": "mm/month",
+          "source": "NASA POWER",
+          "resolution": "0.5 degrees"
+        },
+        {
+          "variable": "GWETROOT",
+          "date": "2024-11-01",
+          "value": 0.6,
+          "unit": "fraction",
+          "source": "NASA POWER",
+          "resolution": "0.5 degrees"
+        },
+        {
+          "variable": "NDVI",
+          "date": "2024-11-01",
+          "value": 0.6,
+          "unit": "index",
+          "source": "MODIS MOD13Q1 / ORNL DAAC",
+          "resolution": "250 m"
+        },
+        {
+          "variable": "T2M",
+          "date": "2024-12-01",
+          "value": 24,
+          "unit": "C",
+          "source": "NASA POWER",
+          "resolution": "0.5 degrees"
+        },
+        {
+          "variable": "T2M_MIN",
+          "date": "2024-12-01",
+          "value": 15,
+          "unit": "C",
+          "source": "NASA POWER",
+          "resolution": "0.5 degrees"
+        },
+        {
+          "variable": "T2M_MAX",
+          "date": "2024-12-01",
+          "value": 32,
+          "unit": "C",
+          "source": "NASA POWER",
+          "resolution": "0.5 degrees"
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "date": "2024-12-01",
+          "value": 90,
+          "unit": "mm/month",
+          "source": "NASA POWER",
+          "resolution": "0.5 degrees"
+        },
+        {
+          "variable": "GWETROOT",
+          "date": "2024-12-01",
+          "value": 0.6,
+          "unit": "fraction",
+          "source": "NASA POWER",
+          "resolution": "0.5 degrees"
+        },
+        {
+          "variable": "NDVI",
+          "date": "2024-12-01",
+          "value": 0.6,
+          "unit": "index",
+          "source": "MODIS MOD13Q1 / ORNL DAAC",
+          "resolution": "250 m"
+        }
+      ],
+      "climatology": [
+        {
+          "variable": "T2M",
+          "month": 1,
+          "value": 24,
+          "samples": 10,
+          "unit": "C"
+        },
+        {
+          "variable": "T2M_MIN",
+          "month": 1,
+          "value": 15,
+          "samples": 10,
+          "unit": "C"
+        },
+        {
+          "variable": "T2M_MAX",
+          "month": 1,
+          "value": 32,
+          "samples": 10,
+          "unit": "C"
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "month": 1,
+          "value": 90,
+          "samples": 10,
+          "unit": "mm/month"
+        },
+        {
+          "variable": "GWETROOT",
+          "month": 1,
+          "value": 0.6,
+          "samples": 10,
+          "unit": "fraction"
+        },
+        {
+          "variable": "NDVI",
+          "month": 1,
+          "value": 0.6,
+          "samples": 10,
+          "unit": "index"
+        },
+        {
+          "variable": "T2M",
+          "month": 2,
+          "value": 24,
+          "samples": 10,
+          "unit": "C"
+        },
+        {
+          "variable": "T2M_MIN",
+          "month": 2,
+          "value": 15,
+          "samples": 10,
+          "unit": "C"
+        },
+        {
+          "variable": "T2M_MAX",
+          "month": 2,
+          "value": 32,
+          "samples": 10,
+          "unit": "C"
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "month": 2,
+          "value": 90,
+          "samples": 10,
+          "unit": "mm/month"
+        },
+        {
+          "variable": "GWETROOT",
+          "month": 2,
+          "value": 0.6,
+          "samples": 10,
+          "unit": "fraction"
+        },
+        {
+          "variable": "NDVI",
+          "month": 2,
+          "value": 0.6,
+          "samples": 10,
+          "unit": "index"
+        },
+        {
+          "variable": "T2M",
+          "month": 3,
+          "value": 24,
+          "samples": 10,
+          "unit": "C"
+        },
+        {
+          "variable": "T2M_MIN",
+          "month": 3,
+          "value": 15,
+          "samples": 10,
+          "unit": "C"
+        },
+        {
+          "variable": "T2M_MAX",
+          "month": 3,
+          "value": 32,
+          "samples": 10,
+          "unit": "C"
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "month": 3,
+          "value": 90,
+          "samples": 10,
+          "unit": "mm/month"
+        },
+        {
+          "variable": "GWETROOT",
+          "month": 3,
+          "value": 0.6,
+          "samples": 10,
+          "unit": "fraction"
+        },
+        {
+          "variable": "NDVI",
+          "month": 3,
+          "value": 0.6,
+          "samples": 10,
+          "unit": "index"
+        },
+        {
+          "variable": "T2M",
+          "month": 4,
+          "value": 24,
+          "samples": 10,
+          "unit": "C"
+        },
+        {
+          "variable": "T2M_MIN",
+          "month": 4,
+          "value": 15,
+          "samples": 10,
+          "unit": "C"
+        },
+        {
+          "variable": "T2M_MAX",
+          "month": 4,
+          "value": 32,
+          "samples": 10,
+          "unit": "C"
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "month": 4,
+          "value": 90,
+          "samples": 10,
+          "unit": "mm/month"
+        },
+        {
+          "variable": "GWETROOT",
+          "month": 4,
+          "value": 0.6,
+          "samples": 10,
+          "unit": "fraction"
+        },
+        {
+          "variable": "NDVI",
+          "month": 4,
+          "value": 0.6,
+          "samples": 10,
+          "unit": "index"
+        },
+        {
+          "variable": "T2M",
+          "month": 5,
+          "value": 24,
+          "samples": 10,
+          "unit": "C"
+        },
+        {
+          "variable": "T2M_MIN",
+          "month": 5,
+          "value": 15,
+          "samples": 10,
+          "unit": "C"
+        },
+        {
+          "variable": "T2M_MAX",
+          "month": 5,
+          "value": 32,
+          "samples": 10,
+          "unit": "C"
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "month": 5,
+          "value": 90,
+          "samples": 10,
+          "unit": "mm/month"
+        },
+        {
+          "variable": "GWETROOT",
+          "month": 5,
+          "value": 0.6,
+          "samples": 10,
+          "unit": "fraction"
+        },
+        {
+          "variable": "NDVI",
+          "month": 5,
+          "value": 0.6,
+          "samples": 10,
+          "unit": "index"
+        },
+        {
+          "variable": "T2M",
+          "month": 6,
+          "value": 24,
+          "samples": 10,
+          "unit": "C"
+        },
+        {
+          "variable": "T2M_MIN",
+          "month": 6,
+          "value": 15,
+          "samples": 10,
+          "unit": "C"
+        },
+        {
+          "variable": "T2M_MAX",
+          "month": 6,
+          "value": 32,
+          "samples": 10,
+          "unit": "C"
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "month": 6,
+          "value": 90,
+          "samples": 10,
+          "unit": "mm/month"
+        },
+        {
+          "variable": "GWETROOT",
+          "month": 6,
+          "value": 0.6,
+          "samples": 10,
+          "unit": "fraction"
+        },
+        {
+          "variable": "NDVI",
+          "month": 6,
+          "value": 0.6,
+          "samples": 10,
+          "unit": "index"
+        },
+        {
+          "variable": "T2M",
+          "month": 7,
+          "value": 24,
+          "samples": 10,
+          "unit": "C"
+        },
+        {
+          "variable": "T2M_MIN",
+          "month": 7,
+          "value": 15,
+          "samples": 10,
+          "unit": "C"
+        },
+        {
+          "variable": "T2M_MAX",
+          "month": 7,
+          "value": 32,
+          "samples": 10,
+          "unit": "C"
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "month": 7,
+          "value": 90,
+          "samples": 10,
+          "unit": "mm/month"
+        },
+        {
+          "variable": "GWETROOT",
+          "month": 7,
+          "value": 0.6,
+          "samples": 10,
+          "unit": "fraction"
+        },
+        {
+          "variable": "NDVI",
+          "month": 7,
+          "value": 0.6,
+          "samples": 10,
+          "unit": "index"
+        },
+        {
+          "variable": "T2M",
+          "month": 8,
+          "value": 24,
+          "samples": 10,
+          "unit": "C"
+        },
+        {
+          "variable": "T2M_MIN",
+          "month": 8,
+          "value": 15,
+          "samples": 10,
+          "unit": "C"
+        },
+        {
+          "variable": "T2M_MAX",
+          "month": 8,
+          "value": 32,
+          "samples": 10,
+          "unit": "C"
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "month": 8,
+          "value": 90,
+          "samples": 10,
+          "unit": "mm/month"
+        },
+        {
+          "variable": "GWETROOT",
+          "month": 8,
+          "value": 0.6,
+          "samples": 10,
+          "unit": "fraction"
+        },
+        {
+          "variable": "NDVI",
+          "month": 8,
+          "value": 0.6,
+          "samples": 10,
+          "unit": "index"
+        },
+        {
+          "variable": "T2M",
+          "month": 9,
+          "value": 24,
+          "samples": 10,
+          "unit": "C"
+        },
+        {
+          "variable": "T2M_MIN",
+          "month": 9,
+          "value": 15,
+          "samples": 10,
+          "unit": "C"
+        },
+        {
+          "variable": "T2M_MAX",
+          "month": 9,
+          "value": 32,
+          "samples": 10,
+          "unit": "C"
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "month": 9,
+          "value": 90,
+          "samples": 10,
+          "unit": "mm/month"
+        },
+        {
+          "variable": "GWETROOT",
+          "month": 9,
+          "value": 0.6,
+          "samples": 10,
+          "unit": "fraction"
+        },
+        {
+          "variable": "NDVI",
+          "month": 9,
+          "value": 0.6,
+          "samples": 10,
+          "unit": "index"
+        },
+        {
+          "variable": "T2M",
+          "month": 10,
+          "value": 24,
+          "samples": 10,
+          "unit": "C"
+        },
+        {
+          "variable": "T2M_MIN",
+          "month": 10,
+          "value": 15,
+          "samples": 10,
+          "unit": "C"
+        },
+        {
+          "variable": "T2M_MAX",
+          "month": 10,
+          "value": 32,
+          "samples": 10,
+          "unit": "C"
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "month": 10,
+          "value": 90,
+          "samples": 10,
+          "unit": "mm/month"
+        },
+        {
+          "variable": "GWETROOT",
+          "month": 10,
+          "value": 0.6,
+          "samples": 10,
+          "unit": "fraction"
+        },
+        {
+          "variable": "NDVI",
+          "month": 10,
+          "value": 0.6,
+          "samples": 10,
+          "unit": "index"
+        },
+        {
+          "variable": "T2M",
+          "month": 11,
+          "value": 24,
+          "samples": 10,
+          "unit": "C"
+        },
+        {
+          "variable": "T2M_MIN",
+          "month": 11,
+          "value": 15,
+          "samples": 10,
+          "unit": "C"
+        },
+        {
+          "variable": "T2M_MAX",
+          "month": 11,
+          "value": 32,
+          "samples": 10,
+          "unit": "C"
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "month": 11,
+          "value": 90,
+          "samples": 10,
+          "unit": "mm/month"
+        },
+        {
+          "variable": "GWETROOT",
+          "month": 11,
+          "value": 0.6,
+          "samples": 10,
+          "unit": "fraction"
+        },
+        {
+          "variable": "NDVI",
+          "month": 11,
+          "value": 0.6,
+          "samples": 10,
+          "unit": "index"
+        },
+        {
+          "variable": "T2M",
+          "month": 12,
+          "value": 24,
+          "samples": 10,
+          "unit": "C"
+        },
+        {
+          "variable": "T2M_MIN",
+          "month": 12,
+          "value": 15,
+          "samples": 10,
+          "unit": "C"
+        },
+        {
+          "variable": "T2M_MAX",
+          "month": 12,
+          "value": 32,
+          "samples": 10,
+          "unit": "C"
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "month": 12,
+          "value": 90,
+          "samples": 10,
+          "unit": "mm/month"
+        },
+        {
+          "variable": "GWETROOT",
+          "month": 12,
+          "value": 0.6,
+          "samples": 10,
+          "unit": "fraction"
+        },
+        {
+          "variable": "NDVI",
+          "month": 12,
+          "value": 0.6,
+          "samples": 10,
+          "unit": "index"
+        }
+      ],
+      "anomalies": [],
+      "trends": [
+        {
+          "type": "drought",
+          "active": false,
+          "evidence": []
+        },
+        {
+          "type": "heat",
+          "active": false,
+          "evidence": []
+        },
+        {
+          "type": "erratic_rain",
+          "active": false,
+          "evidence": []
+        },
+        {
+          "type": "vegetation_stress",
+          "active": false,
+          "evidence": []
+        }
+      ],
+      "windows": [
+        {
+          "id": "window-1",
+          "start": "2025-01-01",
+          "end": "2026-12-31",
+          "months": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12
+          ],
+          "durationDays": 730,
+          "temperatureMin": 15,
+          "temperatureMax": 32,
+          "meanTemperature": 24,
+          "precipitationMm": 2160,
+          "irrigated": false
+        }
+      ],
+      "warnings": [
+        "Fixture sint?tico exclusivo de tests"
+      ]
+    }
+  },
+  "recommendations": [
+    {
+      "id": "cowpea",
+      "score": 80,
+      "sequence": [
+        {
+          "cropId": "cowpea",
+          "cropName": "Caup?",
+          "windowId": "window-1",
+          "start": "2025-01-01",
+          "end": "2025-03-31",
+          "occupiedWindowIds": [
+            "window-1"
+          ]
+        }
+      ],
+      "components": {
+        "water": 85,
+        "soil": 90,
+        "income": 65,
+        "risk": 80
+      },
+      "explanation": [
+        "Leguminosa despu?s de cereal; pesos 25/25/25/25"
+      ],
+      "risks": [
+        "Validar disponibilidad de semilla"
+      ]
+    }
+  ]
+}
