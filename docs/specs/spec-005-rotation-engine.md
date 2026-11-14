@@ -18,7 +18,7 @@ Agricultor (lee recomendaciones), dashboard (las muestra).
 - RF-2: EL SISTEMA evalúa cada transición A → B con reglas de familia botánica, balance de nitrógeno, ruptura de ciclo de plagas/enfermedades y cobertura/erosión (spec 004).
 - RF-3: EL SISTEMA evalúa la viabilidad de B comparando requisitos del cultivo (agua, temperatura, ciclo) con los indicadores NASA del punto (spec 003).
 - RF-4: CUANDO los indicadores NASA muestran tendencia de sequía o calor para el cultivo actual, EL SISTEMA marca "riesgo alto" y sugiere cuándo conviene cambiar y hacia qué cultivo más tolerante.
-- RF-5: EL SISTEMA pondera el puntaje final con las prioridades del agricultor (agua, suelo, ingreso, riesgo).
+- RF-5: EL SISTEMA pondera el puntaje final con las prioridades del agricultor (agua, suelo, ingreso, riesgo). El eje **ingreso** se calcula de forma determinista desde el `marketValueTier` de cada cultivo (spec 004), sin precios en tiempo real.
 - RF-6: EL SISTEMA devuelve por cada recomendación el puntaje, las variables NASA y reglas que más pesaron, y los riesgos del cambio.
 - RF-7: SI faltan datos NASA, ENTONCES EL SISTEMA calcula con lo disponible y baja el nivel de confianza, indicándolo.
 - RF-8: SI no hay historial, ENTONCES EL SISTEMA recomienda igualmente y avisa de la menor confianza.
@@ -33,10 +33,10 @@ Agricultor (lee recomendaciones), dashboard (las muestra).
 - Empate de puntajes → desempate estable (por riesgo, luego por nombre).
 
 ## Fuera de alcance
-Modelos de rendimiento entrenados, optimización económica con precios, ML de caja negra.
+Modelos de rendimiento entrenados, optimización económica con precios de mercado en tiempo real, ML de caja negra.
 
 ## Criterios de finalización
-RF-1 a RF-9 con test en verde + demo: tres usuarios con ubicaciones y prioridades distintas reciben recomendaciones distintas y explicadas.
+RF-1 a RF-9 (incluido RF-1c) con test en verde + demo: tres usuarios con ubicaciones y prioridades distintas reciben recomendaciones distintas y explicadas, siempre comparadas contra mantener lo actual.
 
 ## Decisiones
 - La recomendación se calcula **por zona** (spec 002).
