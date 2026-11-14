@@ -51,25 +51,25 @@ Cada tarea técnica: < 30 min, tests primero, deja el sistema funcionando. Forma
 
 ## I — Infraestructura
 
-- [ ] **I1: Monorepo + Docker Compose con Postgres**
+- [x] **I1: Monorepo + Docker Compose con Postgres**
   - Hecho cuando: `pnpm-workspace.yaml`, `turbo.json`, `docker-compose.yml` con servicio `postgres` y `.env.example`; `.env` ignorado en git.
   - Verificar: `docker compose up postgres` y `pg_isready` responde.
   - Archivos: `package.json`, `pnpm-workspace.yaml`, `turbo.json`, `docker-compose.yml`, `.env.example`, `.gitignore`
   - Depende de: — · Specs: constitución #2, #13
 
-- [ ] **I2: Scaffold `apps/api` (NestJS + Prisma) con `/health`**
+- [x] **I2: Scaffold `apps/api` (NestJS + Prisma) con `/health`**
   - Hecho cuando: Nest arranca, Prisma conectado a Postgres, `GET /health` → 200; servicio `api` en compose.
   - Verificar: `pnpm --filter api test` y `curl localhost:3001/health`.
   - Archivos: `apps/api/**` (main, app.module, prisma module, health), `apps/api/Dockerfile`
   - Depende de: I1
 
-- [ ] **I3: Scaffold `apps/geo` (FastAPI) con `/health`**
+- [x] **I3: Scaffold `apps/geo` (FastAPI) con `/health`**
   - Hecho cuando: FastAPI + httpx + pytest; `GET /health` → 200; servicio `geo` en compose.
   - Verificar: `python -m pytest` en `apps/geo` y `curl localhost:8000/health`.
   - Archivos: `apps/geo/app/main.py`, `apps/geo/pyproject.toml`, `apps/geo/tests/test_health.py`, `apps/geo/Dockerfile`
   - Depende de: I1
 
-- [ ] **I4: Scaffold `apps/web` (Next.js + shadcn)**
+- [x] **I4: Scaffold `apps/web` (Next.js + shadcn)**
   - Hecho cuando: Next arranca con página vacía, shadcn inicializado, servicio `web` en compose.
   - Verificar: `pnpm --filter web build` y abrir `localhost:3000`.
   - Archivos: `apps/web/**`, `apps/web/Dockerfile`
@@ -82,7 +82,7 @@ Cada tarea técnica: < 30 min, tests primero, deja el sistema funcionando. Forma
   - Depende de: B18 · Specs: constitución #2
 
 ### Checkpoint I
-- [ ] `docker compose up --build` levanta postgres, api, geo y web con `/health` en verde (I1–I4).
+- [x] `docker compose up --build` levanta postgres, api, geo y web con `/health` en verde (I1–I4).
 
 ---
 
