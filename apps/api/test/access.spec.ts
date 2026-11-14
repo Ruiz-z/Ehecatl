@@ -94,6 +94,7 @@ describe('B2–B5/B17 HTTP real de Nest, persistencia simulada', () => {
     for (const change of [{ lat: 91 }, { lon: -181 }, { lat: '20' }, { lat: null }, { currentCropId: 'unknown' }, { ownerId: otherId }]) {
       await request(app.getHttpServer()).post('/parcels').auth(token(ownerId), { type: 'bearer' }).send({ name: 'Test', lat: 0, lon: 0, currentCropId: 'maize', ...change }).expect(400);
     }
+    await request(app.getHttpServer()).patch(`/parcels/${parcelId}`).auth(token(ownerId), { type: 'bearer' }).send({ lat: null }).expect(400);
   });
   it('crea parcela con dueño y zona por defecto sin limitar región', async () => {
     await request(app.getHttpServer()).post('/parcels').auth(token(ownerId), { type: 'bearer' }).send({ name: 'Sur', lat: -33, lon: 140, currentCropId: 'maize' }).expect(201);

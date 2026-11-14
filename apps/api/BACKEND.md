@@ -49,8 +49,11 @@ representativos del prototipo: no son una extracción validada por cultivar.
 margen, rendimiento ni recomendación financiera. La revisión H4 debe ajustar
 estos números y su aplicabilidad local antes de considerarlos validados.
 
-El agua se estima proporcionalmente a los días del ciclo dentro de una ventana;
-no se asigna la lluvia de 24 meses a un cultivo de 90 días. Se rechaza por debajo
+Se busca la primera fecha de siembra factible dentro de cada ventana (inicio o
+primer día de un mes). Se agregan temperatura, heladas y lluvia únicamente de los
+meses ocupados por el ciclo, ponderando la fracción real del mes. Si faltan normales
+mensuales se usa el resumen de la ventana y se advierte. No se asigna la lluvia de
+24 meses a un cultivo de 90 días. Se rechaza por debajo
 de 65% de la demanda, se advierte entre 65% y 100%. Riego permite la opción con
 un riesgo explícito de abastecimiento. Las normales no son pronósticos.
 
