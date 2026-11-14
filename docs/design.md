@@ -32,25 +32,39 @@ Dirección visual para `apps/web` (tareas F). Referencia: **OneSoil** (app web d
 6. **Parcela · Qué sembrar** — banner de riesgo (si aplica), 2–3 tarjetas de secuencia (ver §7), prioridades como sliders al pie.
 7. **Estados:** vacío, cargando (skeleton), error de datos, sin ventanas de cultivo.
 
-## 4. Tokens (CSS variables; Tailwind + shadcn leen estos nombres)
+## 4. Paleta «Zanahoria» (oficial; la elegió el equipo desde una foto de zanahoria en tierra)
+Cinco colores base muestreados de la imagen: **zanahoria** `#D0410C`, **naranja** `#E89146`, **hoja** `#404D20`, **tierra** `#AC8553`, **lima** `#B4B84D`. Reglas de uso (contrastes calculados WCAG):
+
+| Color | Sobre blanco | Uso permitido |
+|---|---|---|
+| Hoja `#404D20` | 9.1:1 ✅ | Texto de títulos, barra/riel, botón primario (texto blanco 9.1:1) |
+| Zanahoria `#D0410C` | 4.7:1 ✅ solo ≥14 px negrita | Acento fuerte: botón de acción, puntaje, pin. Para texto pequeño usar `#B53509` (6.0:1) |
+| Naranja `#E89146` | 2.4 ❌ | Solo relleno/resalte; texto encima en `#1F2A12` (6.1:1) |
+| Tierra `#AC8553` | 3.4 ❌ | Bordes, iconos decorativos, fondos suaves; texto de tierra: `#6E5430` (6.6:1) |
+| Lima `#B4B84D` | 2.1 ❌ | Relleno de «viable/ok», barras; texto encima en `#1F2A12` (7.1:1) |
+
 ```css
 :root {
-  --background: #FFFFFF;
-  --surface: #F6F7F5;        /* paneles, riel */
+  --background: #FBF7EF;       /* crema cálido, alto contraste con el texto */
+  --surface: #F3ECDD;          /* paneles, riel claro */
   --card: #FFFFFF;
-  --border: #E4E7E2;
-  --foreground: #14201A;     /* texto principal, contraste 16:1 */
-  --muted-foreground: #5B665F; /* secundario, 5.6:1 sobre blanco */
-  --primary: #15803D;        /* acento de marca (botones, activo); 5.0:1 sobre blanco */
+  --border: #E2D6BE;
+  --foreground: #232A14;       /* texto principal, 13.9:1 sobre crema */
+  --muted-foreground: #5E5A45; /* secundario, ≥5.5:1 */
+  --primary: #404D20;          /* hoja: botón primario, riel, títulos */
   --primary-foreground: #FFFFFF;
-  --primary-soft: #E3F3E8;   /* fondo de item activo, chips ok */
-  --sage: #8BA396;           /* fondos de login/hero */
-  --warning: #B45309;  --warning-soft: #FDF0DC;
-  --danger:  #B42318;  --danger-soft:  #FDE7E4;
+  --accent: #D0410C;           /* zanahoria: acción destacada, puntaje */
+  --accent-foreground: #FFFFFF;
+  --accent-text: #B53509;      /* zanahoria para texto pequeño */
+  --highlight: #E89146;        /* naranja: resalte, secuencia #1 */
+  --ok: #B4B84D;  --ok-soft: #EDEFC9; /* viable */
+  --earth: #AC8553; --earth-text: #6E5430;
+  --warning: #B45309; --warning-soft: #FDF0DC;
+  --danger: #B42318;  --danger-soft: #FDE7E4;
   --radius: 12px;
 }
 ```
-Verificar contraste AA (≥4.5:1) en todo texto; el tema es claro y de alto contraste a propósito (legible bajo luz directa del sol): no hay modo oscuro.
+Tema claro de alto contraste a propósito (legible bajo luz directa del sol); **no hay modo oscuro**. El riel y la barra superior van en hoja `#404D20` con texto crema.
 
 **Colores de datos (no reutilizar para UI):**
 | Dato | Color | Nota |
