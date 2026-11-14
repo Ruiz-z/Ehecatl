@@ -127,3 +127,9 @@ test('la actual permanece presente con puntaje y deltas bajo cada prioridad', ()
   assert.deepEqual(rankStrategies(candidates, weights), ranked);
  }
 });
+
+test('sin estrategia actual no hay delta que mostrar', () => {
+  const ranked = rankStrategies(candidates.filter(item => !item.baseline), { water: 25, soil: 25, income: 25, risk: 25 });
+  assert.equal(ranked.length, 2);
+  assert.ok(ranked.every(item => item.delta === null));
+});

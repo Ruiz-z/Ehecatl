@@ -1,51 +1,57 @@
 'use client';
 
-import { demoClimateByOwner } from '@/features/identity/fixtures/users';
 import { useState } from 'react';
 import { Area, CartesianGrid, ComposedChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import type { Parcel } from '@/features/parcels/types';
-import { seriesFor } from './fixtures/observations';
+import { apiClient, useMocks } from '@/shared/api/client';
+import { waitingNote } from '@/shared/api/messages';
+import { useAsync } from '@/shared/api/use-async';
+import type { Indicators } from '@/shared/api/types';
+import { EmptyState, LoadingState } from '@/shared/components/ui';
 const metrics = [{
   key: 'rainfall',
   normal: 'rainfallNormal',
-  title: 'Lluvia acumulada',
+  title: 'Lluvia por mes',
   unit: 'mm',
-  color: 'var(--foreground)',
-  deviation: '38 % menos que lo normal',
-  humid: 'Lluvia suficiente para el ciclo'
+  color: 'var(--foreground)'
 }, {
   key: 'temperature',
   normal: 'temperatureNormal',
   title: 'Temperatura del aire',
   unit: '°C',
-  color: 'var(--foreground)',
-  deviation: '2.1 °C más que lo normal',
-  humid: 'Dentro del rango habitual'
+  color: 'var(--foreground)'
 }, {
   key: 'moisture',
   normal: 'moistureNormal',
   title: 'Humedad en raíz',
   unit: '%',
-  color: 'var(--foreground)',
-  deviation: 'Reserva de agua por debajo de lo normal',
-  humid: 'Buena reserva de agua'
+  color: 'var(--foreground)'
 }, {
   key: 'ndvi',
   normal: 'ndviNormal',
   title: 'Verdor de la vegetación',
   unit: 'NDVI',
-  color: 'var(--foreground)',
-  deviation: 'Menor actividad que lo normal',
-  humid: 'Vegetación en crecimiento'
+  color: 'var(--foreground)'
 }];
 export function FieldCharts({
   parcel
 }: {
   parcel: Parcel;
 }) {
+  const state = useAsync(() => apiClient.getIndicators(parcel), parcel.id);
+  if (state.status === 'loading') return <LoadingState note={useMocks ? undefined : waitingNote} />;
+  if (state.status === 'error') return <EmptyState title="No pudimos cargar el historial"><p>{state.message}</p><button className="button primary" onClick={state.retry}>Reintentar</button></EmptyState>;
+  return <Charts parcel={parcel} indicators={state.data} />;
+}
+function Charts({
+  parcel,
+  indicators
+}: {
+  parcel: Parcel;
+  indicators: Indicators;
+}) {
   const [range, setRange] = useState('12');
-  const all = seriesFor(parcel);
-  const data = all.slice(-Number(range));
+  const data = indicators.series.slice(-Number(range));
   return <div className="charts-section">
     <div className="section-heading">
       <div>
@@ -58,19 +64,21 @@ export function FieldCharts({
       </label>
     </div>
     <div className="charts-grid">
-      {metrics.filter(metric => parcel.dataState !== 'error' || metric.key !== 'moisture').map(metric => <section className="chart-card" key={metric.key}>
+      {metrics.filter(metric => (parcel.dataState !== 'error' || metric.key !== 'moisture') && data.some(row => row[metric.key as keyof typeof row] !== null)).map(metric => {
+        const summary = indicators.summaries[metric.key as keyof typeof indicators.summaries];
+        return <section className="chart-card" key={metric.key}>
         <div className="chart-heading">
           <h3>{metric.title}</h3>
           <span>{metric.unit}</span>
         </div>
-        <p className={demoClimateByOwner[parcel.ownerId] === 'humid' ? 'good-text' : 'warning-text'}>{demoClimateByOwner[parcel.ownerId] === 'humid' ? metric.humid : metric.deviation}</p>
+        {summary && <p className={summary.tone === 'good' ? 'good-text' : 'warning-text'}>{summary.text}</p>}
         <div className="chart-legend">
           <span><i style={{
               background: metric.color
             }} />Este ciclo</span>
           <span><i className="normal-line" />Lo normal</span>
         </div>
-        <div className="chart-frame" role="img" aria-label={`${metric.title}: ${demoClimateByOwner[parcel.ownerId] === 'humid' ? metric.humid : metric.deviation}. Comparación mensual con la media histórica.`}>
+        <div className="chart-frame" role="img" aria-label={`${metric.title}${summary ? `: ${summary.text}` : ''}. Comparación mensual con la media histórica.`}>
           <ResponsiveContainer width="100%" height="100%"><ComposedChart data={data} margin={{
               top: 8,
               right: 10,
@@ -94,7 +102,7 @@ export function FieldCharts({
                 r: 2
               }} />}<Line isAnimationActive={false} type="monotone" dataKey={metric.normal} name="Lo normal (10 años)" stroke="var(--data-normal)" strokeDasharray="5 4" dot={false} strokeWidth={2} /></ComposedChart></ResponsiveContainer>
         </div>
-        <p className="chart-source">{metric.key === 'ndvi' ? 'MODIS / ORNL DAAC' : 'NASA POWER'} · {range === '12' ? 'nov 2025' : 'may 2026'} – oct 2026 · origen: mock</p>
+        <p className="chart-source">{metric.key === 'ndvi' ? 'MODIS / ORNL DAAC' : 'NASA POWER'} · {indicators.periodLabel} · origen: {indicators.origin}</p>
         <details className="chart-table">
           <summary>Ver valores en tabla</summary>
           <table>
@@ -109,13 +117,17 @@ export function FieldCharts({
             <tbody>
               {data.map(row => <tr key={row.month}>
                 <th>{row.month}</th>
-                <td>{Number(row[metric.key as keyof typeof row]).toFixed(metric.key === 'ndvi' ? 2 : 1)}</td>
-                <td>{Number(row[metric.normal as keyof typeof row]).toFixed(metric.key === 'ndvi' ? 2 : 1)}</td>
+                <td>{cell(row[metric.key as keyof typeof row], metric.key)}</td>
+                <td>{cell(row[metric.normal as keyof typeof row], metric.key)}</td>
               </tr>)}
             </tbody>
           </table>
         </details>
-      </section>)}
+      </section>;
+      })}
     </div>
   </div>;
+}
+function cell(value: string | number | null, key: string) {
+  return typeof value === 'number' ? value.toFixed(key === 'ndvi' ? 2 : 1) : '—';
 }

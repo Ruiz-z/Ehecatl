@@ -7,6 +7,7 @@ import { Suspense, useEffect } from 'react';
 import { Map, Sprout, ChartNoAxesCombined, SlidersHorizontal, LogOut } from 'lucide-react';
 import { useDemo } from '@/features/identity/demo-provider';
 import { Brand, DemoChip, LoadingState } from './ui';
+import { useMocks } from '@/shared/api/client';
 export function AppShell({
   children
 }: {
@@ -77,7 +78,7 @@ function Shell({
           <span>{user.name}</span>
         </div>
         <div className="topbar-actions">
-          <DemoChip />
+          {useMocks && <DemoChip />}
           <button className="mobile-logout" aria-label="Salir y cambiar perfil" title="Salir y cambiar perfil" onClick={logout}><LogOut size={17} /></button>
         </div>
       </header>

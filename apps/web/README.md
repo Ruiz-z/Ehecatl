@@ -44,20 +44,25 @@ El panel móvil se puede arrastrar desde el asa o expandir y reducir con su bot�
 
 `src/shared/api/types.ts` expone `ApiClient` y `AuthClient`. La sesión se guarda detrás de `AuthClient` en localStorage, con expiración; no guarda contraseña. Esto permite reemplazar el almacenamiento por una cookie mediante un adaptador. La protección cliente evita mostrar rutas privadas sin sesión; la autorización real y la validación del JWT corresponden al servidor.
 
-Las cuatro cuentas locales usan `ana@demo.ehecatl.test`, `james@demo.ehecatl.test`, `lucia@demo.ehecatl.test` y `admin@demo.ehecatl.test`, con contraseña pública `Ehecatl-demo-2026`. Los botones solo rellenan el formulario. **No hay seed de identidad en esta rama**: estas credenciales pertenecen a fixtures web y deben alinearse con B18 antes de conectar. El admin local ve todas las parcelas. No se crean ni modifican usuarios del backend.
+Con `NEXT_PUBLIC_USE_MOCKS=true` las cuatro cuentas locales son `ana@demo.ehecatl.test`, `james@demo.ehecatl.test`, `lucia@demo.ehecatl.test` y `admin@demo.ehecatl.test`, con contraseña pública `Ehecatl-demo-2026`; los botones solo rellenan el formulario. Con `false` se usan las cuentas que siembra `apps/api` (`prisma db seed`, con `SEED_DEMO_PASSWORD`): no hay atajos y se escribe el correo y la contraseña. No se crean ni modifican usuarios del backend desde la web.
 
-| Método del cliente | Endpoint definido | Situación |
+### Modo remoto (`NEXT_PUBLIC_USE_MOCKS=false`)
+
+Contrato en `docs/contracts.md`. Las respuestas del API se traducen a los modelos de vista en `src/shared/api/adapters.ts` (funciones puras con tests); `client.ts` solo hace las llamadas.
+
+| Método del cliente | Endpoint | Notas |
 |---|---|---|
-| `login` | `POST /auth/login` (001 RF-1) | Envía `{email,password}`. Adaptador provisional espera `{accessToken,user,expiresAt}`; `expiresAt` en milisegundos Unix. `user` usa el modelo de vista tipado. Falta acordar el JSON con B1. |
-| `listParcels` | No definido por las specs | Falla explícitamente en modo remoto; no inventa ruta. |
-| `createParcel` | No definido por las specs | Falla explícitamente en modo remoto. |
-| `getIndicators` | `GET /indicators` pertenece a geo (B10) | No existe contrato del proxy web→API, parámetros ni JSON acordados. Falla explícitamente; no accede directamente a geo. |
-| `getRecommendations` | `GET /zones/:id/recommendations` (B17) | Requiere `parcel.zoneId`, nunca sustituye el id de parcela. Respuesta provisional `RankedStrategy[]`; falta B1. Usa prioridades previamente guardadas. |
-| `savePriorities` | `PUT /me/priorities` (B4) | Envía pesos `{water,soil,income,risk}`; espera los pesos normalizados. JSON por confirmar con B1. |
+| `login` | `POST /auth/login` y `GET /me/priorities` | `role` llega como `FARMER`/`ADMIN`; las prioridades se piden aparte. |
+| `listCrops` | `GET /crops` | Catálogo en memoria; da el nombre y la familia de cada cultivo. |
+| `listParcels` | `GET /parcels` | Una parcela de la web es la primera zona de la parcela del API. El API no da lugar, superficie ni riesgo: se muestran coordenadas y sin chip de riesgo. |
+| `createParcel` | `POST /parcels` | `{name,lat,lon,currentCropId,irrigated}`; el API crea la zona por defecto. |
+| `getIndicators` | `GET /zones/:id/indicators` | Series mensuales, normal de 10 años y origen (`live`/`cache`). La primera consulta de un punto nuevo puede tardar minutos. NDVI queda en «sin dato» si MODIS no cubre el punto. |
+| `getRecommendations` | `GET /zones/:id/recommendations` | Alternativas con `components` por eje. El API aún no devuelve la estrategia «mantener lo actual», así que la tarjeta base y los deltas aparecen solo si llegan; las razones no traen origen y se muestran sin etiqueta. `no_viable_options` muestra la pantalla de sin ventanas. |
+| `savePriorities` | `PUT /me/priorities` | Pesos enteros que suman 100. |
 
-`docs/contracts.md` aún no existe. Los tipos exportados son modelos provisionales de la web basados en 005/006, **no un contrato aprobado del backend**. No se inventan endpoints de logout, registro o recuperación. Los errores HTTP se muestran sin revelar cuál credencial falló. No hay fallback silencioso a fixtures en modo remoto. Actualmente el modo remoto queda detenido al listar parcelas por la falta de contrato; indicadores y ranking de las pantallas demo siguen usando fixtures. La capa tipada deja esos puntos explícitos para la integración.
+Los errores HTTP se muestran sin revelar cuál credencial falló. No hay fallback silencioso a fixtures en modo remoto, y el chip «Datos de ejemplo» solo aparece con mocks. El API debe aceptar el origen de la web en `WEB_ORIGINS`.
 
-La base satelital usa Esri World Imagery y las calles OpenStreetMap, con atribución y conexión a internet. NDVI y recomendaciones demo son ilustrativos, identificados en pantalla. Los puntos nuevos aceptan cualquier latitud y longitud.
+La base satelital usa Esri World Imagery y las calles OpenStreetMap, con atribución y conexión a internet. En modo demo, NDVI y recomendaciones son ilustrativos y se identifican en pantalla. Los puntos nuevos aceptan cualquier latitud y longitud.
 
 ## Verificación visual
 

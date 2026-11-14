@@ -1,17 +1,30 @@
 import type { DemoUser, Parcel, Priorities } from '@/features/parcels/types';
-import type { RankedStrategy } from '@/features/rotation/types';
-import type { Observation, TimePoint } from '@/features/nasa/fixtures/observations';
+import type { RecommendationResult } from '@/features/rotation/types';
+import type { Observation, TimePoint } from '@/features/nasa/types';
 import type { LoginInput } from '@/features/identity/validation';
 export type { LoginInput, Parcel, Priorities };
-// Modelos de vista provisionales: B1 todavía no publica contratos JSON.
 export interface Session { user: DemoUser; accessToken: string; expiresAt: number }
-export interface Indicators { observations: Observation[]; series: TimePoint[]; origin: 'live' | 'cache' | 'mock' }
+export interface Crop { id: string; name: string; family: string }
+export interface NewParcelInput { name: string; latitude: number; longitude: number; cropId: string; irrigation: boolean }
+export type MetricKey = 'rainfall' | 'temperature' | 'moisture' | 'ndvi';
+export interface MetricSummary { text: string; tone: 'warning' | 'good' }
+export interface Indicators {
+  observations: Observation[];
+  series: TimePoint[];
+  summaries: Partial<Record<MetricKey, MetricSummary>>;
+  ndvi: { value: number | null; label: string };
+  lastObservation: string;
+  periodLabel: string;
+  origin: 'live' | 'cache' | 'mock';
+  warnings: string[];
+}
 export interface ApiClient {
   login(input: LoginInput): Promise<Session>;
+  listCrops(): Promise<Crop[]>;
   listParcels(): Promise<Parcel[]>;
-  createParcel(parcel: Parcel): Promise<Parcel>;
+  createParcel(input: NewParcelInput): Promise<Parcel>;
   getIndicators(parcel: Parcel): Promise<Indicators>;
-  getRecommendations(parcel: Parcel, weights: Priorities): Promise<RankedStrategy[]>;
+  getRecommendations(parcel: Parcel): Promise<RecommendationResult>;
   savePriorities(weights: Priorities): Promise<Priorities>;
 }
 export interface AuthClient {

@@ -23,13 +23,14 @@ export function EmptyState({
     {children}
   </div>;
 }
-export function LoadingState() {
+export function LoadingState({ note }: { note?: string }) {
   return <div className="loading-state" role="status" aria-label="Cargando datos de la parcela">
     <div className="skeleton skeleton-title" />
     <div className="skeleton skeleton-image" />
     <div className="skeleton" />
     <div className="skeleton" />
     <span>Cargando tu parcela…</span>
+    {note && <small>{note}</small>}
   </div>;
 }
 export function Notice({ children, variant = 'warning', label, title, error = false }: {

@@ -4,6 +4,7 @@ export interface Parcel {
   id: string;
   ownerId: string;
   zoneId?: string;
+  cropId?: string;
   name: string;
   place: string;
   latitude: number;
@@ -11,7 +12,7 @@ export interface Parcel {
   crop: string;
   irrigation: boolean;
   area: number | null;
-  risk: 'high' | 'moderate' | 'low';
+  risk: 'high' | 'moderate' | 'low' | 'unknown';
   dataState: DataState;
 }
 export interface DemoUser {

@@ -5,10 +5,11 @@ import { apiClient } from '@/shared/api/client';
 import { authClient } from '@/shared/api/auth-client';
 import type { LoginInput } from './validation';
 import type { DemoUser, Parcel } from '@/features/parcels/types';
+import type { NewParcelInput } from '@/shared/api/types';
 interface DemoSession {
   user: DemoUser | null; parcels: Parcel[]; ready: boolean; error: string;
   login(input: LoginInput): Promise<void>; logout(): void;
-  addParcel(parcel: Parcel): Promise<Parcel>; updateParcel(parcel: Parcel): void;
+  addParcel(input: NewParcelInput): Promise<Parcel>; updateParcel(parcel: Parcel): void;
 }
 const Context = createContext<DemoSession | null>(null);
 export function DemoProvider({ children }: { children: ReactNode }) {
@@ -31,7 +32,7 @@ export function DemoProvider({ children }: { children: ReactNode }) {
   return <Context.Provider value={{ user, parcels: user ? parcels.filter(p => user.role === 'admin' || p.ownerId === user.id) : [], ready, error,
     async login(input) { const next = await apiClient.login(input); authClient.setSession(next); setParcels([]); router.replace('/parcelas'); },
     logout() { authClient.logout(); setParcels([]); router.replace('/login'); },
-    async addParcel(parcel) { const saved = await apiClient.createParcel(parcel); setParcels(items => [...items, saved]); return saved; },
+    async addParcel(input) { const saved = await apiClient.createParcel(input); setParcels(items => [...items, saved]); return saved; },
     updateParcel(parcel) { setParcels(items => items.map(p => p.id === parcel.id ? parcel : p)); }
   }}>{children}</Context.Provider>;
 }

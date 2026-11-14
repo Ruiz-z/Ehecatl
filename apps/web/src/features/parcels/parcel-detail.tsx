@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { ArrowLeft, X, MapPin, Download, RefreshCw } from 'lucide-react';
 import { useDemo } from '@/features/identity/demo-provider';
 import { FieldMap } from '@/shared/components/field-map';
+import { useMocks } from '@/shared/api/client';
 import { EmptyState, LoadingState, Notice } from '@/shared/components/ui';
 import { FieldStatus } from '@/features/nasa/field-status';
 import { FieldCharts } from '@/features/nasa/field-charts';
@@ -49,7 +50,7 @@ function Detail({
   }
   const wide = tab === 'datos' || tab === 'sembrar';
   return <main id="main" className={`map-workspace detail-workspace ${wide ? 'wide-workspace' : ''}`}>
-    <FieldMap parcels={parcels} selectedId={parcel.id} ndvi={tab === 'estado' && parcel.dataState !== 'empty'} />
+    <FieldMap parcels={parcels} selectedId={parcel.id} ndvi={useMocks && tab === 'estado' && parcel.dataState !== 'empty'} />
     <section className={`detail-panel ${wide ? 'wide-panel' : ''} ${expanded ? 'sheet-expanded' : ''}`}>
       <SheetHandle expanded={expanded} onChange={setExpanded} />
       <header className="detail-heading">
@@ -61,7 +62,7 @@ function Detail({
           <h1>{parcel.name}</h1>
           <span className="heading-crop"><span>Cultivo actual</span><strong className="crop-chip">{parcel.crop}</strong></span>
         </div>
-        <p className="detail-location"><MapPin size={15} />{parcel.place}</p>
+        {parcel.place !== `${parcel.latitude.toFixed(3)}, ${parcel.longitude.toFixed(3)}` && <p className="detail-location"><MapPin size={15} />{parcel.place}</p>}
         <dl className="detail-meta">
           <div><dt>Superficie</dt><dd>{parcel.area ? `${parcel.area} hectáreas` : 'Parcela por punto'}</dd></div>
           <div><dt>Riego</dt><dd>{parcel.irrigation ? 'Con riego' : 'De temporal'}</dd></div>
@@ -77,7 +78,7 @@ function Detail({
     </section>
     <div className="map-context">
       <span className="source-dot" />
-      <span>{tab === 'estado' && parcel.dataState !== 'empty' ? 'NDVI · capa ilustrativa' : 'Ubicación de tu parcela'}</span>
+      <span>{useMocks && tab === 'estado' && parcel.dataState !== 'empty' ? 'NDVI · capa ilustrativa' : 'Ubicación de tu parcela'}</span>
     </div>
   </main>;
 }

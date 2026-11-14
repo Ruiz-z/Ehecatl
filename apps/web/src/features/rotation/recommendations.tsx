@@ -1,34 +1,42 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Droplets, Sprout, TrendingUp, ShieldCheck, CalendarDays, ChevronDown, Check, RotateCcw } from 'lucide-react';
 import type { Parcel, Priorities } from '@/features/parcels/types';
 import { useDemo } from '@/features/identity/demo-provider';
-import { apiClient } from '@/shared/api/client';
+import { apiClient, useMocks } from '@/shared/api/client';
+import { waitingNote } from '@/shared/api/messages';
 import Link from 'next/link';
 import { parcelUrl } from '@/features/parcels/parcel-tabs';
-import { observationsFor } from '@/features/nasa/fixtures/observations';
-import { Notice } from '@/shared/components/ui';
-import { strategiesFor } from './fixtures/strategies';
+import { useAsync } from '@/shared/api/use-async';
+import { EmptyState, LoadingState, Notice } from '@/shared/components/ui';
 import { axes, normalizedWeights, rankStrategies } from './ranking';
-import type { RankedStrategy } from './types';
+import type { RankedStrategy, RecommendationResult } from './types';
 const icons = {
   water: Droplets,
   soil: Sprout,
   income: TrendingUp,
   risk: ShieldCheck
 };
-const months = ['Nov', 'Dic', 'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct'];
+const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+function horizonMonths(horizonStart: string) {
+  const [year, month] = horizonStart.split('-').map(Number) as [number, number];
+  const start = month - 1;
+  return { year, months: [...monthNames.slice(start), ...monthNames.slice(0, start)], range: `${monthNames[start]} ${year} — ${monthNames[(start + 23) % 12]} ${year + Math.floor((start + 23) / 12)}` };
+}
 const validation = 'Esta sugerencia se basa en datos satelitales de 10 años y reglas FAO/SARE; valida disponibilidad de semilla, maquinaria y mercado con tu agrónomo local';
 function SequenceCard({
   strategy,
   index,
-  weights
+  weights,
+  horizonStart
 }: {
   strategy: RankedStrategy;
   index: number;
   weights: Priorities;
+  horizonStart: string;
 }) {
+  const horizon = horizonMonths(horizonStart);
   const [expanded, setExpanded] = useState<boolean | null>(null);
   const open = expanded ?? index === 0;
   return <article tabIndex={0} aria-label={`Opción ${index + 1}: ${strategy.name}`} className={`sequence-card ${index === 0 ? 'best' : ''} ${strategy.baseline ? 'baseline' : ''}`}>
@@ -43,15 +51,15 @@ function SequenceCard({
         <small>/100</small>
       </div>
     </div>
-    <p className={`score-delta ${strategy.baseline ? 'muted' : strategy.delta < 0 ? 'negative' : ''}`}>{strategy.baseline ? 'Estrategia actual · referencia' : `${strategy.delta >= 0 ? '+' : ''}${strategy.delta} puntos frente a mantener lo actual`}</p>
+    {(strategy.baseline || strategy.delta !== null) && <p className={`score-delta ${strategy.baseline ? 'muted' : strategy.delta! < 0 ? 'negative' : ''}`}>{strategy.baseline ? 'Estrategia actual · referencia' : `${strategy.delta! >= 0 ? '+' : ''}${strategy.delta} puntos frente a mantener lo actual`}</p>}
     <div className="timeline" tabIndex={0} role="group" aria-label="Calendario de 24 meses; usa las flechas para recorrerlo">
       <div className="timeline-years">
-        <span>2026</span>
-        <span>2027</span>
-        <span>2028</span>
+        <span>{horizon.year}</span>
+        <span>{horizon.year + 1}</span>
+        <span>{horizon.year + 2}</span>
       </div>
       <div className="timeline-months">
-        {[...months, ...months].map((month, i) => i % 3 === 0 ? <span key={i} style={{ gridColumn: `${i + 1} / span 3` }}>{month}</span> : null)}
+        {[...horizon.months, ...horizon.months].map((month, i) => i % 3 === 0 ? <span key={i} style={{ gridColumn: `${i + 1} / span 3` }}>{month}</span> : null)}
       </div>
       <div className="timeline-tracks">
         {strategy.windows.map((window, i) => <div key={i} className={`crop-window family-${window.family} ${window.current ? 'current-crop' : ''}`} style={{
@@ -89,13 +97,13 @@ function SequenceCard({
     </div>
     <button className="reasons-toggle" aria-expanded={open} onClick={() => setExpanded(!open)}>Por qué y qué riesgos tiene<ChevronDown size={16} className={open ? 'rotate' : ''} /></button>
     {open && <div className="reasons-content">
-      {strategy.reasons.map(reason => <div className="reason" key={reason.origin}>
-        <span className="reason-origin">{reason.origin}<small>Pesó {weights[reason.axis] >= 0.3 ? 'mucho' : 'algo'}</small></span>
+      {strategy.reasons.map((reason, i) => <div className="reason" key={i}>
+        <span className="reason-origin">{reason.origin ?? 'Motivo'}{reason.axis && <small>Pesó {weights[reason.axis] >= 0.3 ? 'mucho' : 'algo'}</small>}</span>
         <p>{reason.text}</p>
       </div>)}
       <h4>Antes de decidir</h4>
       <ul>
-        {strategy.risks.map(risk => <li key={risk}>{risk}</li>)}
+        {strategy.risks.map((risk, i) => <li key={i}>{risk}</li>)}
       </ul>
     </div>}
     <div className="confidence">
@@ -110,6 +118,18 @@ export function Recommendations({
 }: {
   parcel: Parcel;
 }) {
+  const state = useAsync(() => apiClient.getRecommendations(parcel), parcel.id);
+  if (state.status === 'loading') return <LoadingState note={useMocks ? undefined : waitingNote} />;
+  if (state.status === 'error') return <EmptyState title="No pudimos calcular qué sembrar"><p>{state.message}</p><button className="button primary" onClick={state.retry}>Reintentar</button></EmptyState>;
+  return <Advice parcel={parcel} result={state.data} />;
+}
+function Advice({
+  parcel,
+  result
+}: {
+  parcel: Parcel;
+  result: RecommendationResult;
+}) {
   const {
     user
   } = useDemo();
@@ -122,25 +142,28 @@ export function Recommendations({
   const [weights, setWeights] = useState<Priorities>(defaults);
   const [saveError, setSaveError] = useState('');
   const normalized = normalizedWeights(weights);
-  const strategies = useMemo(() => strategiesFor(parcel), [parcel]);
-  const ranked = rankStrategies(strategies, weights);
-  if (parcel.dataState === 'no-windows') return <div className="no-windows">
+  const ranked = rankStrategies(result.strategies, weights);
+  const mock = result.origin === 'mock';
+  const horizon = horizonMonths(result.horizonStart);
+  const hasBaseline = ranked.some(strategy => strategy.baseline);
+  if (result.status === 'no_viable_options' || !ranked.length) return <div className="no-windows">
     <CalendarDays size={32} />
     <h2>No hay una ventana segura para sembrar</h2>
-    <p>En este ejemplo, el agua disponible no alcanza para completar un ciclo en los próximos 24 meses.</p>
-    <Notice variant="risk" label="RIESGO · AGUA" title="Sin ventana segura"><p><strong>0 ventanas viables en los próximos 24 meses.</strong> Conserva la cobertura del suelo y revisa la disponibilidad de agua con tu agrónomo antes de planear una siembra.</p></Notice>
+    <p>{mock ? 'En este ejemplo, el agua disponible no alcanza para completar un ciclo en los próximos 24 meses.' : 'Ningún cultivo del catálogo completa su ciclo en las ventanas calculadas para los próximos 24 meses.'}</p>
+    <Notice variant="risk" label={mock ? 'RIESGO · AGUA' : 'SIN OPCIONES VIABLES'} title="Sin ventana segura"><p><strong>0 ventanas viables en los próximos 24 meses.</strong> Conserva la cobertura del suelo y revisa la disponibilidad de agua con tu agrónomo antes de planear una siembra.</p></Notice>
     <p className="muted">No mostramos puntajes de cultivos que no son viables.</p>
+    {result.warnings.filter(text => text.length < 120).length > 0 && <ul className="muted">{result.warnings.filter(text => text.length < 120).map(text => <li key={text}>{text}</li>)}</ul>}
   </div>;
   return <div className="recommendations">
     <div className="section-heading">
       <div>
         <h2>Qué sembrar después</h2>
-        <p>Compara la estrategia actual y dos alternativas.</p>
+        <p>{hasBaseline ? 'Compara la estrategia actual y dos alternativas.' : 'Compara las mejores opciones para tu zona.'}</p>
       </div>
-      <span className="chip neutral-chip">Nov 2026 — Oct 2028</span>
+      <span className="chip neutral-chip">{horizon.range}</span>
     </div>
-    {parcel.risk === 'high' && <Notice variant="risk" label="RIESGO · AGUA" title="Agua insuficiente para el cultivo actual">
-      <p><strong>{observationsFor(parcel)[0].value} de lluvia disponible.</strong> {observationsFor(parcel)[0].consequence} Datos de ejemplo.</p>
+    {result.risk.level === 'high' && <Notice variant="risk" label="RIESGO · CULTIVO ACTUAL" title={`${parcel.crop} corre riesgo en esta zona`}>
+      {result.risk.reasons.length ? <ul>{result.risk.reasons.map(reason => <li key={reason}>{reason}{mock ? ' Datos de ejemplo.' : ''}</li>)}</ul> : <p>Revisa los datos de la zona antes del siguiente ciclo.</p>}
       <Link className="text-button" href={parcelUrl(parcel.id, 'datos')}>Ver datos de lluvia →</Link>
     </Notice>}
     {ranked[0].baseline && <div className="baseline-wins" role="status"><Check size={18} />Con tus prioridades, mantener lo actual es la mejor opción. Su potencial de ingreso compensa el menor aporte al suelo.</div>}
@@ -150,9 +173,9 @@ export function Recommendations({
       <span><i />Tus prioridades <small>ajustables abajo</small></span>
     </div>
     <p className="sr-only" aria-live="polite">Mejor opción: {ranked[0].name}, {ranked[0].score} puntos.</p>
-    <p className="comparison-hint">3 estrategias · Desplaza para comparar →</p>
-    <div className="sequence-grid" tabIndex={0} role="region" aria-label="Comparación de tres estrategias; usa las flechas para recorrerlas">
-      {ranked.map((strategy, index) => <SequenceCard key={strategy.id} strategy={strategy} index={index} weights={normalized} />)}
+    <p className="comparison-hint">{ranked.length} {ranked.length === 1 ? 'estrategia' : 'estrategias'} · Desplaza para comparar →</p>
+    <div className="sequence-grid" tabIndex={0} role="region" aria-label="Comparación de estrategias; usa las flechas para recorrerlas">
+      {ranked.map((strategy, index) => <SequenceCard key={strategy.id} strategy={strategy} index={index} weights={normalized} horizonStart={result.horizonStart} />)}
     </div>
     <section id="prioridades" className="priorities">
       <div className="section-heading">

@@ -8,9 +8,10 @@ export interface CropWindow {
   current?: boolean;
 }
 export interface Reason {
-  origin: 'Dato NASA' | 'Regla de rotación' | 'Tu parcela';
+  // La API aún no etiqueta el origen ni el eje de cada razón; si faltan, no se inventan.
+  origin?: 'Dato NASA' | 'Regla de rotación' | 'Tu parcela';
   text: string;
-  axis: keyof Priorities;
+  axis?: keyof Priorities;
 }
 export interface Strategy {
   id: string;
@@ -26,5 +27,16 @@ export interface Strategy {
 }
 export interface RankedStrategy extends Strategy {
   score: number;
-  delta: number;
+  // null cuando no hay estrategia actual contra la cual comparar.
+  delta: number | null;
+}
+export interface RecommendationResult {
+  status: 'ok' | 'no_viable_options';
+  origin: 'live' | 'cache' | 'mock';
+  confidence: 'Alta' | 'Media' | 'Baja';
+  warnings: string[];
+  risk: { level: 'high' | 'low'; reasons: string[] };
+  // Inicio del horizonte de 24 meses, 'YYYY-MM'.
+  horizonStart: string;
+  strategies: Strategy[];
 }
