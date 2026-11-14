@@ -51,7 +51,7 @@ Cada tarea técnica: < 30 min, tests primero, deja el sistema funcionando. Forma
 
 ## I — Infraestructura
 
-- [ ] **I1: Monorepo + Docker Compose con Postgres**
+- [x] **I1: Monorepo + Docker Compose con Postgres**
   - Hecho cuando: `pnpm-workspace.yaml`, `turbo.json`, `docker-compose.yml` con servicio `postgres` y `.env.example`; `.env` ignorado en git.
   - Verificar: `docker compose up postgres` y `pg_isready` responde.
   - Archivos: `package.json`, `pnpm-workspace.yaml`, `turbo.json`, `docker-compose.yml`, `.env.example`, `.gitignore`
