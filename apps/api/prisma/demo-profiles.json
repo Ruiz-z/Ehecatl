@@ -1,0 +1,5 @@
+[
+  { "key": "coahuila", "email": "coahuila@demo.ehecatl", "name": "Agricultora de Coahuila", "lat": 25.4, "lon": -101.0, "currentCropId": "maize", "previousCropId": "common-bean", "irrigated": false, "priorities": { "water": 60, "soil": 20, "income": 10, "risk": 10 } },
+  { "key": "nevada", "email": "nevada@demo.ehecatl", "name": "Agricultor de Nevada", "lat": 39.5, "lon": -119.8, "currentCropId": "alfalfa", "previousCropId": "barley", "irrigated": true, "priorities": { "water": 15, "soil": 15, "income": 50, "risk": 20 } },
+  { "key": "mendoza", "email": "mendoza@demo.ehecatl", "name": "Agricultora de Mendoza", "lat": -33.0, "lon": -68.8, "currentCropId": "wheat", "previousCropId": "chickpea", "irrigated": true, "priorities": { "water": 10, "soil": 45, "income": 10, "risk": 35 } }
+]
