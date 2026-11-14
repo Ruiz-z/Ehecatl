@@ -1,0 +1,362 @@
+[
+  {
+    "to": "Asteraceae",
+    "compatibility": "avoid",
+    "reason": "Repetir familia mantiene hospederos de plagas y enfermedades",
+    "sources": [
+      "sare-rotation",
+      "sare-cover"
+    ],
+    "from": "Asteraceae"
+  },
+  {
+    "to": "Brassicaceae",
+    "compatibility": "neutral",
+    "reason": "Alternar familias diversifica hospederos; validar plagas compartidas localmente",
+    "sources": [
+      "sare-rotation",
+      "sare-cover"
+    ],
+    "from": "Asteraceae"
+  },
+  {
+    "to": "Fabaceae",
+    "compatibility": "good",
+    "reason": "Alternar leguminosas favorece el balance de nitrógeno y rompe hospederos",
+    "sources": [
+      "sare-rotation",
+      "sare-cover"
+    ],
+    "from": "Asteraceae"
+  },
+  {
+    "to": "Poaceae",
+    "compatibility": "neutral",
+    "reason": "Alternar familias diversifica hospederos; validar plagas compartidas localmente",
+    "sources": [
+      "sare-rotation",
+      "sare-cover"
+    ],
+    "from": "Asteraceae"
+  },
+  {
+    "to": "Polygonaceae",
+    "compatibility": "neutral",
+    "reason": "Alternar familias diversifica hospederos; validar plagas compartidas localmente",
+    "sources": [
+      "sare-rotation",
+      "sare-cover"
+    ],
+    "from": "Asteraceae"
+  },
+  {
+    "to": "Solanaceae",
+    "compatibility": "neutral",
+    "reason": "Alternar familias diversifica hospederos; validar plagas compartidas localmente",
+    "sources": [
+      "sare-rotation",
+      "sare-cover"
+    ],
+    "from": "Asteraceae"
+  },
+  {
+    "to": "Asteraceae",
+    "compatibility": "neutral",
+    "reason": "Alternar familias diversifica hospederos; validar plagas compartidas localmente",
+    "sources": [
+      "sare-rotation",
+      "sare-cover"
+    ],
+    "from": "Brassicaceae"
+  },
+  {
+    "to": "Brassicaceae",
+    "compatibility": "avoid",
+    "reason": "Repetir familia mantiene hospederos de plagas y enfermedades",
+    "sources": [
+      "sare-rotation",
+      "sare-cover"
+    ],
+    "from": "Brassicaceae"
+  },
+  {
+    "to": "Fabaceae",
+    "compatibility": "good",
+    "reason": "Alternar leguminosas favorece el balance de nitrógeno y rompe hospederos",
+    "sources": [
+      "sare-rotation",
+      "sare-cover"
+    ],
+    "from": "Brassicaceae"
+  },
+  {
+    "to": "Poaceae",
+    "compatibility": "neutral",
+    "reason": "Alternar familias diversifica hospederos; validar plagas compartidas localmente",
+    "sources": [
+      "sare-rotation",
+      "sare-cover"
+    ],
+    "from": "Brassicaceae"
+  },
+  {
+    "to": "Polygonaceae",
+    "compatibility": "neutral",
+    "reason": "Alternar familias diversifica hospederos; validar plagas compartidas localmente",
+    "sources": [
+      "sare-rotation",
+      "sare-cover"
+    ],
+    "from": "Brassicaceae"
+  },
+  {
+    "to": "Solanaceae",
+    "compatibility": "neutral",
+    "reason": "Alternar familias diversifica hospederos; validar plagas compartidas localmente",
+    "sources": [
+      "sare-rotation",
+      "sare-cover"
+    ],
+    "from": "Brassicaceae"
+  },
+  {
+    "to": "Asteraceae",
+    "compatibility": "good",
+    "reason": "Alternar leguminosas favorece el balance de nitrógeno y rompe hospederos",
+    "sources": [
+      "sare-rotation",
+      "sare-cover"
+    ],
+    "from": "Fabaceae"
+  },
+  {
+    "to": "Brassicaceae",
+    "compatibility": "good",
+    "reason": "Alternar leguminosas favorece el balance de nitrógeno y rompe hospederos",
+    "sources": [
+      "sare-rotation",
+      "sare-cover"
+    ],
+    "from": "Fabaceae"
+  },
+  {
+    "to": "Fabaceae",
+    "compatibility": "avoid",
+    "reason": "Repetir familia mantiene hospederos de plagas y enfermedades",
+    "sources": [
+      "sare-rotation",
+      "sare-cover"
+    ],
+    "from": "Fabaceae"
+  },
+  {
+    "to": "Poaceae",
+    "compatibility": "good",
+    "reason": "Alternar leguminosas favorece el balance de nitrógeno y rompe hospederos",
+    "sources": [
+      "sare-rotation",
+      "sare-cover"
+    ],
+    "from": "Fabaceae"
+  },
+  {
+    "to": "Polygonaceae",
+    "compatibility": "good",
+    "reason": "Alternar leguminosas favorece el balance de nitrógeno y rompe hospederos",
+    "sources": [
+      "sare-rotation",
+      "sare-cover"
+    ],
+    "from": "Fabaceae"
+  },
+  {
+    "to": "Solanaceae",
+    "compatibility": "good",
+    "reason": "Alternar leguminosas favorece el balance de nitrógeno y rompe hospederos",
+    "sources": [
+      "sare-rotation",
+      "sare-cover"
+    ],
+    "from": "Fabaceae"
+  },
+  {
+    "to": "Asteraceae",
+    "compatibility": "neutral",
+    "reason": "Alternar familias diversifica hospederos; validar plagas compartidas localmente",
+    "sources": [
+      "sare-rotation",
+      "sare-cover"
+    ],
+    "from": "Poaceae"
+  },
+  {
+    "to": "Brassicaceae",
+    "compatibility": "neutral",
+    "reason": "Alternar familias diversifica hospederos; validar plagas compartidas localmente",
+    "sources": [
+      "sare-rotation",
+      "sare-cover"
+    ],
+    "from": "Poaceae"
+  },
+  {
+    "to": "Fabaceae",
+    "compatibility": "good",
+    "reason": "Alternar leguminosas favorece el balance de nitrógeno y rompe hospederos",
+    "sources": [
+      "sare-rotation",
+      "sare-cover"
+    ],
+    "from": "Poaceae"
+  },
+  {
+    "to": "Poaceae",
+    "compatibility": "avoid",
+    "reason": "Repetir familia mantiene hospederos de plagas y enfermedades",
+    "sources": [
+      "sare-rotation",
+      "sare-cover"
+    ],
+    "from": "Poaceae"
+  },
+  {
+    "to": "Polygonaceae",
+    "compatibility": "neutral",
+    "reason": "Alternar familias diversifica hospederos; validar plagas compartidas localmente",
+    "sources": [
+      "sare-rotation",
+      "sare-cover"
+    ],
+    "from": "Poaceae"
+  },
+  {
+    "to": "Solanaceae",
+    "compatibility": "neutral",
+    "reason": "Alternar familias diversifica hospederos; validar plagas compartidas localmente",
+    "sources": [
+      "sare-rotation",
+      "sare-cover"
+    ],
+    "from": "Poaceae"
+  },
+  {
+    "to": "Asteraceae",
+    "compatibility": "neutral",
+    "reason": "Alternar familias diversifica hospederos; validar plagas compartidas localmente",
+    "sources": [
+      "sare-rotation",
+      "sare-cover"
+    ],
+    "from": "Polygonaceae"
+  },
+  {
+    "to": "Brassicaceae",
+    "compatibility": "neutral",
+    "reason": "Alternar familias diversifica hospederos; validar plagas compartidas localmente",
+    "sources": [
+      "sare-rotation",
+      "sare-cover"
+    ],
+    "from": "Polygonaceae"
+  },
+  {
+    "to": "Fabaceae",
+    "compatibility": "good",
+    "reason": "Alternar leguminosas favorece el balance de nitrógeno y rompe hospederos",
+    "sources": [
+      "sare-rotation",
+      "sare-cover"
+    ],
+    "from": "Polygonaceae"
+  },
+  {
+    "to": "Poaceae",
+    "compatibility": "neutral",
+    "reason": "Alternar familias diversifica hospederos; validar plagas compartidas localmente",
+    "sources": [
+      "sare-rotation",
+      "sare-cover"
+    ],
+    "from": "Polygonaceae"
+  },
+  {
+    "to": "Polygonaceae",
+    "compatibility": "avoid",
+    "reason": "Repetir familia mantiene hospederos de plagas y enfermedades",
+    "sources": [
+      "sare-rotation",
+      "sare-cover"
+    ],
+    "from": "Polygonaceae"
+  },
+  {
+    "to": "Solanaceae",
+    "compatibility": "neutral",
+    "reason": "Alternar familias diversifica hospederos; validar plagas compartidas localmente",
+    "sources": [
+      "sare-rotation",
+      "sare-cover"
+    ],
+    "from": "Polygonaceae"
+  },
+  {
+    "to": "Asteraceae",
+    "compatibility": "neutral",
+    "reason": "Alternar familias diversifica hospederos; validar plagas compartidas localmente",
+    "sources": [
+      "sare-rotation",
+      "sare-cover"
+    ],
+    "from": "Solanaceae"
+  },
+  {
+    "to": "Brassicaceae",
+    "compatibility": "neutral",
+    "reason": "Alternar familias diversifica hospederos; validar plagas compartidas localmente",
+    "sources": [
+      "sare-rotation",
+      "sare-cover"
+    ],
+    "from": "Solanaceae"
+  },
+  {
+    "to": "Fabaceae",
+    "compatibility": "good",
+    "reason": "Alternar leguminosas favorece el balance de nitrógeno y rompe hospederos",
+    "sources": [
+      "sare-rotation",
+      "sare-cover"
+    ],
+    "from": "Solanaceae"
+  },
+  {
+    "to": "Poaceae",
+    "compatibility": "neutral",
+    "reason": "Alternar familias diversifica hospederos; validar plagas compartidas localmente",
+    "sources": [
+      "sare-rotation",
+      "sare-cover"
+    ],
+    "from": "Solanaceae"
+  },
+  {
+    "to": "Polygonaceae",
+    "compatibility": "neutral",
+    "reason": "Alternar familias diversifica hospederos; validar plagas compartidas localmente",
+    "sources": [
+      "sare-rotation",
+      "sare-cover"
+    ],
+    "from": "Solanaceae"
+  },
+  {
+    "to": "Solanaceae",
+    "compatibility": "avoid",
+    "reason": "Repetir familia mantiene hospederos de plagas y enfermedades",
+    "sources": [
+      "sare-rotation",
+      "sare-cover"
+    ],
+    "from": "Solanaceae"
+  }
+]

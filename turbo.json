@@ -28,6 +28,13 @@
     "UV_*",
     "XDG_CACHE_HOME",
     "DATABASE_URL",
+    "TEST_DATABASE_URL",
+    "JWT_SECRET",
+    "GEO_URL",
+    "GEO_TIMEOUT_MS",
+    "NASA_*",
+    "WEB_ORIGINS",
+    "SEED_*",
     "PORT",
     "HOST"
   ]
