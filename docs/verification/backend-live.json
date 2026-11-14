@@ -1,0 +1,152 @@
+{
+  "verifiedAt": "2026-11-14T19:25:12.919Z",
+  "origin": "live",
+  "note": "NASA POWER real. Imagen Docker final, HTTP interno con fetch; login real y curl verificados ademas desde host. Sin credenciales en este reporte. MODIS ausente por timeouts/503 ORNL.",
+  "results": [
+    {
+      "profile": "coahuila",
+      "zoneId": "9b208387-54ad-45bb-8a9b-f1f310427b74",
+      "status": "no_viable_options",
+      "origin": "cache",
+      "cacheOrigin": "cache",
+      "cacheElapsedMs": 21,
+      "confidence": "low",
+      "period": {
+        "end": "2026-10-31",
+        "start": "2025-11-01"
+      },
+      "sources": {
+        "modis": {
+          "reason": "Fuente incompleta o sin cobertura",
+          "status": "unavailable"
+        },
+        "power": {
+          "reason": null,
+          "status": "available"
+        }
+      },
+      "top": null,
+      "sequence": [],
+      "warningCount": 22,
+      "warnings": [
+        "modis: Fuente incompleta o sin cobertura",
+        "Datos NASA incompletos: confianza reducida",
+        "Menos de dos ventanas en 24 meses: secuencia reducida; considerar cobertura o barbecho",
+        "Ninguna opción viable; considerar cobertura o barbecho",
+        "Alfalfa: Agua insuficiente para la demanda del ciclo; Ciclo de 600 días excede el horizonte o ventana disponible; Mejor lluvia disponible 632 mm frente a demanda de 1100 mm/ciclo"
+      ]
+    },
+    {
+      "profile": "nevada",
+      "zoneId": "7d20ead1-04ce-4215-81e5-f50e25e908a6",
+      "status": "ok",
+      "origin": "cache",
+      "cacheOrigin": "cache",
+      "cacheElapsedMs": 13,
+      "confidence": "low",
+      "period": {
+        "end": "2026-10-31",
+        "start": "2025-11-01"
+      },
+      "sources": {
+        "modis": {
+          "reason": "Fuente incompleta o sin cobertura",
+          "status": "unavailable"
+        },
+        "power": {
+          "reason": null,
+          "status": "available"
+        }
+      },
+      "top": "potato>soybean",
+      "sequence": [
+        {
+          "cropId": "potato",
+          "cropName": "Papa",
+          "windowId": "window-1",
+          "start": "2027-06-01",
+          "end": "2027-09-28",
+          "occupiedWindowIds": [
+            "window-1"
+          ]
+        },
+        {
+          "cropId": "soybean",
+          "cropName": "Soya",
+          "windowId": "window-2",
+          "start": "2028-06-01",
+          "end": "2028-09-28",
+          "occupiedWindowIds": [
+            "window-2"
+          ]
+        }
+      ],
+      "warningCount": 2,
+      "warnings": [
+        "modis: Fuente incompleta o sin cobertura",
+        "Datos NASA incompletos: confianza reducida"
+      ]
+    },
+    {
+      "profile": "mendoza",
+      "zoneId": "4b624a3a-54b7-40bf-82db-36783bb049c8",
+      "status": "ok",
+      "origin": "cache",
+      "cacheOrigin": "cache",
+      "cacheElapsedMs": 20,
+      "confidence": "low",
+      "period": {
+        "end": "2026-10-31",
+        "start": "2025-11-01"
+      },
+      "sources": {
+        "modis": {
+          "reason": "Fuente incompleta o sin cobertura",
+          "status": "unavailable"
+        },
+        "power": {
+          "reason": null,
+          "status": "available"
+        }
+      },
+      "top": "soybean>sorghum>mustard",
+      "sequence": [
+        {
+          "cropId": "soybean",
+          "cropName": "Soya",
+          "windowId": "window-1",
+          "start": "2026-11-14",
+          "end": "2027-03-13",
+          "occupiedWindowIds": [
+            "window-1"
+          ]
+        },
+        {
+          "cropId": "sorghum",
+          "cropName": "Sorgo",
+          "windowId": "window-2",
+          "start": "2027-09-01",
+          "end": "2027-12-19",
+          "occupiedWindowIds": [
+            "window-2"
+          ]
+        },
+        {
+          "cropId": "mustard",
+          "cropName": "Mostaza de cobertura",
+          "windowId": "window-3",
+          "start": "2028-08-01",
+          "end": "2028-10-09",
+          "occupiedWindowIds": [
+            "window-3"
+          ]
+        }
+      ],
+      "warningCount": 2,
+      "warnings": [
+        "modis: Fuente incompleta o sin cobertura",
+        "Datos NASA incompletos: confianza reducida"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "name": "api",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "prisma generate && nest start --watch",
+    "build": "prisma generate && tsc -p tsconfig.build.json && node scripts/copy-assets.mjs",
+    "start": "node --env-file-if-exists=.env dist/main.js",
+    "lint": "prisma generate && tsc --noEmit",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand",
+    "prisma:generate": "prisma generate",
+    "prisma:seed": "prisma db seed"
+  },
+  "dependencies": {
+    "@nestjs/common": "12.5.0",
+    "@nestjs/core": "12.5.0",
+    "@nestjs/jwt": "12.0.5",
+    "@nestjs/platform-express": "12.5.0",
+    "@prisma/adapter-pg": "7.10.1",
+    "@prisma/client": "7.10.1",
+    "bcrypt": "6.0.0",
+    "dotenv": "latest",
+    "reflect-metadata": "latest",
+    "rxjs": "latest"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "latest",
+    "@nestjs/testing": "12.5.0",
+    "@types/bcrypt": "6.0.0",
+    "@types/jest": "latest",
+    "@types/node": "latest",
+    "@types/supertest": "latest",
+    "jest": "latest",
+    "prisma": "7.10.1",
+    "supertest": "latest",
+    "ts-jest": "latest",
+    "typescript": "6.0.3"
+  },
+  "type": "module"
+}

@@ -1,0 +1,99 @@
+generator client {
+  provider = "prisma-client"
+  output = "../src/generated/prisma"
+  moduleFormat = "esm"
+  importFileExtension = "js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  FARMER
+  ADMIN
+}
+
+model User {
+  id           String      @id @default(uuid()) @db.Uuid
+  email        String      @unique
+  passwordHash String      @map("password_hash")
+  name         String
+  role         Role        @default(FARMER)
+  createdAt    DateTime    @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt    DateTime    @updatedAt @map("updated_at") @db.Timestamptz(3)
+  parcels      Parcel[]
+  priorities   Priorities?
+  @@map("users")
+}
+
+model Priorities {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @unique @map("user_id") @db.Uuid
+  water     Int      @default(25)
+  soil      Int      @default(25)
+  income    Int      @default(25)
+  risk      Int      @default(25)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@map("priorities")
+}
+
+model Parcel {
+  id        String   @id @default(uuid()) @db.Uuid
+  ownerId   String   @map("owner_id") @db.Uuid
+  name      String
+  lat       Float
+  lon       Float
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+  owner     User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  zones     Zone[]
+  @@index([ownerId])
+  @@map("parcels")
+}
+
+model Zone {
+  id            String        @id @default(uuid()) @db.Uuid
+  parcelId      String        @map("parcel_id") @db.Uuid
+  name          String
+  lat           Float?
+  lon           Float?
+  currentCropId String        @map("current_crop_id")
+  irrigated     Boolean       @default(false)
+  soilNotes     String?       @map("soil_notes")
+  createdAt     DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt     DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
+  parcel        Parcel        @relation(fields: [parcelId], references: [id], onDelete: Cascade)
+  history       CropHistory[]
+  @@index([parcelId])
+  @@map("zones")
+}
+
+model CropHistory {
+  id          String   @id @default(uuid()) @db.Uuid
+  zoneId      String   @map("zone_id") @db.Uuid
+  cropId      String   @map("crop_id")
+  plantedAt   DateTime @map("planted_at") @db.Timestamptz(3)
+  harvestedAt DateTime @map("harvested_at") @db.Timestamptz(3)
+  yieldTonHa  Float?   @map("yield_ton_ha")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+  zone        Zone     @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+  @@index([zoneId, plantedAt])
+  @@map("crop_histories")
+}
+
+model NasaCache {
+  id        String   @id @default(uuid()) @db.Uuid
+  key       String   @unique
+  payload   Json
+  source    String
+  fetchedAt DateTime @map("fetched_at") @db.Timestamptz(3)
+  expiresAt DateTime @map("expires_at") @db.Timestamptz(3)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+  @@index([expiresAt])
+  @@map("nasa_caches")
+}
