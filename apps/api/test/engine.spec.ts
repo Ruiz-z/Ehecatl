@@ -90,6 +90,24 @@ describe('B12–B15 motor determinista y explicable', () => {
     const result = recommend(data);
     for (const item of result.recommendations) expect(item.sequence[0].start >= '2025-02-14').toBe(true);
   });
+  it('encadena tres ciclos en una ventana continua sin solapar ni inventar ventanas', () => {
+    const data = input();
+    data.indicators.windows = [{ ...data.indicators.windows[0], end: '2026-12-31', durationDays: 730, irrigated: true }];
+    data.indicators.fetchedAt = '2025-02-14T12:00:00Z';
+    const result = recommend(data, [findCrop('cowpea')!, findCrop('sorghum')!]);
+    expect(result.warnings.join()).not.toContain('Menos de dos');
+    for (const item of result.recommendations) {
+      expect(item.sequence).toHaveLength(3);
+      for (let index = 0; index < item.sequence.length; index++) {
+        const step = item.sequence[index];
+        expect(step.windowId).toBe('w1');
+        expect(step.occupiedWindowIds).toEqual(['w1']);
+        expect(step.start >= (index ? item.sequence[index - 1].end : '2025-02-14')).toBe(true);
+        if (index) expect(step.start > item.sequence[index - 1].end).toBe(true);
+        expect(step.end <= '2026-12-31').toBe(true);
+      }
+    }
+  });
 });
 
 describe('B4 prioridades', () => {

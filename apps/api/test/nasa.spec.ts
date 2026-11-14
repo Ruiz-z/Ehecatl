@@ -65,4 +65,28 @@ describe('B16 caché persistida', () => {
     await Promise.all([service.get(0, 0, false, '2024-01-01', '2024-12-31'), service.get(0, 0, false, '2024-01-01', '2024-12-31')]);
     expect(calls).toBe(1);
   });
+  it.each(['', ' ', '0', '-1', 'NaN', 'Infinity'])('configuración inválida %j usa timeout y TTL por defecto', async value => {
+    const oldTimeout = process.env.GEO_TIMEOUT_MS, oldTtl = process.env.NASA_CACHE_TTL_HOURS;
+    process.env.GEO_TIMEOUT_MS = value;
+    process.env.NASA_CACHE_TTL_HOURS = value;
+    let expiresAt = new Date(0);
+    const prisma = { nasaCache: {
+      findUnique: async () => null,
+      upsert: async ({ create }: { create: { expiresAt: Date } }) => { expiresAt = create.expiresAt; },
+    } } as unknown as PrismaService;
+    globalThis.fetch = async (_url, init) => {
+      await new Promise(resolve => setTimeout(resolve, 5));
+      expect(init?.signal?.aborted).toBe(false);
+      return new Response(JSON.stringify(indicators()));
+    };
+    const before = Date.now();
+    try {
+      await new NasaService(prisma).get(0, 0, false, '2024-01-01', '2024-12-31');
+      expect(expiresAt.getTime()).toBeGreaterThanOrEqual(before + 24 * 3_600_000);
+      expect(expiresAt.getTime()).toBeLessThanOrEqual(Date.now() + 24 * 3_600_000);
+    } finally {
+      if (oldTimeout === undefined) delete process.env.GEO_TIMEOUT_MS; else process.env.GEO_TIMEOUT_MS = oldTimeout;
+      if (oldTtl === undefined) delete process.env.NASA_CACHE_TTL_HOURS; else process.env.NASA_CACHE_TTL_HOURS = oldTtl;
+    }
+  });
 });

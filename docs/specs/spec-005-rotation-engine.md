@@ -13,9 +13,8 @@ Agricultor (lee recomendaciones), dashboard (las muestra).
 - H4: Como agricultor quiero que mis prioridades cambien el ranking.
 
 ## Requisitos funcionales (EARS)
-- RF-1: CUANDO se solicita una recomendación para una zona, EL SISTEMA devuelve las 2 mejores secuencias alternativas de cultivos para las siguientes 2–3 ventanas de cultivo de esa zona, más la estrategia base de RF-1c.
-- RF-1c: EL SISTEMA calcula siempre la **estrategia 0 «mantener lo actual»** (repetir el cultivo actual o su rotación vigente en las mismas ventanas) con las mismas reglas, datos y pesos que las alternativas, y la devuelve junto a ellas con su puntaje y la diferencia de puntos contra cada alternativa. SI la estrategia 0 es la de mayor puntaje, ENTONCES EL SISTEMA lo indica y explica por qué no conviene cambiar.
-- RF-1b: SI la zona tiene menos de 2 ventanas en el horizonte de 24 meses, ENTONCES EL SISTEMA reduce la secuencia a las ventanas disponibles (o sugiere cobertura/barbecho) y lo explica.
+- RF-1: CUANDO se solicita una recomendación para una zona, EL SISTEMA devuelve las 2–3 mejores secuencias de hasta 3 ciclos de cultivos sobre las primeras 3 ventanas disponibles en el horizonte de 24 meses.
+- RF-1b: SI una ventana continua permite varios ciclos, ENTONCES EL SISTEMA puede encadenarlos dentro de ella, sembrando como mínimo el día siguiente a la cosecha anterior y reevaluando la viabilidad en los meses ocupados. SI no caben 2 ciclos viables en las ventanas disponibles, ENTONCES reduce la secuencia (o sugiere cobertura/barbecho) y lo explica; el número de ventanas por sí solo no reduce la secuencia.
 - RF-2: EL SISTEMA evalúa cada transición A → B con reglas de familia botánica, balance de nitrógeno, ruptura de ciclo de plagas/enfermedades y cobertura/erosión (spec 004).
 - RF-3: EL SISTEMA evalúa la viabilidad de B comparando requisitos del cultivo (agua, temperatura, ciclo) con los indicadores NASA del punto (spec 003).
 - RF-4: CUANDO los indicadores NASA muestran tendencia de sequía o calor para el cultivo actual, EL SISTEMA marca "riesgo alto" y sugiere cuándo conviene cambiar y hacia qué cultivo más tolerante.
@@ -41,7 +40,8 @@ RF-1 a RF-9 (incluido RF-1c) con test en verde + demo: tres usuarios con ubicaci
 
 ## Decisiones
 - La recomendación se calcula **por zona** (spec 002).
-- "Ciclo" = **ventana de cultivo calculada por zona** desde su climatología NASA (spec 003 RF-3b), no una temporada de calendario ni un año. Cada cultivo ocupa su duración real en días; los perennes (p. ej. alfalfa) ocupan varias ventanas seguidas. Las etiquetas locales (PV/OI en México) son solo de visualización.
+- "Ciclo" = duración real de un cultivo en días dentro de las **ventanas climatológicas calculadas por zona** (spec 003 RF-3b), no una temporada de calendario ni un año. Una ventana larga puede alojar varios ciclos sin solapamientos; los perennes (p. ej. alfalfa) pueden ocupar varias ventanas seguidas. Geo conserva los meses aptos consecutivos como una sola ventana (`windows.py` no se divide artificialmente). Las etiquetas locales (PV/OI en México) son solo de visualización.
+- Corrección QA 2026-11-14: Coahuila se propone como parcela demo con riego declarado para mostrar recomendaciones viables con prioridades de ahorro de agua. Solo cambia el fixture, sin reglas por región ni datos NASA simulados; la aprobación del perfil por H3 sigue pendiente. El riego es una condición declarada que requiere disponibilidad efectiva, no una garantía agronómica (H4).
 - El conjunto de cultivos candidatos no está prefijado por región: se filtra por viabilidad climática de cada zona (spec 004).
 
 - Puntaje de 0 a 100; pesos por defecto iguales (25 % agua, 25 % suelo, 25 % ingreso, 25 % riesgo).
