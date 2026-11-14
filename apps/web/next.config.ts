@@ -3,6 +3,7 @@ import type { NextConfig } from 'next';
 
 const config: NextConfig = {
   output: 'standalone',
+  devIndicators: false,
   outputFileTracingRoot: path.join(import.meta.dirname, '../..'),
 };
 
