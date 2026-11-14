@@ -1,6 +1,6 @@
 # Tareas — Ehécatl
 
-Tareas separadas por tipo para repartir entre varias personas:
+Tareas separadas por tipo para repartir entre varias personas. Traspaso de pendientes: [`docs/pendientes-equipo.md`](../docs/pendientes-equipo.md).
 
 | Prefijo | Tipo | Quién |
 |---|---|---|
