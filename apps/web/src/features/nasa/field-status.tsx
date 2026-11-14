@@ -1,23 +1,38 @@
 'use client';
 import { parcelUrl } from '@/features/parcels/parcel-tabs';
 
-import { demoClimateByOwner } from '@/features/identity/fixtures/users';
 import { Droplets, Thermometer, Sprout, ArrowUpRight, TriangleAlert, CheckCircle2, Satellite } from 'lucide-react';
 import Link from 'next/link';
 import type { Parcel } from '@/features/parcels/types';
-import { observationsFor } from './fixtures/observations';
+import { apiClient, useMocks } from '@/shared/api/client';
+import { waitingNote } from '@/shared/api/messages';
+import { useAsync } from '@/shared/api/use-async';
+import type { Indicators } from '@/shared/api/types';
+import { EmptyState, LoadingState } from '@/shared/components/ui';
 const icons = [Droplets, Thermometer, Sprout];
 export function FieldStatus({
   parcel
 }: {
   parcel: Parcel;
 }) {
-  const humid = demoClimateByOwner[parcel.ownerId] === 'humid';
+  const state = useAsync(() => apiClient.getIndicators(parcel), parcel.id);
+  if (state.status === 'loading') return <LoadingState note={useMocks ? undefined : waitingNote} />;
+  if (state.status === 'error') return <EmptyState title="No pudimos cargar los datos NASA"><p>{state.message}</p><button className="button primary" onClick={state.retry}>Reintentar</button></EmptyState>;
+  return <Status parcel={parcel} data={state.data} />;
+}
+function Status({
+  parcel,
+  data
+}: {
+  parcel: Parcel;
+  data: Indicators;
+}) {
+  const mock = data.origin === 'mock';
   return <div className="status-content">
     <div className="section-heading">
       <div>
         <h2>Así está tu campo</h2>
-        <p>Última observación · 31 oct 2026</p>
+        <p>Última observación · {data.lastObservation || 'sin fecha'}</p>
       </div>
       <Satellite size={20} />
     </div>
@@ -27,8 +42,9 @@ export function FieldStatus({
           <span>Verdor de la zona</span>
           <span className="chip neutral-chip">NDVI</span>
         </div>
-        <strong>{humid ? '0.59' : '0.28'}</strong>
-        <p>{humid ? 'Vegetación activa' : 'Actividad moderada'}</p>
+        <strong>{data.ndvi.value === null ? '—' : data.ndvi.value.toFixed(2)}</strong>
+        <p>{data.ndvi.label}</p>
+        {data.ndvi.value === null ? <small>MODIS no tiene una lectura confiable para este punto; no la inventamos.</small> : <>
         <div className="ndvi-scale">
           <i />
           <i />
@@ -39,7 +55,7 @@ export function FieldStatus({
           <span>Menos</span>
           <span>Más</span>
         </div>
-        <small>MODIS · origen: mock</small>
+        <small>MODIS · origen: {data.origin}</small></>}
       </div>
       <div className="satellite-card" role="img" aria-label={`Vista satelital de la ubicación de ${parcel.name}`} style={{
         backgroundImage: `url(https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=${parcel.longitude - 0.018},${parcel.latitude - 0.018},${parcel.longitude + 0.018},${parcel.latitude + 0.018}&bboxSR=4326&size=400,400&format=jpg&f=image)`
@@ -51,8 +67,8 @@ export function FieldStatus({
     </div>
     <p className="visual-disclaimer">NDVI ilustrativo de la zona; no mide una parcela delimitada.</p>
     <div className="indicators">
-      {observationsFor(parcel).filter(item => parcel.dataState !== 'error' || item.variable !== 'GWETROOT').map((observation, i) => {
-        const Icon = icons[i];
+      {data.observations.filter(item => parcel.dataState !== 'error' || item.variable !== 'GWETROOT').map((observation, i) => {
+        const Icon = icons[i] ?? Sprout;
         return <article className="indicator" key={observation.variable}>
         <div className="indicator-heading">
           <span><Icon size={19} />{observation.label}</span>
@@ -77,7 +93,7 @@ export function FieldStatus({
             </div>
             <div>
               <dt>Origen</dt>
-              <dd>mock · datos de ejemplo</dd>
+              <dd>{mock ? 'mock · datos de ejemplo' : data.origin}</dd>
             </div>
           </dl>
         </details>
@@ -88,7 +104,8 @@ export function FieldStatus({
         <Sprout size={22} />
         <span><strong>Prepara el siguiente ciclo</strong><small>Compara qué sembrar y cuándo cambiar.</small></span>
       </div><ArrowUpRight size={22} /></Link>
-    <p className="status-source">Datos de ejemplo basados en escenarios ilustrativos.<br />NASA POWER · MODIS / ORNL DAAC</p>
+    {data.warnings.length > 0 && <p className="status-source">{data.warnings.join(' · ')}</p>}
+    <p className="status-source">{mock ? <>Datos de ejemplo basados en escenarios ilustrativos.<br /></> : null}NASA POWER · MODIS / ORNL DAAC</p>
   </div>;
 }
 function MapCross() {

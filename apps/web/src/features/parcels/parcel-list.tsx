@@ -47,7 +47,7 @@ export function ParcelList() {
             <span>{parcel.crop}</span>
             <span>{parcel.area ? `${parcel.area} ha` : 'Punto de parcela'}</span>
             <span><Droplets size={12} />{parcel.irrigation ? 'Riego' : 'Temporal'}</span>
-          </div><span className={`chip ${parcel.dataState === 'empty' ? 'neutral-chip' : parcel.risk === 'high' ? 'risk-chip' : 'ok-chip'}`}>{parcel.dataState === 'empty' ? 'Sin datos NASA aún' : parcel.risk === 'high' ? 'Atención · poca agua' : parcel.risk === 'low' ? 'Condiciones favorables' : 'Vigilar condiciones'}</span></Link>)}
+          </div>{parcel.risk !== 'unknown' && <span className={`chip ${parcel.dataState === 'empty' ? 'neutral-chip' : parcel.risk === 'high' ? 'risk-chip' : 'ok-chip'}`}>{parcel.dataState === 'empty' ? 'Sin datos NASA aún' : parcel.risk === 'high' ? 'Atención · poca agua' : parcel.risk === 'low' ? 'Condiciones favorables' : 'Vigilar condiciones'}</span>}</Link>)}
         {!filtered.length && <EmptyState title={query ? 'Sin coincidencias' : 'Tu próxima cosecha empieza aquí'}><p>{query ? 'Prueba con otro nombre o cultivo.' : 'Agrega tu primera parcela para conocer su contexto.'}</p>{query ? <button className="button" onClick={() => setQuery('')}>Limpiar búsqueda</button> : <Link className="button primary" href="/parcelas/nueva">Agregar parcela</Link>}</EmptyState>}
       </div>
       <footer className="panel-footnote"><span>NASA POWER · MODIS</span></footer>

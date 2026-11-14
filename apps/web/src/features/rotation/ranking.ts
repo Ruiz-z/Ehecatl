@@ -35,9 +35,9 @@ export function rankStrategies(strategies: Strategy[], weights: Priorities): Ran
       key
     }) => sum + strategy.axes[key] * normalized[key], 0))
   }));
-  const baseline = scored.find(strategy => strategy.baseline)?.score ?? 0;
+  const baseline = scored.find(strategy => strategy.baseline)?.score;
   return scored.map(strategy => ({
     ...strategy,
-    delta: strategy.score - baseline
+    delta: baseline === undefined ? null : strategy.score - baseline
   })).sort((a, b) => b.score - a.score || b.axes.risk - a.axes.risk || a.name.localeCompare(b.name));
 }

@@ -8,6 +8,8 @@ import Link from 'next/link';
 import { ArrowLeft, MapPin, Check, ArrowRight } from 'lucide-react';
 import { useDemo } from '@/features/identity/demo-provider';
 import { FieldMap } from '@/shared/components/field-map';
+import { apiClient, useMocks } from '@/shared/api/client';
+import { useAsync } from '@/shared/api/use-async';
 export function NewParcel() {
   const {
     user,
@@ -17,7 +19,10 @@ export function NewParcel() {
   const router = useRouter();
   const [point, setPoint] = useState<[number, number] | undefined>();
   const [name, setName] = useState('');
-  const [crop, setCrop] = useState('Maíz');
+  const crops = useAsync(() => apiClient.listCrops(), 'crops');
+  const [cropChoice, setCrop] = useState('');
+  const cropList = crops.status === 'ready' ? crops.data : [];
+  const crop = cropChoice || cropList[0]?.id || '';
   const [irrigation, setIrrigation] = useState(false);
   const [error, setError] = useState('');
   const [expanded, setExpanded] = useState(false);
@@ -49,21 +54,15 @@ export function NewParcel() {
       <form onSubmit={async event => {
         event.preventDefault();
         if (!locate() || !user) return;
-        const id = crypto.randomUUID();
-        try { await addParcel({
-          id,
-          ownerId: user.id,
+        if (!crop) { setError('Espera a que cargue el catálogo de cultivos.'); return; }
+        try { const saved = await addParcel({
           name: name.trim(),
-          crop,
+          cropId: crop,
           irrigation,
           latitude: Number(lat),
-          longitude: Number(lon),
-          place: `${Number(lat).toFixed(4)}, ${Number(lon).toFixed(4)}`,
-          area: null,
-          risk: 'moderate',
-          dataState: 'empty'
+          longitude: Number(lon)
         });
-        router.push(parcelUrl(id)); } catch (e) { setError(e instanceof Error ? e.message : 'No se pudo guardar la parcela.'); }
+        router.push(parcelUrl(saved.id)); } catch (e) { setError(e instanceof Error ? e.message : 'No se pudo guardar la parcela.'); }
       }}>
         <div className="form-section">
           <h2><MapPin size={18} />Ubicación</h2>
@@ -79,14 +78,14 @@ export function NewParcel() {
         <div className="form-section">
           <h2>Sobre tu campo</h2>
           <label>Nombre de la parcela<input required pattern=".*\S.*" title="Escribe un nombre para la parcela, no solo espacios." maxLength={80} value={name} onChange={event => setName(event.target.value)} placeholder="Por ejemplo, La Nogalera" /></label>
-          <label>Cultivo actual<select value={crop} onChange={event => setCrop(event.target.value)}>{['Maíz', 'Sorgo', 'Frijol', 'Cebada', 'Alfalfa', 'Soja', 'Trigo', 'Girasol', 'Avena', 'Garbanzo', 'Caupí', 'Vicia'].map(item => <option key={item}>{item}</option>)}</select></label>
+          <label>Cultivo actual<select value={crop} disabled={crops.status !== 'ready'} onChange={event => setCrop(event.target.value)}>{cropList.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
           <label className="checkbox-label">
             <input type="checkbox" checked={irrigation} onChange={event => setIrrigation(event.target.checked)} />
             <span>Tengo riego disponible<small>Nos ayuda a evaluar qué cultivos son viables.</small></span>
           </label>
         </div>
         <button type="submit" className="button primary full">Guardar parcela<ArrowRight size={17} /></button>
-        <p className="form-note">Se guardará solo en este navegador como parte de la demo.</p>
+        <p className="form-note">{useMocks ? 'Se guardará solo en este navegador como parte de la demo.' : 'La parcela se guarda en tu cuenta.'}</p>
       </form>
     </section>
   </main>;

@@ -1,27 +1,7 @@
 import { demoClimateByOwner } from '@/features/identity/fixtures/users';
 import type { Parcel } from '@/features/parcels/types';
-export interface Observation {
-  label: string;
-  variable: string;
-  value: string;
-  status: string;
-  consequence: string;
-  source: string;
-  date: string;
-  origin: 'mock';
-  tone: 'warning' | 'good';
-}
-export interface TimePoint {
-  month: string;
-  rainfall: number;
-  rainfallNormal: number;
-  temperature: number;
-  temperatureNormal: number;
-  moisture: number;
-  moistureNormal: number;
-  ndvi: number;
-  ndviNormal: number;
-}
+import type { Observation, TimePoint } from '../types';
+export type { Observation, TimePoint };
 export function observationsFor(parcel: Parcel): Observation[] {
   const humid = demoClimateByOwner[parcel.ownerId] === 'humid';
   return [{
