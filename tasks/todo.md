@@ -254,6 +254,8 @@ Cada tarea técnica: < 30 min, tests primero, deja el sistema funcionando. Forma
 - [x] Registro de dispositivos, claves, calibración opcional, revocación y reasignación.
 - [x] Lecturas validadas e idempotentes, permisos e historial paginado.
 - [x] Pantalla de sensores y simulador marcado, sin actuación.
+- [x] Adaptación del firmware DHT11/FC28/MQ2 al contrato v1, configuración privada y guía para la misma red local; bomba pendiente.
+- [ ] Cargar el nuevo firmware en la placa exacta y comprobar el recorrido ESP32 → API → pantalla con origen REAL.
 - [ ] Montaje, profundidad y calibración real del FC28.
 - [ ] Comparación NASA/campo con periodos equivalentes y validación H4; avisos y confianza posteriores.
 

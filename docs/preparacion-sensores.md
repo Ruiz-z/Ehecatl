@@ -57,7 +57,7 @@ Reintenta la misma muestra con el mismo identificador y fecha. La cola está en 
 5. Pulsar «Actualizar». Verificar «Datos de ejemplo», fechas de medición/recepción y ADC. Sin calibración no se inventa porcentaje.
 6. Probar otra zona, acceso como agricultor, nueva clave y revocación. Una clave revocada recibe 401; el historial permanece.
 
-Para el ESP32, registrar otro dispositivo **REAL** y adaptar el programa al [contrato](contracts.md#preparación-de-sensores-v1--2026-11-15). El envío anterior `humidity`/`temperature` y la respuesta `REGAR` no son compatibles. No reutilizar las credenciales compartidas de SmartRiego.
+Para el ESP32, registrar otro dispositivo **REAL** y usar el [firmware adaptado y la guía para la misma red local](../firmware/README.md), que implementa el [contrato](contracts.md#preparación-de-sensores-v1--2026-11-15). El envío anterior `humidity`/`temperature` y la respuesta `REGAR` no son compatibles. No reutilizar las credenciales compartidas de SmartRiego. La bomba sigue pendiente y no se activa desde este firmware.
 
 ## Calibración y frescura
 

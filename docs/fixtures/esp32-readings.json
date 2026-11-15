@@ -1,0 +1,30 @@
+[
+  {
+    "readingId": "00112233-4455-4677-8899-aabbccddeeff",
+    "measuredAt": "2026-11-15T12:30:00Z",
+    "soilMoistureRaw": 1800,
+    "mq2Raw": 300,
+    "airTemperature": 24.5,
+    "airHumidity": 60
+  },
+  {
+    "readingId": "00112233-4455-4677-8899-aabbccddeeff",
+    "measuredAt": "2026-11-15T12:30:00Z",
+    "soilMoistureRaw": 0,
+    "mq2Raw": 4095
+  },
+  {
+    "readingId": "00112233-4455-4677-8899-aabbccddeeff",
+    "measuredAt": "2026-11-15T12:30:00Z",
+    "soilMoistureRaw": 1800,
+    "mq2Raw": 300,
+    "airHumidity": 100
+  },
+  {
+    "readingId": "00112233-4455-4677-8899-aabbccddeeff",
+    "measuredAt": "2026-11-15T12:30:00Z",
+    "soilMoistureRaw": 1800,
+    "mq2Raw": 300,
+    "airTemperature": -50
+  }
+]
