@@ -12,6 +12,7 @@ import { parcelUrl } from '@/features/parcels/parcel-tabs';
 import { useAsync } from '@/shared/api/use-async';
 import { EmptyState, LoadingState, Notice } from '@/shared/components/ui';
 import { axes, normalizedWeights, rankStrategies } from './ranking';
+import { summarizeRests } from './rests';
 import type { RankedStrategy, RecommendationResult } from './types';
 const icons = {
   water: Droplets,
@@ -90,9 +91,9 @@ function SequenceCard({
       </div>
       <p className="timeline-note"><span className="hatched-swatch" />Cultivo actual · Descanso rayado: meses sin siembra</p>
     </div>
-    {!!strategy.rests?.length && <div className="rest-list"><h4>Meses sin siembra</h4><ul>{strategy.rests.map(rest => <li key={rest.start}>
-      {shortDate(rest.start)} – {shortDate(rest.end)} · {rest.reason.toLowerCase()} · {rest.suggestion.toLowerCase()}
-    </li>)}</ul></div>}
+    {!!strategy.rests?.length && (() => { const summary = summarizeRests(strategy.rests); return <div className="rest-list"><h4>Meses sin siembra</h4><ul>{summary.items.map(rest => <li key={rest.start}>
+      {shortDate(rest.start)} – {shortDate(rest.end)} · {rest.reason}
+    </li>)}</ul>{summary.suggestion && <p>Mientras tanto: {summary.suggestion}.</p>}</div>; })()}
     <div className="change-date">
       <CalendarDays size={17} />
       <div>

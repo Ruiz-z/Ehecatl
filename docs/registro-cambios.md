@@ -1,5 +1,11 @@
 # Registro de cambios
 
+## 2026-11-14 — Descansos agrupados en «Meses sin siembra»
+
+- **Archivos:** `apps/web/src/features/rotation/{rests.ts,rests.test.ts,recommendations.tsx}`, `apps/web/package.json` (el script de test incluye la prueba nueva), `apps/web/src/app/globals.css`, `docs/registro-cambios.md`.
+- **Qué se cambió:** la sugerencia para el suelo se dice una sola vez («Mientras tanto: …») cuando todos los descansos coinciden, y el motivo «ningún cultivo completa su ciclo en este tramo» se muestra como «el periodo es demasiado corto para completar un ciclo». El contrato y el motor no cambian.
+- **Por qué:** en Nevada la lista repetía seis veces la misma sugerencia y el motivo no explicaba el descanso inicial.
+
 ## 2026-11-14 — Explicación por pasos y descansos explícitos
 
 - **Archivos:** `docs/specs/spec-005-rotation-engine.md`, `docs/contracts.md`, `docs/fixtures/recommendations.json`, `apps/api/src/modules/rotation-engine/engine/{sequences,transitions}.ts`, `apps/api/test/{engine,contracts}.spec.ts`, `apps/web/src/shared/api/{adapters.ts,adapters.test.ts}`, `apps/web/src/features/rotation/{types.ts,recommendations.tsx,ranking.test.ts,fixtures/strategies.ts}`, `apps/web/src/app/globals.css`, `docs/pendientes-equipo.md`, `docs/registro-cambios.md`.
