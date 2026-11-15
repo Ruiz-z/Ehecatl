@@ -14,7 +14,15 @@ export interface Reading {
 export interface ReadingPage { items: Reading[]; nextCursor: string | null; from: string; to: string }
 export interface DeviceConfig { name: string; expectedIntervalSeconds: number; dryRaw: number | null; wetRaw: number | null; depthCm: number | null }
 export interface IssuedKey { device: Device; apiKey: string }
+export interface IrrigationCommand {
+  id: string; durationSeconds: number; actualSeconds: number | null;
+  status: 'PENDING' | 'DELIVERED' | 'DONE' | 'FAILED' | 'EXPIRED' | 'CANCELLED';
+  createdAt: string; origin: Device['origin']; requestedBy: { id: string; name: string };
+}
 export const sensorsApi = {
+  irrigationHistory: (zoneId: string) => request<IrrigationCommand[]>(`/zones/${encodeURIComponent(zoneId)}/irrigation-commands`),
+  water: (zoneId: string, durationSeconds: number) => request(`/zones/${encodeURIComponent(zoneId)}/irrigation-commands`, 'POST', { durationSeconds }),
+  cancel: (id: string) => request(`/irrigation-commands/${encodeURIComponent(id)}`, 'DELETE'),
   devices: (zoneId: string) => request<Device[]>(`/zones/${encodeURIComponent(zoneId)}/devices`),
   readings: (zoneId: string, query: { from?: string; to?: string; cursor?: string } = {}) => request<ReadingPage>(`/zones/${encodeURIComponent(zoneId)}/readings?${new URLSearchParams(query)}`),
   create: (zoneId: string, input: DeviceConfig & { origin: Device['origin'] }) => request<IssuedKey>('/devices', 'POST', { ...input, zoneId }),
