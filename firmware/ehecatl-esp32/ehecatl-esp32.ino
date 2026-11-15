@@ -1,5 +1,5 @@
 // Ehécatl: adaptación del montaje DHT11 + FC28 de dos puntas + MQ2.
-// La bomba queda pendiente; este programa no ejecuta riego ni recibe órdenes.
+// Riego solo manual. Los límites se aplican aunque la API falle.
 #include <Arduino.h>
 #include <WiFi.h>
 #include <WebServer.h>
@@ -20,6 +20,18 @@ constexpr bool hasPrivateConfig = false;
 
 static_assert(EHECATL_SEND_INTERVAL_SECONDS >= 30 && EHECATL_SEND_INTERVAL_SECONDS <= 86400,
               "El intervalo debe estar entre 30 y 86400 segundos");
+
+static_assert(EHECATL_PUMP_MAX_SECONDS == 30 && EHECATL_PUMP_COOLDOWN_SECONDS == 300,
+              "Los límites duros de riego no se pueden cambiar");
+static_assert(EHECATL_PUMP_ACTIVE_LEVEL == 0 || EHECATL_PUMP_ACTIVE_LEVEL == 1, "Polaridad inválida");
+struct PumpResult { char id[37]; char status[8]; double seconds; };
+QueueHandle_t commands, results;
+ehecatl::Pump pump;
+struct PumpView { bool running = false, cooling = true; char id[37] = ""; char status[40] = "Sin órdenes"; };
+PumpView pumpView;
+char lastCommandId[37] = "";
+const char* lastPumpStatus = "Sin órdenes";
+bool pumpHadRun = false;
 
 constexpr uint32_t sampleIntervalMs = 2000;
 constexpr uint32_t sendIntervalMs = EHECATL_SEND_INTERVAL_SECONDS * 1000U;
@@ -60,6 +72,9 @@ String airText(float value, const char* unit) {
 
 void handleRoot() {
   const NetworkStatus status = statusSnapshot();
+  portENTER_CRITICAL(&statusMutex);
+  const PumpView pumpStatus = pumpView;
+  portEXIT_CRITICAL(&statusMutex);
   String html;
   html.reserve(2300);
   html = F("<!doctype html><html lang='es'><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><meta http-equiv='refresh' content='4'><title>Ehécatl · Sensores</title><style>body{font:18px system-ui;max-width:760px;margin:32px auto;padding:16px;background:#f3f5ef}section{background:white;padding:16px;margin:16px 0;border-radius:12px}small{display:block}</style><h1>Ehécatl · Sensores de campo</h1>");
@@ -78,15 +93,47 @@ void handleRoot() {
   if (status.blocked) html += F("<p>Clave rechazada. Corrige config.h y reinicia el ESP32.</p>");
   html += "<p>Último resultado HTTP: " + String(status.httpCode) + " · Confirmadas: " + String(status.accepted) + "</p>";
   html += "<p>En cola: " + String(uxQueueMessagesWaiting(readings)) + " · Omitidas por cola llena: " + String(dropped) + "</p>";
-  html += F("<small>Una muestra adicional puede estar enviándose o esperando reintento. Los pendientes se pierden al reiniciar.</small></section><p>Bomba pendiente · sin riego ni servos.</p></html>");
+  html += F("<small>Una muestra adicional puede estar enviándose o esperando reintento. Los pendientes se pierden al reiniciar.</small></section></html>");
+  html += "<section><h2>Riego manual</h2><p>" + String(pumpStatus.running ? "Regando" : pumpStatus.cooling ? "En enfriamiento" : "Bomba apagada") + "</p><p>Última orden: " + String(pumpStatus.id) + " · " + pumpStatus.status + "</p><small>Versión beta. El riego es manual, el sistema nunca riega solo.</small></section>";
   server.sendHeader("Cache-Control", "no-store");
   server.send(200, "text/html; charset=utf-8", html);
+}
+
+// Solo la tarea de red llama esta función. Nunca modifica la salida de la bomba.
+int commandRequest(const String& path, const String& payload, String& response) {
+  WiFiClient client;
+  WiFiClientSecure secure;
+  HTTPClient http;
+  const String base = EHECATL_API_BASE_URL;
+  bool started;
+  if (base.startsWith("https://")) { secure.setCACert(EHECATL_ROOT_CA); started = http.begin(secure, base + path); }
+  else started = http.begin(client, base + path);
+  int code = -1;
+  if (started) {
+    http.setConnectTimeout(3000); http.setTimeout(3000);
+    http.setFollowRedirects(HTTPC_DISABLE_FOLLOW_REDIRECTS);
+    http.addHeader("X-Device-Key", EHECATL_DEVICE_API_KEY);
+    http.addHeader("Content-Type", "application/json");
+    code = payload.length() ? http.POST(payload) : http.GET();
+    if (code == 200 && !payload.length()) {
+      // Cuerpo acotado antes de leer; no se permite transferencia sin longitud.
+      const int length = http.getSize();
+      if (length > 0 && length <= 512) response = http.getString();
+    }
+  }
+  http.end();
+  if (code == 401 || code == 403) {
+    portENTER_CRITICAL(&statusMutex); networkStatus.blocked = true; portEXIT_CRITICAL(&statusMutex);
+  }
+  return code;
 }
 
 // Única tarea que utiliza HTTPClient. El bucle de sensores/botón nunca espera a HTTP.
 void networkTask(void*) {
   WireReading pending{};
-  bool hasPending = false, ntpStarted = false;
+  bool hasPending = false, ntpStarted = false, hasResult = false;
+  PumpResult pendingResult{};
+  uint32_t lastPoll = 0;
   uint8_t failures = 0;
   uint32_t lastAttempt = 0, waitMs = 0, lastReconnect = millis();
   for (;;) {
@@ -107,6 +154,21 @@ void networkTask(void*) {
     if (!transportConfigured || statusSnapshot().blocked) {
       vTaskDelay(pdMS_TO_TICKS(1000));
       continue;
+    }
+    if (ehecatl::elapsed(millis(), lastPoll, 5000) && time(nullptr) >= 1735689600) {
+      lastPoll = millis();
+      if (!hasResult) hasResult = xQueueReceive(results, &pendingResult, 0) == pdTRUE;
+      String response;
+      if (hasResult) {
+        char payload[96];
+        snprintf(payload, sizeof(payload), "{\"status\":\"%s\",\"actualSeconds\":%.3f}", pendingResult.status, pendingResult.seconds);
+        const int code = commandRequest(String("/device/commands/") + pendingResult.id + "/result", payload, response);
+        if (code == 200 || (code >= 400 && code < 500 && code != 408 && code != 425 && code != 429)) hasResult = false;
+      } else if (uxQueueMessagesWaiting(commands) == 0) {
+        const int code = commandRequest("/device/commands/next", "", response);
+        ehecatl::PumpCommand command{};
+        if (code == 200 && ehecatl::parseCommand(response.c_str(), command)) xQueueSend(commands, &command, 0);
+      }
     }
     if (!hasPending) {
       hasPending = xQueueReceive(readings, &pending, pdMS_TO_TICKS(100)) == pdTRUE;
@@ -171,16 +233,57 @@ void queueReading() {
   }
 }
 
+// Prioridad separada: sensores, página local y HTTP no retrasan el apagado.
+void pumpTask(void*) {
+  for (;;) {
+    const uint32_t now = millis();
+    const time_t epoch = time(nullptr);
+    const bool wifi = WiFi.status() == WL_CONNECTED && !statusSnapshot().blocked;
+    pump.sync(now, epoch);
+    pump.tick(now, epoch, wifi);
+    digitalWrite(EHECATL_PUMP_PIN, ehecatl::pumpLevel(pump.running(), EHECATL_PUMP_ACTIVE_LEVEL));
+    if (pumpHadRun && !pump.running()) {
+      PumpResult result{};
+      std::memcpy(result.id, lastCommandId, sizeof(result.id));
+      std::strcpy(result.status, pump.done() ? "DONE" : "FAILED");
+      result.seconds = pump.actualSeconds();
+      xQueueSend(results, &result, 0);
+      lastPumpStatus = pump.done() ? "Terminada" : "Interrumpida";
+      pumpHadRun = false;
+    }
+    ehecatl::PumpCommand command{};
+    if (!pump.running() && uxQueueMessagesWaiting(results) == 0 && xQueueReceive(commands, &command, 0) == pdTRUE) {
+      const bool freshId = std::strcmp(lastCommandId, command.id) != 0;
+      std::memcpy(lastCommandId, command.id, sizeof(lastCommandId));
+      if (freshId && epoch >= 1735689600 && pump.start(now, epoch, command.created, command.expires, command.seconds, wifi)) {
+        digitalWrite(EHECATL_PUMP_PIN, EHECATL_PUMP_ACTIVE_LEVEL);
+        pumpHadRun = true; lastPumpStatus = "Regando";
+      } else {
+        PumpResult result{};
+        std::memcpy(result.id, command.id, sizeof(result.id)); std::strcpy(result.status, "FAILED");
+        xQueueSend(results, &result, 0); lastPumpStatus = "Rechazada por seguridad";
+      }
+    }
+    portENTER_CRITICAL(&statusMutex);
+    pumpView.running = pump.running(); pumpView.cooling = pump.cooling(now);
+    std::memcpy(pumpView.id, lastCommandId, sizeof(pumpView.id));
+    std::snprintf(pumpView.status, sizeof(pumpView.status), "%s", lastPumpStatus);
+    portEXIT_CRITICAL(&statusMutex);
+    vTaskDelay(1);
+  }
+}
+
 void setup() {
-  // LOW es el nivel de apagado del programa recibido. Mantener bomba desconectada.
-  digitalWrite(EHECATL_UNUSED_PUMP_PIN, LOW);
-  pinMode(EHECATL_UNUSED_PUMP_PIN, OUTPUT);
+  digitalWrite(EHECATL_PUMP_PIN, ehecatl::pumpLevel(false, EHECATL_PUMP_ACTIVE_LEVEL));
+  pinMode(EHECATL_PUMP_PIN, OUTPUT);
   Serial.begin(115200);
   pinMode(EHECATL_BUTTON_PIN, INPUT_PULLUP);
   dht.begin();
   analogReadResolution(12);
+  commands = xQueueCreate(1, sizeof(ehecatl::PumpCommand));
+  results = xQueueCreate(1, sizeof(PumpResult));
   readings = xQueueCreate(8, sizeof(WireReading));
-  if (!readings) { Serial.println("No se pudo crear la cola; reinicia el dispositivo."); for (;;) delay(1000); }
+  if (!readings || !commands || !results) { Serial.println("No se pudo crear la cola; reinicia el dispositivo."); for (;;) delay(1000); }
   const bool https = String(EHECATL_API_BASE_URL).startsWith("https://") && std::strlen(EHECATL_ROOT_CA) > 0;
   const bool localHttp = EHECATL_ALLOW_PRIVATE_HTTP && ehecatl::privateHttpUrl(EHECATL_API_BASE_URL);
   transportConfigured = hasPrivateConfig && std::strlen(EHECATL_WIFI_SSID) > 0 &&
@@ -192,6 +295,8 @@ void setup() {
   if (std::strlen(EHECATL_WIFI_SSID)) WiFi.begin(EHECATL_WIFI_SSID, EHECATL_WIFI_PASSWORD);
   server.on("/", handleRoot);
   server.begin();
+  if (xTaskCreate(pumpTask, "ehecatl-pump", 4096, nullptr, 3, nullptr) != pdPASS)
+    Serial.println("No se pudo iniciar control de bomba; permanece apagada.");
   if (xTaskCreate(networkTask, "ehecatl-network", 8192, nullptr, 1, nullptr) != pdPASS)
     Serial.println("No se pudo iniciar la red; reinicia el dispositivo.");
   lastSample = millis() - sampleIntervalMs;
@@ -199,8 +304,8 @@ void setup() {
 }
 
 void loop() {
-  server.handleClient();
   const uint32_t now = millis();
+  server.handleClient();
   if (button.pressed(digitalRead(EHECATL_BUTTON_PIN) == LOW, now)) {
     active = !active;
     lastQueued = now - sendIntervalMs;

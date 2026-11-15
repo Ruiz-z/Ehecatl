@@ -1,10 +1,10 @@
 # ESP32 conectado a Ehécatl
 
-Adaptación del programa recibido para **DHT11, FC28 resistivo de dos puntas y MQ2**. La bomba sigue pendiente: GPIO18 se mantiene en LOW y no hay órdenes ni eventos de riego. No incluye servos. La página local conserva el monitoreo, con la marca Ehécatl, sin porcentajes de suelo inventados ni alarmas de gas sin validar.
+Adaptación del programa recibido para **DHT11, FC28 resistivo de dos puntas y MQ2**. GPIO18 permite riego solo manual. El riego automático sigue prohibido. La polaridad es configurable y el montaje está pendiente. No incluye servos. La página local conserva el monitoreo, con la marca Ehécatl, sin porcentajes de suelo inventados ni alarmas de gas sin validar.
 
 ## 1. Preparar la aplicación en la misma red
 
-1. Iniciar Ehécatl con su configuración habitual (`docker compose up --build`). La API ya escucha en `0.0.0.0:3001`; no necesita otra ruta ni cambios de base de datos para este firmware.
+1. Iniciar Ehécatl con su configuración habitual (`docker compose up --build`). La API ya escucha en `0.0.0.0:3001`; aplica también la migración nueva de órdenes de riego.
 2. Consultar `ipconfig` en la computadora. Usar la **IPv4 del adaptador conectado a la misma red que el ESP32**, por ejemplo `192.168.1.100`. No usar `localhost`, la IP del contenedor, una VPN ni el ejemplo sin sustituirlo.
 3. Desde otro equipo de esa red, abrir `http://IP_DE_LA_COMPUTADORA:3001/health`. Debe devolver una respuesta correcta. Si no llega, revisar el perfil de red privada del firewall y el aislamiento de clientes del router/hotspot. No es necesario publicar el puerto en internet.
 4. Entrar como administrador, abrir parcela → zona → Sensores → Registrar dispositivo y elegir **ESP32 real**. Poner el intervalo esperado en **300 segundos**, igual al firmware. Dejar la calibración vacía hasta medirla en el montaje.
@@ -33,9 +33,9 @@ Seleccionar la placa y el puerto de su montaje en Arduino IDE. Los pines se cons
 | FC28 de dos puntas | GPIO35 | `soilMoistureRaw`, ADC de 12 bits, 0–4095. |
 | MQ2 | GPIO33 | `mq2Raw`, ADC experimental de 12 bits, sin conversión a ppm. |
 | Botón a GND | GPIO12, `INPUT_PULLUP` | Activa/pausa nuevas muestras para la API. |
-| Bomba pendiente | GPIO18 | LOW; sin lógica de activación. |
+| Bomba manual | GPIO18 | Salida apagada al arrancar según polaridad configurada. |
 
-Mantener la bomba desconectada durante esta prueba. LOW es el apagado supuesto por el programa recibido; un relé activo en LOW puede encenderse con ese nivel, por lo que su polaridad debe verificarse al integrar la bomba. Las entradas ADC del ESP32 no deben recibir 5 V: comprobar el voltaje de las salidas de los módulos antes de conectarlas. GPIO12 interviene en el arranque del ESP32 clásico; conservar su cableado revisado y no forzarlo a HIGH al encender.
+Mantener la bomba desconectada durante esta prueba. Configurar `EHECATL_PUMP_ACTIVE_LEVEL` en 1 para activo en HIGH o 0 para activo en LOW. El nivel contrario se escribe antes de habilitar la salida. Comprobar la polaridad con la bomba desconectada. Las entradas ADC del ESP32 no deben recibir 5 V: comprobar el voltaje de las salidas de los módulos antes de conectarlas. GPIO12 interviene en el arranque del ESP32 clásico; conservar su cableado revisado y no forzarlo a HIGH al encender.
 
 ## 3. Comprobar que llegan datos
 
@@ -78,4 +78,34 @@ arduino-cli compile --fqbn esp32:esp32:esp32 firmware/ehecatl-esp32
 
 La compilación utiliza el perfil genérico **ESP32 Dev Module** hasta confirmar el modelo exacto. Se comprobó con Arduino-ESP32 **3.3.12**, DHT **1.4.7** y Adafruit Unified Sensor **1.1.15**. Compilar no verifica el cableado ni equivale a una prueba física.
 
-Referencias: [instalación de Arduino-ESP32](https://docs.espressif.com/projects/arduino-esp32/en/latest/installing.html), [API WiFi](https://docs.espressif.com/projects/arduino-esp32/en/latest/api/wifi.html), [DHT de Adafruit](https://github.com/adafruit/DHT-sensor-library). No se ha ampliado el alcance de comparación NASA/campo, avisos agronómicos ni control de bomba.
+Referencias: [instalación de Arduino-ESP32](https://docs.espressif.com/projects/arduino-esp32/en/latest/installing.html), [API WiFi](https://docs.espressif.com/projects/arduino-esp32/en/latest/api/wifi.html), [DHT de Adafruit](https://github.com/adafruit/DHT-sensor-library). La comparación NASA/campo y los avisos agronómicos siguen pendientes. El riego automático está prohibido.
+
+## Riego manual autorizado
+
+Actualizar la copia privada `config.h` desde la plantilla. `EHECATL_UNUSED_PUMP_PIN` ahora es `EHECATL_PUMP_PIN`. Agregar las tres constantes nuevas de bomba. No copiar credenciales a la plantilla.
+
+- `EHECATL_PUMP_PIN`: GPIO18.
+- `EHECATL_PUMP_ACTIVE_LEVEL`: 0 o 1. Es obligatorio verificarlo en el montaje.
+- `EHECATL_PUMP_MAX_SECONDS`: 30. `EHECATL_PUMP_COOLDOWN_SECONDS`: 300. La compilación rechaza otros valores; la máquina aplica los límites independientemente de la API.
+
+Sensores permite elegir 10, 20 o 30 segundos y confirmar. La API valida acceso, señal, exclusión y enfriamiento. El ESP32 consulta cada cinco segundos en la tarea de red, con tiempos límite. No recibe conexiones entrantes para regar. El botón físico solo pausa lecturas; no acciona ni detiene la bomba.
+
+Una tarea independiente controla la salida. Al perder WiFi, recibir rechazo de credencial o vencer la orden, apaga y reporta FAILED con segundos transcurridos. Al completar reporta DONE. El sondeo puede demorarse mientras hay una solicitud HTTP; el apagado no depende de ella. No se interpretan lecturas como permisos de riego.
+
+Tras arrancar espera cinco minutos y rechaza órdenes creadas antes del arranque. La API nunca vuelve a entregar una orden entregada. Reiniciar pierde el reporte RAM; la API cierra una orden entregada sin reporte como FAILED después de vencer, con duración real desconocida. El historial no inventa segundos. La página local muestra bomba y última orden. No hay riego automático, horarios, caudal ni varias bombas.
+
+## Simulador sin hardware
+
+Registrar un dispositivo SIMULATED, guardar su clave en el entorno privado y ejecutar:
+
+```sh
+SIMULATOR_IRRIGATION=true SIMULATOR_COUNT=60 pnpm --filter api sensors:simulate
+```
+
+Usar `DEVICE_API_KEY` y `SIMULATOR_API_URL` en el entorno. El simulador solo admite SIMULATED, marca las lecturas y reportes, consulta entre lecturas y espera la duración pedida sin accionar hardware. El historial conserva origen simulado. Para una orden nueva el simulador debe estar ejecutándose antes de crearla. No recupera órdenes anteriores a su inicio.
+
+## Tareas humanas antes de conectar una bomba
+
+No alimentar la bomba desde GPIO18 ni desde el pin de 3.3 V. Usar etapa de potencia con relé o MOSFET adecuado, alimentación separada y protección de carga inductiva según el montaje. Verificar nivel lógico, aislamiento y tierra conforme al módulo usado. Mantener activada la protección de baja tensión del ESP32.
+
+Primero comprobar arranque apagado y polaridad con la bomba desconectada. Después probar sin agua, con supervisión, duración, corte de WiFi y reinicio. Este repositorio no verifica corriente, alimentación, cableado, polaridad física ni caudal. No se ejecutaron pruebas contra hardware.

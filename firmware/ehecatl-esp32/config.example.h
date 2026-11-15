@@ -21,4 +21,9 @@
 #define EHECATL_SOIL_PIN 35
 #define EHECATL_MQ2_PIN 33
 #define EHECATL_BUTTON_PIN 12
-#define EHECATL_UNUSED_PUMP_PIN 18
+#define EHECATL_PUMP_PIN 18
+
+// Comprobar polaridad con la bomba desconectada.
+#define EHECATL_PUMP_ACTIVE_LEVEL 1
+#define EHECATL_PUMP_MAX_SECONDS 30
+#define EHECATL_PUMP_COOLDOWN_SECONDS 300

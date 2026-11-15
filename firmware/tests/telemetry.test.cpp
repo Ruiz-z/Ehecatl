@@ -16,6 +16,39 @@ std::string reading(int soil, int gas, float temperature, float humidity) {
 
 int main() {
   using namespace ehecatl;
+  assert(pumpLevel(false, 0) == 1 && pumpLevel(false, 1) == 0);
+  assert(pumpLevel(true, 0) == 0 && pumpLevel(true, 1) == 1);
+  PumpCommand parsed{};
+  const char* commandJson = "{\"id\":\"00112233-4455-4677-8899-aabbccddeeff\",\"durationSeconds\":30,\"createdAt\":\"2026-11-15T12:30:00.000Z\",\"expiresAt\":\"2026-11-15T12:32:00.000Z\"}";
+  assert(parseCommand(commandJson, parsed));
+  assert(parsed.seconds == 30 && parsed.expires - parsed.created == 120);
+  assert(utcSeconds("2026-11-15T12:30:00Z") == 1794745800);
+  for (const char* invalid : {"", "{", "{}", "{\"id\":", "{\"id\":\"bad\"}", "{\"durationSeconds\":-1}"}) assert(!parseCommand(invalid, parsed));
+  for (size_t n = 0; n < std::strlen(commandJson); ++n) assert(!parseCommand(std::string(commandJson, n).c_str(), parsed));
+  assert(!parseCommand((std::string(commandJson) + "x").c_str(), parsed));
+  assert(!utcSeconds("2026-02-30T12:30:00Z"));
+  Pump pump;
+  assert(!pump.running());
+  assert(!pump.start(0, 1000, 1001, 1120, 10, true)); // enfriamiento al reiniciar
+  assert(!pump.start(300000, 1300, 999, 1500, 10, true)); // orden anterior al arranque
+  assert(!pump.start(300000, 1300, 1300, 1300, 10, true));
+  assert(!pump.start(300000, 1300, 1300, 1420, 10, false));
+  assert(pump.start(300000, 1300, 1300, 1420, 90, true));
+  assert(!pump.start(300001, 1300, 1300, 1420, 10, true));
+  pump.tick(329999, 1329, true); assert(pump.running());
+  pump.tick(330000, 1330, true); assert(!pump.running() && pump.done() && pump.actualSeconds() == 30);
+  assert(!pump.start(629999, 1630, 1630, 1750, 10, true));
+  assert(pump.start(630000, 1630, 1630, 1750, 10, true));
+  pump.tick(632500, 1632, false); assert(!pump.running() && !pump.done() && pump.actualSeconds() == 2.5);
+  assert(pump.start(932500, 1932, 1932, 1933, 10, true));
+  pump.tick(933500, 1933, true); assert(!pump.running() && !pump.done());
+  Pump restarted;
+  assert(!restarted.running());
+  assert(!restarted.start(300000, 2300, 1932, 2420, 10, true));
+  Pump rollover(UINT32_MAX - 1000);
+  assert(rollover.start(298999, 1300, 1300, 1420, 1, true));
+  rollover.tick(299999, 1301, true); assert(!rollover.running());
+
   const float nan = std::numeric_limits<float>::quiet_NaN();
   const float inf = std::numeric_limits<float>::infinity();
   uint8_t bytes[] = {0x00,0x11,0x22,0x33,0x44,0x55,0xff,0x77,0xff,0x99,0xaa,0xbb,0xcc,0xdd,0xee,0xff};
