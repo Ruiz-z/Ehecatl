@@ -74,3 +74,11 @@ El puntaje se lee como un orden relativo. Una diferencia de 0.2 puntos entre dos
 2. Prueba de sensibilidad: mover umbrales y Kc entre 10 y 20 % y comprobar si el top 3 cambia.
 3. Comparar POWER con una estación real de una zona demo para obtener un error de lluvia y temperatura propio.
 4. Decidir qué hacer con los cultivos de cobertura y con el valor de mercado.
+
+## Cómo se elige la fecha de siembra
+
+El motor compara todos los arranques mensuales que caben en la ventana y pasan el filtro del clima normal, desde la fecha disponible. Repite cada calendario en el historial NASA. Con cinco años completos o más, elige la fecha con mayor proporción de años buenos. En empate elige la más temprana. Exige al menos 70 % de años buenos, un umbral pendiente de H4. Si ninguna fecha alcanza ese mínimo, descarta el cultivo y explica «Solo X de N años dentro de lo que aguanta el cultivo». Con menos de cinco años completos conserva la primera fecha viable y el respaldo anterior.
+
+La referencia y las alternativas siguen la misma regla. Las fechas elegidas viajan en `sequence[].start` y `end`; los años buenos siguen en `risk.okYears` y `risk.totalYears`. No cambian los pesos ni los cuatro ejes.
+
+Dentro de cada ventana, los descansos cuentan una vez por cultivo y causa los meses con calor, frío o falta de lluvia sin riego. Usan límites del catálogo y normales mensuales; también incluyen calor, frío, helada o falta de agua que exceden el margen histórico permitido, con cinco años completos. Gana la causa que afecta a más cultivos; en empate comparan cuántos pares cultivo y mes reportan cada causa. Si persiste el empate o no hay datos suficientes, conservan «Ningún cultivo completa su ciclo en este tramo». Es un resumen del catálogo, no afirma que cada cultivo falle. `rests[].reason` sigue siendo texto. La web solo cambia su primera letra a minúscula.
