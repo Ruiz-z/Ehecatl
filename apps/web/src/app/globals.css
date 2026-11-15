@@ -678,3 +678,13 @@ summary { min-height:44px; align-content:center; }
   .sensor-panel { min-width: 0; }
   .sensor-key code { overflow-wrap: anywhere; }
 }
+
+/* La llegada de una lectura cambia la clave del grupo de tarjetas. */
+.sensor-live-status { display: inline-flex; align-items: center; gap: .5rem; font-size: 13px; }
+@media (prefers-reduced-motion: no-preference) {
+  .sensor-arrival { animation: sensor-reading-arrival 600ms ease-out; }
+}
+@keyframes sensor-reading-arrival {
+  from { background-color: var(--accent-soft); }
+  to { background-color: transparent; }
+}

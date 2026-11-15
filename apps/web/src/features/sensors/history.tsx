@@ -1,10 +1,23 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { sensorsApi, type Device, type ReadingPage } from './api';
 import { freshness, primaryDevice } from './summary';
 
 export function History({ zoneId, initial, devices, days, setDays, now }: { zoneId: string; initial: ReadingPage; devices: Device[]; days: string; setDays: (days: string) => void; now: number }) {
+  const controller = useRef<AbortController | null>(null);
+  useEffect(() => {
+    const pause = () => {
+      if (document.visibilityState === 'hidden' || !document.hasFocus()) controller.current?.abort();
+    };
+    document.addEventListener('visibilitychange', pause);
+    window.addEventListener('blur', pause);
+    return () => {
+      controller.current?.abort();
+      document.removeEventListener('visibilitychange', pause);
+      window.removeEventListener('blur', pause);
+    };
+  }, []);
   const [older, setOlder] = useState<ReadingPage | null>(null);
   const rows = [...initial.items, ...(older?.items ?? [])].filter((row, index, all) => all.findIndex(item => item.id === row.id) === index);
   const page = older ?? initial;
@@ -24,9 +37,11 @@ export function History({ zoneId, initial, devices, days, setDays, now }: { zone
       {rows.map(row => <article className="sensor-reading" key={row.id}><p>{freshness(row.measuredAt, now)} · {devices.find(d => d.id === row.deviceId)?.name ?? 'Sensor anterior'}{row.origin === 'SIMULATED' ? ' · de ejemplo' : ''}</p><details><summary>Ver todos los datos</summary><dl><dt>Fecha</dt><dd>{new Date(row.measuredAt).toLocaleString('es-MX')}</dd><dt>ADC de tierra</dt><dd>{row.soilMoistureRaw ?? 'Sin dato'}</dd><dt>Índice relativo</dt><dd>{row.soilMoisture === null ? 'Sin calibración' : `${Math.round(row.soilMoisture * 100)} %`}</dd><dt>Aire</dt><dd>{row.airTemperature ?? 'Sin dato'} °C · {row.airHumidity ?? 'Sin dato'} %RH</dd><dt>MQ2 experimental</dt><dd>{row.mq2Raw ?? 'Sin dato'}</dd><dt>Calibración</dt><dd>v{row.calibrationVersion}</dd><dt>Origen</dt><dd>{row.origin === 'SIMULATED' ? 'de ejemplo' : 'Campo'}</dd></dl></details></article>)}
       {error && <p role="alert">{error}</p>}
       {page.nextCursor && <button className="button" disabled={pending} onClick={async () => {
+        if (pending) return;
+        const current = new AbortController(); controller.current = current;
         setPending(true); setError('');
-        try { const next = await sensorsApi.readings(zoneId, { from: page.from, to: page.to, cursor: page.nextCursor! }); setOlder(old => ({ ...next, items: [...(old?.items ?? []), ...next.items] })); }
-        catch (e) { setError(e instanceof Error ? e.message : 'No se pudo cargar.'); } finally { setPending(false); }
+        try { const next = await sensorsApi.readings(zoneId, { from: page.from, to: page.to, cursor: page.nextCursor! }, current.signal); if (current.signal.aborted) return; setOlder(old => ({ ...next, items: [...(old?.items ?? []), ...next.items] })); }
+        catch (e) { if (!current.signal.aborted) setError(e instanceof Error ? e.message : 'No se pudo cargar.'); } finally { setPending(false); }
       }}>Ver lecturas anteriores</button>}
     </details>
   </section>;
