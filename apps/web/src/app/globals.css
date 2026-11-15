@@ -542,3 +542,19 @@ summary { min-height:44px; align-content:center; }
   .detail-meta dd { font-size:13px; overflow-wrap:anywhere; }
   .notice { padding:16px; }
 }
+
+/* Fechas exactas: los ciclos que comparten mes permanecen en una sola fila. */
+.timeline-tracks { display:block; position:relative; height:48px; }
+.timeline-tracks .crop-window { position:absolute; top:0; height:40px; border-inline:1px solid var(--card); white-space:nowrap; }
+.rest-window { background:var(--crop-cover); color:var(--foreground); }
+.rest-window::after { content:""; position:absolute; inset:0; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M-2 2L2-2M0 8L8 0M6 10L10 6' stroke='currentColor' opacity='.18'/%3E%3C/svg%3E"); pointer-events:none; }
+.rest-list { font-size:13px; margin-block:12px; }
+.rest-list ul { padding-left:18px; }
+.step-reasons { padding-block:16px; border-bottom:1px solid var(--border); }
+.step-reasons h4 { font-size:15px; }
+.step-reasons ul { list-style:none; padding:0; }
+.step-reason { display:flex; align-items:flex-start; gap:8px; margin-block:10px; }
+.step-reason svg { flex-shrink:0; margin-top:3px; }
+.effect-favor svg { color:var(--accent-text); }
+.effect-contra svg { color:var(--notice-amber); }
+.cycle-climate,.weights-note { font-size:13px; margin-block:12px; color:var(--muted-foreground); }

@@ -6,8 +6,14 @@ export interface CropWindow {
   startMonth: number;
   months: number;
   current?: boolean;
+  start?: string;
+  end?: string;
 }
+export interface CycleClimate { meanTemperature: number | null; rainMm: number | null; cycleDays: number | null }
+export interface RotationStep { previousCropName?: string; cropName: string; start: string; end: string; reasons?: Reason[]; climate?: CycleClimate }
+export interface Rest { start: string; end: string; months: number; reason: string; suggestion: string }
 export interface Reason {
+  effect?: 'favor' | 'contra' | 'neutral';
   // La API aún no etiqueta el origen ni el eje de cada razón; si faltan, no se inventan.
   origin?: 'Dato NASA' | 'Regla de rotación' | 'Tu parcela';
   text: string;
@@ -19,6 +25,8 @@ export interface Strategy {
   name: string;
   axes: Priorities;
   windows: CropWindow[];
+  steps?: RotationStep[];
+  rests?: Rest[];
   changeAt: string;
   reasons: Reason[];
   risks: string[];

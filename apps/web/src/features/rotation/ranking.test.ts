@@ -133,3 +133,13 @@ test('sin estrategia actual no hay delta que mostrar', () => {
   assert.equal(ranked.length, 2);
   assert.ok(ranked.every(item => item.delta === null));
 });
+
+test('reponderar conserva pasos y descansos sin mutar los candidatos', () => {
+  const data = candidates.map(item => ({...item, steps:[{cropName:'Sorgo',start:'2027-03-01',end:'2027-06-01',reasons:[{text:'Cambio de familia',effect:'favor' as const}]}],
+    rests:[{start:'2026-11-01',end:'2027-02-28',months:4,reason:'Fuera de temporada',suggestion:'Mantener cobertura'}]}));
+  const before = structuredClone(data);
+  const ranked = rankStrategies(data, {water:100,soil:0,income:0,risk:0});
+  assert.deepEqual(data, before);
+  assert.deepEqual(ranked[0]!.steps, data[0]!.steps);
+  assert.deepEqual(ranked[0]!.rests, data[0]!.rests);
+});
