@@ -1,5 +1,26 @@
 # Registro de cambios
 
+## 2026-11-15 — Revisión de la segunda versión del firmware y confirmación de FC28
+
+- **Archivos:** `docs/revision-firmware-esp32.md`, `docs/reporte-revision-esp32.md`, `docs/registro-cambios.md`.
+- **Qué se cambió:** se añade una sección vigente para el programa de un punto y se identifica la revisión anterior como histórica. Se documenta que la bomba ahora consulta la decisión del servidor, pero el permiso empieza en verdadero y no caduca; siguen pendientes contrato de lecturas, calibración, duración registrada y esperas. Se incorpora la confirmación del usuario de FC28 de dos puntas, pese a los comentarios de «capacitivo» del nuevo archivo.
+- **Por qué:** mantener el diagnóstico actualizado sin mezclar hallazgos de versiones distintas ni incorporar código con credenciales. No se cambia el alcance de actuación ni se implementa firmware o API de sensores.
+- **Verificación:** `pnpm lint` pasa con caché de Turbo; `pnpm test` se ejecuta de nuevo: 70 API, 38 Geo y 17 web correctas, con 15 omitidas por conexiones no configuradas. Revisión estática del segundo archivo; sin compilación ni prueba física del ESP32 y sin usar credenciales o destino SmartRiego.
+
+## 2026-11-15 — Revisión del firmware recibido, excluyendo servos
+
+- **Archivos:** `docs/revision-firmware-esp32.md`, `docs/reporte-revision-esp32.md`, `docs/registro-cambios.md`.
+- **Qué se cambió:** se documenta la revisión estática del programa proporcionado: contrato de lecturas incompatible, datos leídos que no se envían, calibración, validación DHT, reintentos, funcionamiento automático de la bomba, duración registrada incorrecta, esperas que retrasan el botón y ausencia de cálculo de caudal. Se precisan pines, etiquetas, protección de alimentación y configuración de credenciales, sin reproducir secretos ni incorporar el archivo original.
+- **Por qué:** aterrizar la preparación de ESP32 usando el firmware real como referencia y respetar la instrucción de excluir servos. No se implementan dispositivos ni se modifica el alcance de actuación del producto.
+- **Verificación:** `pnpm lint` pasa usando la caché de Turbo; `pnpm test` se ejecuta de nuevo y pasan 70 API, 38 Geo y 17 web, con 15 pruebas omitidas por falta de conexiones configuradas. No se compila ni se prueba el firmware en placa; no se consultan los servicios ni se usan las credenciales del archivo recibido.
+
+## 2026-11-15 — Revisión de conformidad y preparación para ESP32
+
+- **Archivos:** `docs/reporte-revision-esp32.md`, `docs/registro-cambios.md`.
+- **Qué se cambió:** se agrega un reporte en lenguaje sencillo del estado del front y la lógica frente a las specs, con diferencias en recálculo de prioridades, selección de zonas, trazabilidad de ingreso, metadatos NASA y mensajes sin opciones viables. Se documenta el trabajo pendiente para dispositivos ESP32, recepción de lecturas, calibración, comparación temporal y avisos. Se incorpora el hardware indicado por el usuario (DHT11, interpretando «DTH11», MQ2, FC28 y microbomba), sus límites y la diferencia entre mover agua y medir caudal; el control de la bomba requiere cambiar el alcance que actualmente prohíbe actuación.
+- **Por qué:** revisar los cambios acumulados y orientar la preparación del hardware sin implementar ni aprobar implícitamente la spec 007. El reporte distingue hallazgos actuales, propuestas y evidencia previa de NASA/Compose.
+- **Verificación:** `pnpm lint` pasa en API/Geo/web; `pnpm test` pasa con 70 API, 38 Geo y 17 web (125 en total), con 15 pruebas omitidas por falta de configuración de base de prueba y servicios vivos. Reproducción del caso de prioridades con el fixture del motor. No se modifican código, configuración ni datos de la aplicación.
+
 ## 2026-11-14 — Arranque autónomo de Compose y comparación con el cultivo actual
 
 - **Archivos:** `.gitattributes`, `.env.example`, `docker-compose.yml`, `README.md`, `apps/api/{Dockerfile,package.json,.env.example,README.md,BACKEND.md}`, `apps/api/scripts/docker-entrypoint.sh`, `apps/api/prisma/seed.ts`, `apps/api/src/modules/rotation-engine/engine/sequences.ts`, `apps/api/test/{engine.spec.ts,contracts.spec.ts}`, `apps/web/src/shared/api/{adapters.ts,adapters.test.ts}`, `apps/web/src/features/rotation/{types.ts,recommendations.tsx}`, `docs/specs/{spec-001-identity.md,spec-005-rotation-engine.md,spec-006-web-ui.md}`, `docs/{contracts.md,fixtures/recommendations.json,pendientes-equipo.md,backend-verification.md,registro-cambios.md}`.
