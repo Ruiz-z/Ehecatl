@@ -31,7 +31,7 @@ describe('B12–B15 motor determinista y explicable', () => {
   });
   it('genera 2–3 opciones de tres ventanas, scores acotados y explicación', () => {
     const result = recommend(input());
-    expect(result.recommendations).toHaveLength(3);
+    expect(result.recommendations).toHaveLength(2);
     for (const item of result.recommendations) {
       expect(item.score).toBeGreaterThanOrEqual(0); expect(item.score).toBeLessThanOrEqual(100);
       expect(item.sequence.length).toBeGreaterThanOrEqual(2);
@@ -107,6 +107,56 @@ describe('B12–B15 motor determinista y explicable', () => {
         expect(step.end <= '2026-12-31').toBe(true);
       }
     }
+  });
+});
+
+describe('Spec 005 RF-1c: referencia mantener lo actual', () => {
+  it('conserva la referencia fuera del haz y calcula diferencias con los mismos pesos', () => {
+    const data = input();
+    const result = recommend(data);
+    expect(result.baseline.viable).toBe(true);
+    expect(result.baseline.sequence.every(step => step.cropId === data.currentCropId)).toBe(true);
+    expect(result.baseline.sequence).toHaveLength(3);
+    expect(result.baseline.explanation.join()).toContain('Repetir familia');
+    for (const item of result.recommendations) {
+      expect(item.sequence.some(step => step.cropId !== data.currentCropId)).toBe(true);
+      expect(item.delta).toBe(Number((item.score - result.baseline.score!).toFixed(2)));
+    }
+    const onlyCurrent = recommend(data, [findCrop(data.currentCropId)!]);
+    expect(onlyCurrent.baseline).toEqual(result.baseline);
+    expect(onlyCurrent.recommendations).toEqual([]);
+    expect(onlyCurrent.status).toBe('ok');
+  });
+
+  it('repondera la referencia al cambiar las prioridades y mantiene el determinismo', () => {
+    const data = input();
+    const water = recommend({ ...data, priorities: { water: 100, soil: 0, income: 0, risk: 0 } });
+    const soil = recommend({ ...data, priorities: { water: 0, soil: 100, income: 0, risk: 0 } });
+    expect(water.baseline.score).toBeCloseTo(water.baseline.components!.water, 2);
+    expect(soil.baseline.score).toBeCloseTo(soil.baseline.components!.soil, 2);
+    expect(water.baseline.score).not.toBe(soil.baseline.score);
+    expect(recommend(data, [...crops].reverse())).toEqual(recommend(data));
+  });
+
+  it('explica una referencia inviable y deja diferencias nulas con alternativas viables', () => {
+    const data = input();
+    data.indicators.windows.forEach(window => { window.temperatureMin = -1; });
+    const result = recommend(data);
+    expect(result.status).toBe('ok');
+    expect(result.baseline).toMatchObject({ viable: false, score: null, components: null, sequence: [] });
+    expect(result.baseline.explanation.join()).toContain('helada');
+    expect(result.recommendations.length).toBeGreaterThan(0);
+    expect(result.recommendations.every(item => item.delta === null)).toBe(true);
+  });
+
+  it('devuelve referencia explícita incluso sin ventanas', () => {
+    const data = input(); data.indicators.windows = [];
+    const result = recommend(data);
+    expect(result.status).toBe('no_viable_options');
+    expect(result.baseline).toMatchObject({ viable: false, score: null, sequence: [] });
+    expect(result.baseline.explanation.join()).toContain('ventanas');
+    expect(result.recommendations).toEqual([]);
+    expect(result.currentCropRisk.changeAt).toBeNull();
   });
 });
 

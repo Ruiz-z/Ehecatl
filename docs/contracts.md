@@ -97,13 +97,23 @@ Respeta ownership de parcela/zona. Usa las prioridades del dueño aun cuando
 consulta un administrador. Respuesta 200: `version:1`, `zoneId`,
 `status: ok|no_viable_options`, `origin`, `confidence: high|medium|low`,
 `warnings`, `priorities`, `currentCropRisk: {level: low|high,reasons,changeAt}`,
-`inputs: {point,currentCropId,historyCount,indicators}`, `recommendations`.
+`inputs: {point,currentCropId,historyCount,indicators}`, `baseline`, `recommendations`.
+
+`baseline` siempre está presente: `id:"baseline"`, `viable`, `score`, `components`,
+`sequence`, `explanation`, `risks`. Repite el cultivo actual hasta tres ciclos,
+evaluado con las mismas reglas, historial y pesos, fuera del recorte del haz.
+Si no cabe ningún ciclo, `viable:false`, `score:null`, `components:null`,
+`sequence:[]` y las causas en `explanation`. Una referencia inviable no recibe
+puntaje. La UI conserva esas causas como aviso y no calcula diferencias.
 
 Cada recomendación tiene `id`, `score` 0–100, `sequence` con
 `{cropId,cropName,windowId,start,end,occupiedWindowIds}`, `components`
 (water,soil,income,risk, cada uno 0–100), `explanation: string[]`,
-`risks: string[]`. `changeAt` indica el comienzo de la primera ventana
-viable. Se generan hasta tres resultados con hasta tres ciclos sobre las
+`risks: string[]`, `delta: number|null` (puntaje menos el de `baseline`, redondeado
+a dos decimales, o nulo si la referencia es inviable). `changeAt` indica la fecha
+de siembra de la primera alternativa, o null si solo es viable mantener lo actual.
+Se generan hasta dos alternativas, excluyendo secuencias compuestas únicamente
+por el cultivo actual, con hasta tres ciclos sobre las
 primeras tres ventanas en 24 meses. Una ventana continua puede alojar varios
 ciclos, cada uno validado en sus meses y sin solaparse (siembra >= cosecha
 anterior + 1 día). `windowId` y `occupiedWindowIds` conservan los identificadores
@@ -113,7 +123,9 @@ identificador de secuencia se conserva el candidato de mayor puntaje y luego
 se aplican los desempates indicados abajo.
 La fecha de siembra no antecede al día UTC de obtención de los indicadores.
 Empates: menor riesgo, nombre e identificador de secuencia; salida determinista.
-Si ninguna opción cabe: lista vacía, razones y sugerencia de cobertura/barbecho.
+Si ninguna opción cabe, incluida la referencia: `status:no_viable_options`, lista
+vacía, referencia inviable, razones y sugerencia de cobertura/barbecho.
+Si solo cabe la referencia, `status:ok` y `recommendations:[]`.
 Ingreso es un indicador heurístico de oportunidad (no precio ni rentabilidad).
 Una perenne debe caber en el horizonte y ocupar ventanas consecutivas.
 

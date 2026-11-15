@@ -47,6 +47,7 @@ try {
     const data = await nasa.get(profile.lat, profile.lon, profile.irrigated);
     if (data.origin === 'mock' || data.sources.power.status === 'unavailable' || data.monthly.length === 0 || data.windows.length === 0) throw new Error(`No real usable NASA data for ${profile.key}; rerun seed when upstream recovers`);
     const result = recommend({ currentCropId: profile.currentCropId, history: [{ cropId: profile.previousCropId, plantedAt: '2024-01-01', harvestedAt: '2024-05-01' }], priorities, indicators: data });
+    if (result.status === 'no_viable_options') throw new Error(`No viable demo crops for ${profile.key}: ${result.warnings.join('; ')}. Review the declared irrigation and profile (H3); NASA data is not replaced`);
     console.info(`${profile.key}: zone=${zoneId}; origin=${data.origin}; sources=${JSON.stringify(data.sources)}; top=${result.recommendations[0]?.id ?? result.status}`);
   }
   console.info('Seed completo con NASA real. Perfiles propuestos: requieren aprobación H3.');

@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "prisma generate && nest start --watch",
     "build": "prisma generate && tsc -p tsconfig.build.json && node scripts/copy-assets.mjs",
+    "build:seed": "tsc -p tsconfig.seed.json && node scripts/copy-assets.mjs --seed",
     "start": "node --env-file-if-exists=.env dist/main.js",
     "lint": "prisma generate && tsc --noEmit",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand",

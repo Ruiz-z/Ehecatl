@@ -39,4 +39,5 @@ export interface RecommendationResult {
   // Inicio del horizonte de 24 meses, 'YYYY-MM'.
   horizonStart: string;
   strategies: Strategy[];
+  baselineUnavailableReasons?: string[];
 }

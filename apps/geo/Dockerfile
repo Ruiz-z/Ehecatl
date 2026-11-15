@@ -10,7 +10,10 @@ WORKDIR /app
 COPY --from=build /app/.venv /app/.venv
 COPY app ./app
 ENV PATH="/app/.venv/bin:$PATH" PYTHONUNBUFFERED=1
-RUN useradd --create-home app
+RUN apt-get update && apt-get install -y --no-install-recommends libexpat1 \
+    && rm -rf /var/lib/apt/lists/* \
+    && /app/.venv/bin/python -c "import rasterio" \
+    && useradd --create-home app
 USER app
 EXPOSE 8000
 CMD ["sh", "-c", "exec uvicorn app.main:app --host ${HOST:-0.0.0.0} --port ${PORT:-8000}"]

@@ -89,7 +89,7 @@ function SequenceCard({
               width: `${strategy.axes[key]}%`
             }} />
         </div>
-        <span className="axis-value">{strategy.axes[key]}</span>
+        <span className="axis-value">{Math.round(strategy.axes[key])}</span>
         <small>{Math.round(weights[key] * 100)} % peso</small>
       </div>;
       })}
@@ -146,12 +146,17 @@ function Advice({
   const mock = result.origin === 'mock';
   const horizon = horizonMonths(result.horizonStart);
   const hasBaseline = ranked.some(strategy => strategy.baseline);
+  const baselineWarning = result.baselineUnavailableReasons && <Notice variant="risk" label="ESTRATEGIA ACTUAL" title="Mantener lo actual no es viable">
+    <ul>{result.baselineUnavailableReasons.map(reason => <li key={reason}>{reason}</li>)}</ul>
+    <p>Las alternativas no muestran diferencia de puntaje porque no hay una referencia viable.</p>
+  </Notice>;
   if (result.status === 'no_viable_options' || !ranked.length) return <div className="no-windows">
     <CalendarDays size={32} />
     <h2>No hay una ventana segura para sembrar</h2>
     <p>{mock ? 'En este ejemplo, el agua disponible no alcanza para completar un ciclo en los próximos 24 meses.' : 'Ningún cultivo del catálogo completa su ciclo en las ventanas calculadas para los próximos 24 meses.'}</p>
     <Notice variant="risk" label={mock ? 'RIESGO · AGUA' : 'SIN OPCIONES VIABLES'} title="Sin ventana segura"><p><strong>0 ventanas viables en los próximos 24 meses.</strong> Conserva la cobertura del suelo y revisa la disponibilidad de agua con tu agrónomo antes de planear una siembra.</p></Notice>
     <p className="muted">No mostramos puntajes de cultivos que no son viables.</p>
+    {baselineWarning}
     {result.warnings.filter(text => text.length < 120).length > 0 && <ul className="muted">{result.warnings.filter(text => text.length < 120).map(text => <li key={text}>{text}</li>)}</ul>}
   </div>;
   return <div className="recommendations">
@@ -166,7 +171,8 @@ function Advice({
       {result.risk.reasons.length ? <ul>{result.risk.reasons.map(reason => <li key={reason}>{reason}</li>)}</ul> : <p>Revisa los datos de la zona antes del siguiente ciclo.</p>}
       <Link className="text-button" href={parcelUrl(parcel.id, 'datos')}>Ver datos de lluvia →</Link>
     </Notice>}
-    {ranked[0].baseline && <div className="baseline-wins" role="status"><Check size={18} />Con tus prioridades, mantener lo actual es la mejor opción. Su potencial de ingreso compensa el menor aporte al suelo.</div>}
+    {baselineWarning}
+    {ranked[0].baseline && <div className="baseline-wins" role="status"><Check size={18} />Con tus prioridades y los datos disponibles, mantener lo actual tiene el mayor puntaje.</div>}
     <div className="inputs-used">
       <span><i />Datos NASA <small>clima de 10 años</small></span>
       <span><i />Tu parcela <small>{parcel.irrigation ? 'con riego' : 'de temporal'} · {parcel.crop}</small></span>

@@ -2,6 +2,24 @@
 
 Traspaso a 2026-11-14. Lo que Mau (front/infra) dejó planeado y **no** hizo, con contexto para retomarlo. El backend (`apps/api`, `apps/geo`) lo lleva el compañero; Mau no lo modifica.
 
+## Seguimiento — 2026-11-14
+
+- **I5 implementado:** la imagen incluye el seed compilado; el entrypoint aplica migraciones, precarga NASA con `GEO_URL=http://geo:8000` y después inicia la API. Compose espera a PostgreSQL y Geo saludables y exige secretos en `.env`. La verificación se realiza con un volumen de prueba exclusivo, sin borrar bases existentes.
+- **Empaquetado detectado durante la prueba:** Geo requería `libexpat1` para importar `rasterio`; se añadió con autorización explícita del usuario y se valida en el build. El front de Compose se construye con la API real por defecto (`NEXT_PUBLIC_USE_MOCKS=false`), para que el login use efectivamente los usuarios sembrados.
+- **«Mantener lo actual» restituido:** spec 005 RF-1c, contrato, motor, fixture y adaptador web alineados. Se evalúa fuera del recorte del ranking y con las mismas reglas/pesos; si es inviable, se explican las causas con puntaje/diferencias nulos. Hasta dos alternativas más la referencia viable.
+- **Seed:** `GEO_URL` documentado en ambos entornos y fijado en Compose. Si un perfil no produce ninguna opción viable, el seed falla con las causas para revisar las condiciones declaradas; no altera datos NASA ni reglas por ubicación.
+- **Sensores:** decisión explícita del usuario: mantenerlos como **siguiente fase**. La spec 007 conserva su estado de borrador; no se propaga a la constitución ni a las specs 003/005/006 y no se implementan dispositivos, lecturas ni avisos. Las preguntas de hardware y H4 siguen abiertas.
+- **Ideas sin spec:** ETo/ETc y entrevista inicial permanecen en el backlog; visión artificial/dron continúa fuera de alcance. No se amplía el producto sin una spec.
+
+Las secciones siguientes conservan el contexto del traspaso original.
+
+Verificación y cobertura RF: [`pendientes-verificacion.md`](pendientes-verificacion.md).
+Evidencia NASA sin secretos: [`verification/pendientes-live.json`](verification/pendientes-live.json).
+I5, B14 y B17 quedan cerrados técnicamente; B18 conserva pendiente la aprobación H3.
+Las parcelas nuevas de Coahuila y Mendoza sin riego reproducen `no_viable_options`;
+con riego declarado devuelven opciones. MODIS: 10/12 meses en Coahuila (faltan mayo/junio),
+12/12 en Nevada y Mendoza. No se modifican reglas ni datos para ocultar faltantes.
+
 ## 1. I5: Compose desde cero (infra, toca `apps/api/Dockerfile`)
 - **Problema:** `docker compose up --build` en una máquina limpia deja la base vacía (sin migraciones) y sin usuarios demo.
 - **Pasos:**

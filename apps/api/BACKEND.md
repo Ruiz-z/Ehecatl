@@ -18,7 +18,7 @@ La prueba borra únicamente sus usuarios con UUID propio y cascadas asociadas.
 
 ## Seed y demo (propuesta para H3)
 
-Definir `SEED_DEMO_PASSWORD` (12–72 bytes), levantar geo y ejecutar:
+Definir `SEED_DEMO_PASSWORD` (12–72 bytes) y `GEO_URL` en `.env` (`http://localhost:8000` en desarrollo; Compose lo fija a `http://geo:8000`), levantar geo y ejecutar:
 
 ```powershell
 pnpm --filter api prisma db seed
@@ -30,6 +30,9 @@ Se crea `admin@demo.ehecatl` y los tres agricultores descritos en
 El seed es repetible: actualiza perfiles, zonas, historial y prioridades sin
 duplicarlos. La precarga usa exclusivamente NASA real vía geo; si faltan datos
 POWER utilizables o ventanas, falla con un mensaje explícito para reintentar.
+También falla si el perfil no produce ninguna opción viable, mostrando las
+razones del motor para revisar sus condiciones declaradas (H3); no sustituye
+datos reales ni relaja reglas por región.
 MODIS puede faltar; la caché parcial expira en cinco minutos para reintentarlo.
 No se imprimen ni guardan contraseñas en documentación o fixtures.
 
@@ -61,8 +64,12 @@ El puntaje de agua combina demanda relativa y tolerancia; suelo combina
 transición, fijación de nitrógeno, ruptura de hospederos, historial y cobertura;
 riesgo resta puntos por avisos climáticos y repetición de familia. Cada factor
 se publica con sus pesos. El motor explora un haz de hasta 60 candidatos por
-ventana y devuelve los tres mejores determinísticamente; es una búsqueda
+ventana y devuelve las dos mejores alternativas determinísticamente; es una búsqueda
 heurística, no garantiza el óptimo global. Empates: riesgo, nombre e ID.
+La referencia `baseline` repite el cultivo actual y pasa por las mismas reglas,
+fuera del recorte del haz; si es inviable devuelve score/componentes nulos y
+causas explícitas. Las alternativas incluyen su diferencia de puntaje o null
+si la referencia no es viable. El front identifica la referencia y sus avisos.
 
 La caché distingue punto exacto, riego, periodo, climatología y versión del
 contrato. TTL normal 24 h; las respuestas parciales se guardan hasta cinco
@@ -70,9 +77,11 @@ minutos. Un origen mock permanece mock incluso al leerlo de caché.
 
 ## Límite de alcance
 
-H2, H3 y H4 siguen pendientes de humanos. La integración de migración/seed en
-el entrypoint Docker corresponde a I5. Compose pasa JWT/GEO al API; definir
-`JWT_SECRET` en el `.env` raíz antes de arrancar. Aplicar migraciones manualmente
-con `docker compose exec api node node_modules/prisma/build/index.js migrate deploy`
-hasta integrar I5. El seed se ejecuta desde desarrollo local (requiere compilador
-y fuentes); empaquetarlo en el entrypoint sigue pendiente de I5.
+H2, H3 y H4 siguen pendientes de humanos. La spec 007 se mantiene como siguiente
+fase, sin implementar sensores. Compose ejecuta automáticamente migraciones y
+seed compilado antes de iniciar la API; configurar `JWT_SECRET` y
+`SEED_DEMO_PASSWORD` en el `.env` raíz. Los reinicios restablecen perfiles demo,
+historial y prioridades según el JSON de seed. La precarga puede tardar varios
+minutos; un fallo termina el proceso y se reintenta al recuperar la fuente con
+`docker compose up -d api`. En desarrollo local las migraciones y el seed se
+ejecutan manualmente con los comandos anteriores.

@@ -42,7 +42,7 @@ test('las recomendaciones se ubican en el horizonte de 24 meses', () => {
   const [strategy] = result.strategies;
   assert.equal(strategy?.name, 'Papa → Soya');
   assert.equal(strategy?.baseline, false);
-  assert.deepEqual(strategy?.axes, { water: 52, soil: 91, income: 88, risk: 64 });
+  assert.deepEqual(strategy?.axes, { water: 51.6, soil: 90.5, income: 87.5, risk: 64 });
   assert.equal(strategy?.windows[0]?.startMonth, 7);
   assert.equal(strategy?.windows[0]?.months, 4);
   assert.equal(strategy?.windows[0]?.family, 'other');
@@ -57,6 +57,27 @@ test('sin opciones viables no inventa estrategias', () => {
   const result = mapRecommendations({ ...recommendations, status: 'no_viable_options', recommendations: [] }, crops);
   assert.equal(result.status, 'no_viable_options');
   assert.deepEqual(result.strategies, []);
+});
+
+test('la referencia viable se muestra como mantener lo actual con sus valores reales', () => {
+  const result = mapRecommendations({ ...recommendations, baseline: {
+    ...recommendations.recommendations[0]!, id: 'baseline', viable: true,
+    sequence: [{ cropId: 'maize', cropName: 'Maíz', start: '2027-06-01', end: '2027-09-28' }]
+  } }, crops);
+  const reference = result.strategies.find(strategy => strategy.baseline);
+  assert.equal(reference?.name, 'Mantener lo actual');
+  assert.equal(reference?.windows[0]?.current, true);
+  assert.equal(reference?.axes.water, 51.6);
+  assert.equal(reference?.changeAt, 'Se conserva el cultivo actual');
+});
+
+test('la referencia inviable conserva sus razones sin inventar ejes ni puntaje', () => {
+  const result = mapRecommendations({ ...recommendations, baseline: {
+    id: 'baseline', viable: false, score: null, components: null, sequence: [],
+    explanation: ['Riesgo de helada'], risks: []
+  } }, crops);
+  assert.ok(result.strategies.every(strategy => !strategy.baseline));
+  assert.deepEqual(result.baselineUnavailableReasons, ['Riesgo de helada']);
 });
 
 const indicators: ApiIndicators = {

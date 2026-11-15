@@ -13,8 +13,9 @@ Agricultor (lee recomendaciones), dashboard (las muestra).
 - H4: Como agricultor quiero que mis prioridades cambien el ranking.
 
 ## Requisitos funcionales (EARS)
-- RF-1: CUANDO se solicita una recomendación para una zona, EL SISTEMA devuelve las 2–3 mejores secuencias de hasta 3 ciclos de cultivos sobre las primeras 3 ventanas disponibles en el horizonte de 24 meses.
+- RF-1: CUANDO se solicita una recomendación para una zona, EL SISTEMA devuelve hasta las 2 mejores alternativas de hasta 3 ciclos de cultivos sobre las primeras 3 ventanas disponibles en el horizonte de 24 meses, junto a la referencia de RF-1c.
 - RF-1b: SI una ventana continua permite varios ciclos, ENTONCES EL SISTEMA puede encadenarlos dentro de ella, sembrando como mínimo el día siguiente a la cosecha anterior y reevaluando la viabilidad en los meses ocupados. SI no caben 2 ciclos viables en las ventanas disponibles, ENTONCES reduce la secuencia (o sugiere cobertura/barbecho) y lo explica; el número de ventanas por sí solo no reduce la secuencia.
+- RF-1c: EL SISTEMA devuelve siempre una referencia `baseline` («mantener lo actual»), repitiendo el cultivo actual hasta 3 ciclos con las mismas ventanas, reglas, historial y pesos que las alternativas. La evalúa separadamente para que el recorte del ranking no la elimine. SI no cabe ningún ciclo viable, ENTONCES `viable=false`, `score` y `components` son nulos y se explican las causas; no se asigna puntaje a un cultivo inviable. Cada alternativa incluye `delta` frente a la referencia, nulo si esta no es viable. Las alternativas excluyen las secuencias formadas únicamente por el cultivo actual.
 - RF-2: EL SISTEMA evalúa cada transición A → B con reglas de familia botánica, balance de nitrógeno, ruptura de ciclo de plagas/enfermedades y cobertura/erosión (spec 004).
 - RF-3: EL SISTEMA evalúa la viabilidad de B comparando requisitos del cultivo (agua, temperatura, ciclo) con los indicadores NASA del punto (spec 003).
 - RF-4: CUANDO los indicadores NASA muestran tendencia de sequía o calor para el cultivo actual, EL SISTEMA marca "riesgo alto" y sugiere cuándo conviene cambiar y hacia qué cultivo más tolerante.
