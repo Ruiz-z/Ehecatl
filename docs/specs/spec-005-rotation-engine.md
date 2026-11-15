@@ -33,6 +33,9 @@ Agricultor (lee recomendaciones), dashboard (las muestra).
 - RF-12b: Sin history o con menos de cinco años completos por ciclo, conserva los cálculos anteriores de riesgo e income como respaldo. Publica risk y yield nulos en ese paso, confianza como máximo medium y «Sin historia suficiente: riesgo estimado con el promedio». POWER ausente o demanda de catálogo conserva low. No presenta el respaldo como frecuencia medida ni rendimiento FAO.
 - RF-13: EL SISTEMA expone water por paso sin perder reasons, climate ni rests. Cada recomendación y baseline publica irrigationNeedMm entero (0 si inviable); coveragePct se redondea a un decimal al responder. Los riesgos incluyen una sola línea «Agua faltante en 24 meses: ~X mm; con riego depende de su disponibilidad efectiva» o «Agua faltante en 24 meses: ~X mm: la lluvia no cubre la demanda», sin déficit repetido por ciclo; el resto sigue deduplicado. La tarjeta muestra el agua faltante con fallback para contratos antiguos y aportes enteros axes × pesos normalizados y nivel alto ≥70, medio ≥50 y bajo <50. Suelo conserva sus reglas SARE/FAO y las identifica como regla agronómica publicada. Cosecha y riesgo usan RF-5 y RF-12.
 
+- RF-14: Con al menos cinco años completos por ciclo, EL SISTEMA evalúa todos los arranques mensuales desde earliest que pasan la viabilidad normal dentro de la ventana. Elige la mayor proporción de años buenos; en empate, la fecha más temprana. Exige una proporción mínima de 0.7, definida una sola vez como minHistoricalSuccess y pendiente de H4. Si ninguna fecha la alcanza, no programa el cultivo y explica «Solo X de N años dentro de lo que aguanta el cultivo». Con menos de cinco años completos conserva la primera fecha viable y el respaldo de RF-12b. Referencia y alternativas usan la misma regla.
+- RF-14b: Para cada descanso dentro de una ventana, EL SISTEMA cuenta por cultivo del catálogo las causas climáticas de los meses del tramo: calor, frío o falta de agua sin riego. Publica la causa con más cultivos afectados. En empate de cultivos afectados, compara los pares cultivo y mes afectados. Si persiste el empate o no hay causa, conserva «Ningún cultivo completa su ciclo en este tramo». La web conserva la razón y solo baja la primera letra a minúscula.
+
 Estas fórmulas, constantes, fracciones, umbrales y niveles son heurísticas pendientes de validación H4; la aproximación por radiación no es Penman-Monteith FAO-56. No usa extremos mensuales para Hargreaves por rango térmico.
 
 ## Requisitos no funcionales
@@ -47,7 +50,7 @@ Estas fórmulas, constantes, fracciones, umbrales y niveles son heurísticas pen
 Modelos de rendimiento entrenados, optimización económica con precios de mercado en tiempo real, ML de caja negra.
 
 ## Criterios de finalización
-RF-1 a RF-13 (incluido RF-1c) con test en verde + demo: tres usuarios con ubicaciones y prioridades distintas reciben recomendaciones distintas y explicadas, siempre comparadas contra mantener lo actual.
+RF-1 a RF-14b (incluido RF-1c) con test en verde + demo: tres usuarios con ubicaciones y prioridades distintas reciben recomendaciones distintas y explicadas, siempre comparadas contra mantener lo actual.
 
 ## Decisiones
 - Preparación ESP32 (2026-11-15): lecturas sin efecto en viabilidad o confianza hasta contar con comparación validada. `POST /zones/:id/recommendations` permite pesos temporales sin guardarlos; guardar preferencias sigue siendo una operación separada.
