@@ -6,7 +6,9 @@ export interface Window {
   temperatureMin: number | null; temperatureMax: number | null;
   meanTemperature: number | null; precipitationMm: number | null; irrigated: boolean;
 }
+export interface HistoricalMonth { variable: string; year: number; month: number; value: number | null }
 export interface Indicators {
+  history?: HistoricalMonth[];
   version: 1; point: { lat: number; lon: number }; period: { start: string; end: string };
   origin: Origin; fetchedAt: string;
   sources: Record<'power' | 'modis', { status: 'available' | 'partial' | 'unavailable'; reason: string | null }>;

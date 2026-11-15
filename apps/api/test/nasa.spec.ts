@@ -90,3 +90,12 @@ describe('B16 caché persistida', () => {
     }
   });
 });
+
+it('acepta historia ausente o nula por mes y rechaza filas inválidas', () => {
+  expect(validateIndicators(indicators()).history).toBeUndefined();
+  const history = [{variable:'T2M',year:2020,month:1,value:null}];
+  expect(validateIndicators({...indicators(),history}).history).toEqual(history);
+  for (const change of [{value:-999},{value:Infinity},{month:13},{year:1.5},{variable:'NDVI'}]) {
+    expect(()=>validateIndicators({...indicators(),history:[{...history[0],...change}]})).toThrow('Historia');
+  }
+});

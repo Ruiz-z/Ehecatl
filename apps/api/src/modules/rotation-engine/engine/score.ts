@@ -1,3 +1,4 @@
+import type { HistoricalRisk } from './historical.js';
 import type { Crop } from '../../crop-knowledge/crop-catalog.js';
 import type { Indicators, Window } from '../../nasa-data/contracts.js';
 import type { Weights } from '../../nasa-data/contracts.js';
@@ -7,8 +8,12 @@ export function weightedScore(components: Weights, priorities: Weights): number 
   return Math.round(Math.max(0, Math.min(100, value))*100)/100;
 }
 
-// Márgenes medidos, no cantidad de avisos. Todas las penalidades requieren H4.
-export function riskScore(crop: Crop, climate: Window, indicators: Indicators, coverage: number, repeatedFamily: boolean): number {
+export function riskScore(result: HistoricalRisk): number {
+  return result.totalYears > 0 ? 100*result.okYears/result.totalYears : 0;
+}
+
+// Respaldo compatible sin cinco años completos. No representa frecuencia histórica; pendiente de H4.
+export function estimatedRiskScore(crop: Crop, climate: Window, indicators: Indicators, coverage: number, repeatedFamily: boolean): number {
   const heat = climate.temperatureMax === null ? 0 : Math.min(30, Math.max(0, climate.temperatureMax-crop.tempMax)*4);
   const t = climate.meanTemperature;
   const optimal = t === null ? 0 : Math.min(20, Math.max(0, crop.tempOptMin-t, t-crop.tempOptMax)*3);

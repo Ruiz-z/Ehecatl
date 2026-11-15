@@ -4,7 +4,8 @@ import type { History, Indicators, Weights } from '../../nasa-data/contracts.js'
 import { normalizeWeights } from '../../farm-context/priorities/normalize.js';
 import { transition, type TransitionReason } from './transitions.js';
 import { currentRisk } from './viability.js';
-import { weightedScore, riskScore } from './score.js';
+import { weightedScore, riskScore, estimatedRiskScore } from './score.js';
+import { simulateCycle, type HistoricalRisk } from './historical.js';
 import { horizonEto } from './evapotranspiration.js';
 import { schedule } from './schedule.js';
 
@@ -12,6 +13,8 @@ interface Step {
   cropId: string; cropName: string; windowId: string; start: string; end: string;
   occupiedWindowIds: string[];
   water: { etoMm: number | null; kc: number; demandMm: number; rainMm: number | null; coveragePct: number | null; method: 'radiation' | 'catalog' };
+  risk: HistoricalRisk | null;
+  yield: { relativePct: number; ky: number; irrigatedAssumed: boolean; kyEstimated: boolean; kySource: string } | null;
   reasons: TransitionReason[];
   climate: { meanTemperature: number | null; rainMm: number | null; cycleDays: number };
 }
@@ -63,7 +66,7 @@ export function recommend(input: Input, catalog: Crop[] = crops) {
       coveragePct: step.water.coveragePct === null ? null : Number(step.water.coveragePct.toFixed(1))}})),
     rests: rests(candidate.sequence, indicators.windows, horizon),
     risks: [...new Set([...candidate.risks, `Agua faltante en 24 meses: ~${Math.round(candidate.irrigationNeedMm)} mm${indicators.windows.some(w => w.irrigated) ? '; con riego depende de su disponibilidad efectiva' : ': la lluvia no cubre la demanda'}`])],
-    explanation: [...candidate.explanation, `Pesos agua=${priorities.water}, suelo=${priorities.soil}, ingreso=${priorities.income}, riesgo=${priorities.risk}; ingreso es una heurística, no precio`] });
+    explanation: [...candidate.explanation, `Pesos agua=${priorities.water}, suelo=${priorities.soil}, cosecha=${priorities.income}, riesgo=${priorities.risk}; ${candidate.sequence.some(step => step.yield === null) ? 'cosecha usa el indicador previo del catálogo en ciclos sin historia suficiente' : 'cosecha es rendimiento relativo frente al potencial'}`] });
   const currentPlan = currentResult.candidates[0] ? complete(currentResult.candidates[0]) : undefined;
   const baselineReasons = !windows.length ? ['Sin ventanas de cultivo disponibles']
     : currentResult.failures.length ? currentResult.failures : ['No cabe un ciclo del cultivo actual en las ventanas disponibles'];
@@ -80,9 +83,13 @@ export function recommend(input: Input, catalog: Crop[] = crops) {
   if (steps.some(step => step.water.method === 'catalog' || step.water.rainMm === null)) {
     warnings.push('Balance hídrico incompleto: demanda del catálogo o lluvia desconocida');
   }
+  const historicalFallback = steps.some(step => step.risk === null);
+  if (historicalFallback) warnings.push('Sin historia suficiente: riesgo estimado con el promedio');
+  if (steps.some(step => step.yield?.irrigatedAssumed)) warnings.push('Con riego se asume demanda cubierta: Cosecha da 100 y no distingue cultivos. Ahí deciden agua, suelo y riesgo');
+  if (steps.some(step => step.yield?.kyEstimated)) warnings.push('Ky estimado por cultivo afín de la tabla FAO: revisa la fuente en cada paso');
   const catalogDemand = steps.some(step => step.water.method === 'catalog');
   const confidence = powerMissing || catalogDemand ? 'low' as const
-    : powerGaps || modisMissing || shortHistory || incompleteClimate || !history.length || etoMm === null || indicators.warnings.length
+    : historicalFallback || powerGaps || modisMissing || shortHistory || incompleteClimate || !history.length || etoMm === null || indicators.warnings.length
       ? 'medium' as const : 'high' as const;
   const risk = currentRisk(current, indicators);
   return { status: viable ? 'ok' as const : 'no_viable_options' as const, confidence,
@@ -97,6 +104,7 @@ function generate(input: Input, catalog: Crop[], etoMm: number | null) {
   const priorities = normalizeWeights(input.priorities);
   const windows = indicators.windows.slice().sort((a, b) => a.start.localeCompare(b.start)).slice(0, 3);
   const failures = new Set<string>();
+  const simulations = new Map<string, ReturnType<typeof simulateCycle>>();
   const schedules = new Map<string, ReturnType<typeof schedule>>();
   let beam: Candidate[] = [{ cycleRisks: [], irrigationNeedMm: 0, id: '', score: 0, sequence: [], components: { water: 0, soil: 0, income: 0, risk: 0 }, explanation: [], risks: [] }];
   for (let cycle = 0; cycle < 3; cycle++) {
@@ -118,16 +126,25 @@ function generate(input: Input, catalog: Crop[], etoMm: number | null) {
           const { result, effective, water, start: planted, end, occupiedWindowIds } = plan.scheduled;
           const tr = transition(previous, crop, [...history, ...partial.sequence.map(s => ({ cropId: s.cropId, plantedAt: s.start, harvestedAt: s.end }))]);
           const coverage = (water.coveragePct ?? 0)/100;
+          const simulationKey = `${crop.id}:${planted}:${end}:${effective.irrigated}`;
+          let simulation = simulations.get(simulationKey);
+          if (!simulation) {
+            simulation = simulateCycle(crop, iso(planted), iso(end), indicators.history, effective.irrigated);
+            simulations.set(simulationKey, simulation);
+          }
+          const measured = simulation.totalYears >= 5;
           const components: Weights = {
             water: 0,
-            soil: tr.score, income: crop.incomeOpportunity,
-            risk: riskScore(crop, effective, indicators, coverage, previous.family === crop.family),
+            soil: tr.score, income: measured ? simulation.relativeYieldPct! : crop.incomeOpportunity,
+            risk: measured ? riskScore(simulation) : estimatedRiskScore(crop, effective, indicators, coverage, previous.family === crop.family),
           };
           const count = partial.sequence.length;
           const combined = Object.fromEntries((Object.keys(components) as (keyof Weights)[]).map(key => [key, (partial.components[key]*count+components[key])/(count+1)])) as unknown as Weights;
           const sequence = [...partial.sequence, {
             cropId: crop.id, cropName: crop.name, windowId: window.id,
             start: iso(planted), end: iso(end), occupiedWindowIds, water, reasons: tr.reasons,
+            risk: measured ? { okYears: simulation.okYears, totalYears: simulation.totalYears, failures: simulation.failures } : null,
+            yield: measured ? { relativePct: simulation.relativeYieldPct!, ky: crop.ky, irrigatedAssumed: effective.irrigated, kyEstimated: crop.kyEstimated, kySource: crop.kySource } : null,
             climate: {
               meanTemperature: effective.meanTemperature === null ? null : Number(effective.meanTemperature.toFixed(1)),
               rainMm: result.waterMm === null ? null : Math.round(result.waterMm),
