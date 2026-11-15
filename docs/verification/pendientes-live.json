@@ -1,0 +1,250 @@
+{
+  "verifiedAt": "2026-11-15T01:08:46.219169+00:00",
+  "origin": "live",
+  "note": "Compose en volumen vacio aislado; migraciones y seed automaticos; login real; NASA real sin fixtures ni cambios por region.",
+  "results": [
+    {
+      "profile": "coahuila",
+      "point": {
+        "lat": 25.4,
+        "lon": -101
+      },
+      "irrigated": true,
+      "status": "ok",
+      "origin": "cache",
+      "confidence": "low",
+      "sources": {
+        "modis": {
+          "reason": null,
+          "status": "available"
+        },
+        "power": {
+          "reason": null,
+          "status": "available"
+        }
+      },
+      "period": {
+        "end": "2026-10-31",
+        "start": "2025-11-01"
+      },
+      "ndviMonths": 10,
+      "ndviProviders": [
+        "MODIS MOD13Q1 / Microsoft Planetary Computer",
+        "MODIS MYD13Q1 / Microsoft Planetary Computer"
+      ],
+      "baselineViable": true,
+      "baselineScore": 43.52,
+      "baselineReasons": [],
+      "top": "cowpea>sorghum>cowpea",
+      "cacheElapsedMs": 63,
+      "ndviMissingMonths": [
+        "2026-05-01",
+        "2026-06-01"
+      ]
+    },
+    {
+      "profile": "nevada",
+      "point": {
+        "lat": 39.5,
+        "lon": -119.8
+      },
+      "irrigated": true,
+      "status": "ok",
+      "origin": "cache",
+      "confidence": "low",
+      "sources": {
+        "modis": {
+          "reason": null,
+          "status": "available"
+        },
+        "power": {
+          "reason": null,
+          "status": "available"
+        }
+      },
+      "period": {
+        "end": "2026-10-31",
+        "start": "2025-11-01"
+      },
+      "ndviMonths": 12,
+      "ndviProviders": [
+        "MODIS MOD13Q1 / Microsoft Planetary Computer",
+        "MODIS MYD13Q1 / Microsoft Planetary Computer"
+      ],
+      "baselineViable": false,
+      "baselineScore": null,
+      "baselineReasons": [
+        "Alfalfa: Ciclo de 600 días excede el horizonte o ventana disponible"
+      ],
+      "top": "potato>soybean",
+      "cacheElapsedMs": 47,
+      "ndviMissingMonths": []
+    },
+    {
+      "profile": "mendoza",
+      "point": {
+        "lat": -33,
+        "lon": -68.8
+      },
+      "irrigated": true,
+      "status": "ok",
+      "origin": "cache",
+      "confidence": "low",
+      "sources": {
+        "modis": {
+          "reason": null,
+          "status": "available"
+        },
+        "power": {
+          "reason": null,
+          "status": "available"
+        }
+      },
+      "period": {
+        "end": "2026-10-31",
+        "start": "2025-11-01"
+      },
+      "ndviMonths": 12,
+      "ndviProviders": [
+        "MODIS MOD13Q1 / Microsoft Planetary Computer",
+        "MODIS MYD13Q1 / Microsoft Planetary Computer"
+      ],
+      "baselineViable": true,
+      "baselineScore": 37.43,
+      "baselineReasons": [],
+      "top": "soybean>buckwheat>soybean",
+      "cacheElapsedMs": 47,
+      "ndviMissingMonths": []
+    }
+  ],
+  "diagnostics": [
+    {
+      "profile": "coahuila",
+      "irrigated": false,
+      "status": "no_viable_options",
+      "sources": {
+        "power": {
+          "status": "available",
+          "reason": null
+        },
+        "modis": {
+          "status": "available",
+          "reason": null
+        }
+      },
+      "warnings": [
+        "Climatología con años faltantes; interpretar con menor confianza",
+        "Sin historial: menor confianza en la rotación",
+        "Datos NASA incompletos: confianza reducida",
+        "Menos de dos ciclos viables en 24 meses: secuencia reducida; considerar cobertura o barbecho",
+        "Ninguna opción viable; considerar cobertura o barbecho",
+        "Alfalfa: Agua insuficiente para la demanda del ciclo; Ciclo de 600 días excede el horizonte o ventana disponible; Mejor lluvia disponible 632 mm frente a demanda de 1100 mm/ciclo",
+        "Arroz: Meses del ciclo fuera del rango térmico del cultivo; Temperatura del ciclo fuera de 18–38 C; Riesgo de helada en cultivo sensible; Agua insuficiente para la demanda del ciclo; Ciclo de 140 días excede el horizonte o ventana disponible; Mejor lluvia disponible 214 mm frente a demanda de 1000 mm/ciclo",
+        "Avena: Agua insuficiente para la demanda del ciclo; Ciclo de 120 días excede el horizonte o ventana disponible; Mejor lluvia disponible 194 mm frente a demanda de 400 mm/ciclo",
+        "Canola: Agua insuficiente para la demanda del ciclo; Ciclo de 130 días excede el horizonte o ventana disponible; Mejor lluvia disponible 206 mm frente a demanda de 450 mm/ciclo",
+        "Caupí: Meses del ciclo fuera del rango térmico del cultivo; Temperatura del ciclo fuera de 16–38 C; Riesgo de helada en cultivo sensible; Agua insuficiente para la demanda del ciclo; Ciclo de 90 días excede el horizonte o ventana disponible; Mejor lluvia disponible 151 mm frente a demanda de 250 mm/ciclo",
+        "Cebada: Agua insuficiente para la demanda del ciclo; Ciclo de 110 días excede el horizonte o ventana disponible; Mejor lluvia disponible 171 mm frente a demanda de 350 mm/ciclo",
+        "Frijol: Meses del ciclo fuera del rango térmico del cultivo; Riesgo de helada en cultivo sensible; Agua insuficiente para la demanda del ciclo; Ciclo de 90 días excede el horizonte o ventana disponible; Mejor lluvia disponible 151 mm frente a demanda de 350 mm/ciclo",
+        "Garbanzo: Agua insuficiente para la demanda del ciclo; Ciclo de 110 días excede el horizonte o ventana disponible; Mejor lluvia disponible 171 mm frente a demanda de 300 mm/ciclo",
+        "Girasol: Riesgo de helada en cultivo sensible; Agua insuficiente para la demanda del ciclo; Ciclo de 110 días excede el horizonte o ventana disponible; Mejor lluvia disponible 171 mm frente a demanda de 400 mm/ciclo",
+        "Lenteja: Agua insuficiente para la demanda del ciclo; Ciclo de 100 días excede el horizonte o ventana disponible; Mejor lluvia disponible 162 mm frente a demanda de 280 mm/ciclo",
+        "Maíz: Riesgo de helada en cultivo sensible; Agua insuficiente para la demanda del ciclo; Ciclo de 120 días excede el horizonte o ventana disponible; Mejor lluvia disponible 194 mm frente a demanda de 600 mm/ciclo",
+        "Mostaza de cobertura: Agua insuficiente para la demanda del ciclo; Ciclo de 70 días excede el horizonte o ventana disponible; Mejor lluvia disponible 116 mm frente a demanda de 200 mm/ciclo",
+        "Papa: Riesgo de helada en cultivo sensible; Agua insuficiente para la demanda del ciclo; Ciclo de 120 días excede el horizonte o ventana disponible; Mejor lluvia disponible 194 mm frente a demanda de 550 mm/ciclo",
+        "Sorgo: Meses del ciclo fuera del rango térmico del cultivo; Riesgo de helada en cultivo sensible; Agua insuficiente para la demanda del ciclo; Ciclo de 110 días excede el horizonte o ventana disponible; Mejor lluvia disponible 171 mm frente a demanda de 400 mm/ciclo",
+        "Soya: Meses del ciclo fuera del rango térmico del cultivo; Riesgo de helada en cultivo sensible; Agua insuficiente para la demanda del ciclo; Ciclo de 120 días excede el horizonte o ventana disponible; Mejor lluvia disponible 194 mm frente a demanda de 550 mm/ciclo",
+        "Tomate: Meses del ciclo fuera del rango térmico del cultivo; Riesgo de helada en cultivo sensible; Agua insuficiente para la demanda del ciclo; Ciclo de 130 días excede el horizonte o ventana disponible; Mejor lluvia disponible 206 mm frente a demanda de 600 mm/ciclo",
+        "Trigo sarraceno: Riesgo de helada en cultivo sensible; Agua insuficiente para la demanda del ciclo; Ciclo de 70 días excede el horizonte o ventana disponible; Mejor lluvia disponible 116 mm frente a demanda de 250 mm/ciclo",
+        "Trigo: Agua insuficiente para la demanda del ciclo; Ciclo de 150 días excede el horizonte o ventana disponible; Mejor lluvia disponible 223 mm frente a demanda de 450 mm/ciclo"
+      ],
+      "baselineViable": false,
+      "alternatives": 0
+    },
+    {
+      "profile": "coahuila",
+      "irrigated": true,
+      "status": "ok",
+      "sources": {
+        "modis": {
+          "reason": null,
+          "status": "available"
+        },
+        "power": {
+          "reason": null,
+          "status": "available"
+        }
+      },
+      "warnings": [
+        "Climatología con años faltantes; interpretar con menor confianza",
+        "Sin historial: menor confianza en la rotación",
+        "Datos NASA incompletos: confianza reducida"
+      ],
+      "baselineViable": true,
+      "alternatives": 2
+    },
+    {
+      "profile": "mendoza",
+      "irrigated": false,
+      "status": "no_viable_options",
+      "sources": {
+        "power": {
+          "status": "available",
+          "reason": null
+        },
+        "modis": {
+          "status": "available",
+          "reason": null
+        }
+      },
+      "warnings": [
+        "Climatología con años faltantes; interpretar con menor confianza",
+        "Sin historial: menor confianza en la rotación",
+        "Datos NASA incompletos: confianza reducida",
+        "Menos de dos ciclos viables en 24 meses: secuencia reducida; considerar cobertura o barbecho",
+        "Ninguna opción viable; considerar cobertura o barbecho",
+        "Alfalfa: Ciclo de 600 días excede el horizonte o ventana disponible",
+        "Arroz: Ciclo de 140 días excede el horizonte o ventana disponible",
+        "Avena: Ciclo de 120 días excede el horizonte o ventana disponible",
+        "Canola: Ciclo de 130 días excede el horizonte o ventana disponible",
+        "Caupí: Ciclo de 90 días excede el horizonte o ventana disponible",
+        "Cebada: Ciclo de 110 días excede el horizonte o ventana disponible",
+        "Frijol: Ciclo de 90 días excede el horizonte o ventana disponible",
+        "Garbanzo: Ciclo de 110 días excede el horizonte o ventana disponible",
+        "Girasol: Ciclo de 110 días excede el horizonte o ventana disponible",
+        "Lenteja: Ciclo de 100 días excede el horizonte o ventana disponible",
+        "Maíz: Ciclo de 120 días excede el horizonte o ventana disponible",
+        "Mostaza de cobertura: Ciclo de 70 días excede el horizonte o ventana disponible",
+        "Papa: Ciclo de 120 días excede el horizonte o ventana disponible",
+        "Sorgo: Ciclo de 110 días excede el horizonte o ventana disponible",
+        "Soya: Ciclo de 120 días excede el horizonte o ventana disponible",
+        "Tomate: Ciclo de 130 días excede el horizonte o ventana disponible",
+        "Trigo sarraceno: Ciclo de 70 días excede el horizonte o ventana disponible",
+        "Trigo: Ciclo de 150 días excede el horizonte o ventana disponible"
+      ],
+      "baselineViable": false,
+      "alternatives": 0
+    },
+    {
+      "profile": "mendoza",
+      "irrigated": true,
+      "status": "ok",
+      "sources": {
+        "modis": {
+          "reason": null,
+          "status": "available"
+        },
+        "power": {
+          "reason": null,
+          "status": "available"
+        }
+      },
+      "warnings": [
+        "Climatología con años faltantes; interpretar con menor confianza",
+        "Sin historial: menor confianza en la rotación",
+        "Datos NASA incompletos: confianza reducida"
+      ],
+      "baselineViable": true,
+      "alternatives": 2
+    }
+  ]
+}

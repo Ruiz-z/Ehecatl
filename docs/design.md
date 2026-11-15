@@ -12,16 +12,16 @@ Dirección visual para `apps/web` (tareas F). Referencia: **OneSoil** (app web d
 
 ## 2. Layout (escritorio ≥1024 px)
 ```
-┌────┬──────────────────┬───────────────────────────────────┐
-│riel│ Panel (360 px)   │ Mapa satelital (resto)            │
-│64px│ lista / detalle  │  controles flotantes a la derecha │
-└────┴──────────────────┴───────────────────────────────────┘
+┌────┬───────────────────────────────┬───────────────────┐
+│riel│ Contenido SÓLIDO (≈56 %)      │ Mapa (≈44 %)      │
+│72px│ lista / detalle, scroll propio│ satelital, sticky │
+└────┴───────────────────────────────┴───────────────────┘
 ```
-- **Riel (64 px):** logo Ehécatl, iconos: Parcelas, Qué sembrar, Datos NASA, Prioridades; abajo usuario y salir. Icono activo con fondo verde claro.
-- **Panel (360 px, colapsable):** contenido de la ruta; scroll propio. Cabecera fija con nombre de parcela, cultivo actual y botón cerrar.
-- **Mapa:** Leaflet. Capa base satelital (Esri World Imagery, con atribución) + capa de calles opcional. Polígono/pin de cada zona; capa **NDVI** como mapa de calor (amarillo→verde) cuando haya dato.
-- **Controles flotantes (derecha del mapa):** zoom, capas (satélite/calles/NDVI), mi ubicación. Botones circulares blancos con sombra suave.
-- **Móvil (<768 px):** el panel pasa a *bottom sheet* arrastrable sobre el mapa; el riel se vuelve barra inferior de 4 iconos.
+- **Riel (72 px):** negro `#0E1410`, iconos crema, el activo con fondo `--accent` y icono negro. Abajo avatar y salir.
+- **Contenido:** columna blanca opaca sobre fondo hueso, **sin vidrio ni mapa detrás**. Cabecera con migas, título 36 px y píldoras de datos de la parcela.
+- **Mapa:** Leaflet, base satelital Esri con atribución, pegado al borde derecho, `position: sticky`; pin en `--accent` con borde negro. Controles flotantes circulares blancos.
+- **Tablet (<1024):** mapa arriba (alto 280 px) y contenido debajo. **Móvil (<768):** mapa colapsable y contenido a ancho completo; navegación en barra inferior negra de 4 iconos. Hoja blanca opaca, nunca translúcida.
+- **Login:** único lugar con «momento de marca»: imagen satelital de fondo con degradado negro solo bajo el texto, titular grande y formulario en tarjeta blanca sólida.
 
 ## 3. Pantallas (misma lista que las specs; ver `docs/specs/spec-006-web-ui.md`)
 1. **Login** — tarjeta centrada sobre fondo verde salvia suave; selector rápido de usuarios demo (tarjetas con nombre y región).
@@ -32,25 +32,41 @@ Dirección visual para `apps/web` (tareas F). Referencia: **OneSoil** (app web d
 6. **Parcela · Qué sembrar** — banner de riesgo (si aplica), 2–3 tarjetas de secuencia (ver §7), prioridades como sliders al pie.
 7. **Estados:** vacío, cargando (skeleton), error de datos, sin ventanas de cultivo.
 
-## 4. Tokens (CSS variables; Tailwind + shadcn leen estos nombres)
+## 4. Paleta «Lima» (oficial; base visual: kit Harvestiq de Figma, solo sistema, sin sus imágenes)
+Un solo acento saturado, negro casi puro y blanco hueso. Todo lo demás son neutros. La zanahoria queda **solo** para riesgo/alerta.
+
+| Token | Valor | Uso | Contraste |
+|---|---|---|---|
+| `--foreground` / `--primary` | `#0E1410` | texto principal, botones, riel | 17.6:1 sobre hueso |
+| `--background` | `#F7F8FA` | fondo de la app | — |
+| `--card` | `#FFFFFF` | tarjetas y columna de contenido | — |
+| `--accent` | `#6FC20B` | **relleno** (barras, icono en círculo, píldora activa, punto de sección). Texto encima: `#0E1410` (8.3:1) | ❌ nunca como texto sobre claro (2.1:1) |
+| `--accent-soft` | `#E9F6D0` | fondo de píldora «viable», filas destacadas | texto negro 16.5:1 |
+| `--accent-text` | `#3E7A00` | verde para texto pequeño sobre blanco (p. ej. «+43 puntos») | 5.3:1 |
+| `--muted-foreground` | `#5B645E` | texto secundario | 6.1:1 sobre blanco |
+| `--border` | `#D9DDD8` | divisores decorativos | solo decorativo |
+| `--control-border` | `#8A928C` | borde de inputs y controles | 3.2:1 |
+| `--risk` | `#D0410C` | relleno de alerta; texto de riesgo `#B53509` (6.0:1) | |
+| `--warning-soft` / `--danger-soft` | `#FDF0DC` / `#FDE7E4` | fondos de aviso | |
+
 ```css
 :root {
-  --background: #FFFFFF;
-  --surface: #F6F7F5;        /* paneles, riel */
-  --card: #FFFFFF;
-  --border: #E4E7E2;
-  --foreground: #14201A;     /* texto principal, contraste 16:1 */
-  --muted-foreground: #5B665F; /* secundario, 5.6:1 sobre blanco */
-  --primary: #15803D;        /* acento de marca (botones, activo); 5.0:1 sobre blanco */
-  --primary-foreground: #FFFFFF;
-  --primary-soft: #E3F3E8;   /* fondo de item activo, chips ok */
-  --sage: #8BA396;           /* fondos de login/hero */
-  --warning: #B45309;  --warning-soft: #FDF0DC;
-  --danger:  #B42318;  --danger-soft:  #FDE7E4;
-  --radius: 12px;
+  --background:#F7F8FA; --card:#FFFFFF; --foreground:#0E1410;
+  --primary:#0E1410; --primary-foreground:#FFFFFF;
+  --accent:#6FC20B; --accent-foreground:#0E1410; --accent-soft:#E9F6D0; --accent-text:#3E7A00;
+  --muted-foreground:#5B645E; --border:#D9DDD8; --control-border:#8A928C;
+  --risk:#D0410C; --risk-text:#B53509; --warning-soft:#FDF0DC; --danger-soft:#FDE7E4;
+  --radius-lg:20px; --radius-md:14px;
 }
 ```
-Verificar contraste AA (≥4.5:1) en todo texto; el tema es claro y de alto contraste a propósito (legible bajo luz directa del sol): no hay modo oscuro.
+Tema claro de alto contraste a propósito (legible bajo el sol): **no hay modo oscuro**.
+
+### Reglas anti «se ve a IA» (obligatorias)
+- **Prohibido:** `backdrop-filter`/vidrio, degradados de fondo, sombras de panel, chips en todo, un icono junto a cada línea, texto < 13 px, más de 1 acento + 1 color de alerta por pantalla.
+- Jerarquía por **tamaño y peso**, no por color: título de pantalla 32–40 px semibold con tracking −0.02em; título de tarjeta 20–22; cuerpo 15–16; auxiliar ≥ 13.
+- Botón principal: **píldora negra** con círculo lima y flecha ↗. Etiqueta de sección: píldora `--accent-soft` con punto lima.
+- Iconos solo dentro de un círculo `--accent` cuando aportan (KPI, categoría).
+- Profundidad con contraste de superficies (hueso vs. blanco) y radios grandes; nada de sombras.
 
 **Colores de datos (no reutilizar para UI):**
 | Dato | Color | Nota |

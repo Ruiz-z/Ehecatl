@@ -1,5 +1,9 @@
 # Verificación backend — 2026-11-14
 
+> Registro histórico de la integración inicial. El seguimiento posterior de I5,
+> la referencia «mantener lo actual» y las verificaciones actuales se documenta
+> en [`pendientes-equipo.md`](pendientes-equipo.md) y en el registro de cambios.
+
 Implementado en cuatro ramas locales que nacen de `dev` (`d1a07fe`):
 
 | Rama | Contenido |

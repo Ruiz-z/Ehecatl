@@ -1,6 +1,6 @@
 # Tareas — Ehécatl
 
-Tareas separadas por tipo para repartir entre varias personas:
+Tareas separadas por tipo para repartir entre varias personas. Traspaso de pendientes: [`docs/pendientes-equipo.md`](../docs/pendientes-equipo.md).
 
 | Prefijo | Tipo | Quién |
 |---|---|---|
@@ -75,11 +75,12 @@ Cada tarea técnica: < 30 min, tests primero, deja el sistema funcionando. Forma
   - Archivos: `apps/web/**`, `apps/web/Dockerfile`
   - Depende de: I1
 
-- [ ] **I5: Compose desde cero (migraciones + seed automáticos)**
+- [x] **I5: Compose desde cero (migraciones + seed automáticos)**
   - Hecho cuando: `docker compose down -v && docker compose up --build` deja la demo lista, con migraciones y seed aplicados al arrancar.
   - Verificar: ejecución completa en una máquina limpia.
   - Archivos: `docker-compose.yml`, `apps/api/Dockerfile`, script de entrypoint
   - Depende de: B18 · Specs: constitución #2
+  - Verificado 2026-11-14 en volumen QA vacío y con reinicio idempotente: cuatro usuarios inician sesión, NASA real y todos los servicios saludables. Evidencias en [`docs/pendientes-verificacion.md`](../docs/pendientes-verificacion.md). H3 continúa pendiente para aprobar los perfiles.
 
 ### Checkpoint I
 - [x] `docker compose up --build` levanta postgres, api, geo y web con `/health` en verde (I1–I4).
@@ -172,9 +173,9 @@ Cada tarea técnica: < 30 min, tests primero, deja el sistema funcionando. Forma
   - Archivos: `engine/viability.ts`, `viability.spec.ts`
   - Depende de: B11, B1 · Specs: 005 RF-3, 4
 
-- [ ] **B14: Generación de secuencias y scoring ponderado**
-  - Hecho cuando: genera secuencias para las siguientes 2–3 ventanas (perennes ocupan varias), puntaje 0–100 ponderado por prioridades, 2 mejores alternativas más la estrategia 0 «mantener lo actual» calculada con las mismas reglas y pesos (con diferencia de puntaje), explicación (variables y reglas que más pesaron) y riesgos; el eje ingreso sale de `marketValueTier`.
-  - Verificar: tests: mismas condiciones + prioridades distintas → ranking distinto; determinismo; la estrategia 0 siempre presente y con las mismas reglas.
+- [x] **B14: Generación de secuencias y scoring ponderado**
+  - Hecho cuando: genera secuencias para las primeras 3 ventanas (una continua permite varios ciclos; perennes ocupan varias), puntaje 0–100 ponderado por prioridades, hasta 2 alternativas más `baseline` «mantener lo actual» con las mismas reglas y pesos; referencia inviable con score/componentes nulos y razones, diferencias nulas en ese caso; explicación y riesgos. El eje ingreso sale de `marketValueTier`.
+  - Verificar: tests: mismas condiciones + prioridades distintas → ranking distinto; determinismo; referencia siempre presente, viable/inviable y fuera del recorte del haz.
   - Archivos: `engine/sequences.ts`, `engine/score.ts`, `*.spec.ts`
   - Depende de: B12, B13 · Specs: 005 RF-1, 1c, 5, 6, 9
 
@@ -191,8 +192,8 @@ Cada tarea técnica: < 30 min, tests primero, deja el sistema funcionando. Forma
   - Archivos: `schema.prisma`, `modules/nasa-data/*`
   - Depende de: I2, B1 · Specs: 003 RF-5, 7
 
-- [ ] **B17: `GET /zones/:id/recommendations`**
-  - Hecho cuando: junta zona + historial + prioridades + indicadores (caché) + catálogo, ejecuta el motor y responde según el contrato (3 estrategias: actual + 2 alternativas); respeta ownership.
+- [x] **B17: `GET /zones/:id/recommendations`**
+  - Hecho cuando: junta zona + historial + prioridades + indicadores (caché) + catálogo, ejecuta el motor y responde según el contrato (`baseline` + hasta 2 alternativas, con causas y deltas nulos si la referencia es inviable); respeta ownership.
   - Verificar: test de integración + `curl` contra una zona real.
   - Archivos: `modules/rotation-engine/rotation.controller.ts`, `rotation.service.ts`, `*.spec.ts`
   - Depende de: B4, B10, B15, B16 · Specs: 005 RF-1..9

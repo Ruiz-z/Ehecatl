@@ -17,9 +17,25 @@ describe('B1 fixtures de contratos entre apps', () => {
     expect(data.version).toBe(1);
     expect(validateIndicators(data.inputs.indicators).origin).toBe('mock');
     expect(data.inputs.currentCropId).toBe('maize');
+    expect(data.baseline.id).toBe('baseline');
+    if (data.baseline.viable) {
+      expect(data.baseline.sequence.every((step: { cropId: string }) => step.cropId === 'maize')).toBe(true);
+    } else {
+      expect(data.baseline.score).toBeNull();
+      expect(data.baseline.components).toBeNull();
+      expect(data.baseline.explanation.length).toBeGreaterThan(0);
+    }
     for (const item of data.recommendations) {
       expect(item.score).toBeGreaterThanOrEqual(0); expect(item.score).toBeLessThanOrEqual(100);
+      expect(item.rests).toBeInstanceOf(Array);
+      for (const step of item.sequence) {
+        expect(step.reasons.every((r: {effect: string}) => ['favor','contra','neutral'].includes(r.effect))).toBe(true);
+        expect(step.climate).toHaveProperty('meanTemperature');
+        expect(Number.isInteger(step.climate.rainMm)).toBe(true);
+        expect(Number.isInteger(step.climate.cycleDays)).toBe(true);
+      }
       expect(item.sequence[0].cropId).toBeDefined(); expect(item.explanation.length).toBeGreaterThan(0);
+      expect(item.delta).toBe(data.baseline.viable ? Number((item.score - data.baseline.score).toFixed(2)) : null);
     }
   });
 });

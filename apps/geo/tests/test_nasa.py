@@ -127,3 +127,50 @@ def test_endpoint_partial_and_invalid(monkeypatch):
     body = response.json()
     assert body["sources"]["modis"]["status"] == "unavailable"
     assert body["monthly"] and body["origin"] == "live"
+
+
+@pytest.mark.parametrize("fail_all", [False, True])
+def test_modis_endpoint_shares_dates_and_reports_failed_batches(monkeypatch, fail_all):
+    calls = []
+
+    def handle(req):
+        calls.append(req)
+        if req.url.path.endswith("dates"):
+            return httpx.Response(200, json={"dates": [
+                {"calendar_date": f"{year}-01-{day:02d}", "modis_date": f"A{year}{day:03d}"}
+                for year in [2015, 2025] for day in range(1, 12)
+            ]})
+        stamp = req.url.params["startDate"]
+        if fail_all or stamp == "A2015001":
+            return httpx.Response(503)
+        return httpx.Response(200, json={"subset": [dict(
+            band="250m_16_days_NDVI", modis_date=stamp, data=[5000]
+        )]})
+
+    async def modis(_client, lat, lon, start, end):
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handle)) as client:
+            return await fetch_modis(client, lat, lon, start, end)
+
+    async def power(*args):
+        return [indicator(variable, 1, 20, 2024) for variable in
+                ["T2M", "T2M_MAX", "T2M_MIN", "PRECTOTCORR", "RH2M",
+                 "ALLSKY_SFC_SW_DWN", "GWETTOP", "GWETROOT"]]
+
+    monkeypatch.setattr("app.routes.indicators.fetch_modis", modis)
+    monkeypatch.setattr("app.routes.indicators.fetch_power", power)
+
+    async def run():
+        async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://test") as client:
+            return await client.get("/indicators", params=dict(lat=0, lon=0, start="2025-01-01", end="2025-01-31"))
+
+    response = asyncio.run(run())
+    assert response.status_code == 200
+    body = response.json()
+    assert len([req for req in calls if req.url.path.endswith("dates")]) == 1
+    assert body["sources"]["modis"]["status"] == ("unavailable" if fail_all else "partial")
+    assert "lotes MODIS fallidos" in body["sources"]["modis"]["reason"]
+    ndvi_recent = [row for row in body["monthly"] if row["variable"] == "NDVI"]
+    ndvi_historic = [row for row in body["climatology"] if row["variable"] == "NDVI"]
+    assert bool(ndvi_recent) is not fail_all
+    assert bool(ndvi_historic) is not fail_all
+    assert body["sources"]["power"]["status"] == "available"

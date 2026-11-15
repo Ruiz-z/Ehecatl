@@ -9,6 +9,10 @@ export function defaultPeriod(now = new Date()) {
   const start = new Date(Date.UTC(end.getUTCFullYear(), end.getUTCMonth()-11, 1));
   return { start: start.toISOString().slice(0, 10), end: end.toISOString().slice(0, 10) };
 }
+function positiveNumber(value: string | undefined, fallback: number): number {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+}
 export function validatePeriod(start: string, end: string) {
   const a = Date.parse(start), b = Date.parse(end);
   if (!/^\d{4}-\d{2}-\d{2}$/.test(start) || !/^\d{4}-\d{2}-\d{2}$/.test(end) || !Number.isFinite(a) || !Number.isFinite(b) ||
@@ -40,7 +44,10 @@ export function validateIndicators(payload: unknown): Indicators {
 export class NasaService {
   private readonly inFlight = new Map<string, Promise<Indicators>>();
   constructor(private readonly prisma: PrismaService) {}
-  async get(lat: number, lon: number, irrigated: boolean, start = defaultPeriod().start, end = defaultPeriod().end): Promise<Indicators> {
+  async get(lat: number, lon: number, irrigated: boolean, start?: string, end?: string): Promise<Indicators> {
+    const period = defaultPeriod();
+    start = start || period.start;
+    end = end || period.end;
     validatePeriod(start, end);
     const query = new URLSearchParams({ lat: String(lat), lon: String(lon), irrigated: String(irrigated), start, end, baselineYears: '10' });
     const key = createHash('sha256').update(`indicators:v1:${query}`).digest('hex');
@@ -60,14 +67,14 @@ export class NasaService {
     try {
       const url = new URL('/indicators', process.env.GEO_URL ?? 'http://localhost:8000');
       url.search = query.toString();
-      const response = await fetch(url, { signal: AbortSignal.timeout(Number(process.env.GEO_TIMEOUT_MS ?? 130_000)) });
+      const response = await fetch(url, { signal: AbortSignal.timeout(Math.ceil(positiveNumber(process.env.GEO_TIMEOUT_MS, 130_000))) });
       if (!response.ok) throw new Error(`geo ${response.status}`);
       payload = validateIndicators(await response.json());
       if (payload.point.lat !== Number(query.get('lat')) || payload.point.lon !== Number(query.get('lon')) ||
           payload.period.start !== query.get('start') || payload.period.end !== query.get('end')) throw new Error('Geo response point/period mismatch');
     } catch { throw new BadGatewayException('No fue posible consultar los indicadores NASA'); }
     const now = new Date();
-    const ttl = Number(process.env.NASA_CACHE_TTL_HOURS ?? 24);
+    const ttl = positiveNumber(process.env.NASA_CACHE_TTL_HOURS, 24);
     const partial = Object.values(payload.sources).some(s => s.status !== 'available');
     const expiresAt = new Date(now.getTime() + Math.min(partial ? .083333 : ttl, ttl)*3_600_000);
     const data = { payload: JSON.parse(JSON.stringify(payload)) as Prisma.InputJsonValue, source: 'NASA POWER; MODIS MOD13Q1 / ORNL DAAC', fetchedAt: new Date(payload.fetchedAt), expiresAt };

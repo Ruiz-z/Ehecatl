@@ -20,6 +20,7 @@ Ehécatl es una herramienta de decisión para **rotación y cambio de cultivos**
 ## Reglas
 - Lee `docs/constitution.md` y la spec activa en `docs/specs/` antes de tocar código.
 - Cualquier cambio de alcance se hace primero en la spec, nunca directo en el código.
+- Registrar cada modificación del proyecto en `docs/registro-cambios.md`, indicando la fecha, los archivos afectados, qué se cambió y por qué. Actualizar el registro junto con el cambio, antes de dar la tarea por terminada.
 - No agregar frameworks ni dependencias nuevas sin preguntar.
 - No hardcodear Coahuila ni Nevada: son fixtures de demo, el sistema debe funcionar para cualquier lat/lon.
 - Los mocks de datos NASA solo en tests; en demo deben marcarse.

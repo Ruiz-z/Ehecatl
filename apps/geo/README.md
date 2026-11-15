@@ -1,6 +1,6 @@
 # Geo
 
-Servicio sin estado. Este scaffold solo expone `/health`; las fuentes NASA y el análisis se implementarán en B6–B10.
+Servicio sin estado con `/health` y `/indicators`: POWER, NDVI MODIS con respaldo Planetary Computer Terra/Aqua, climatología, anomalías y ventanas de cultivo para cualquier lat/lon.
 
 Desde esta carpeta:
 
@@ -9,6 +9,6 @@ Desde esta carpeta:
 - Tests: `uv run python -m pytest`.
 - Verificación sintáctica (sin linter adicional): `uv run python -m compileall -q app tests`.
 
-`.python-version` fija Python 3.12 para desarrollo y Docker usa `python:3.12-slim`. `pyproject.toml` admite Python 3.11+. El Dockerfile instala solo dependencias de ejecución mediante `uv.lock`.
+`.python-version` fija Python 3.12 para desarrollo y Docker usa `python:3.12-slim`. `pyproject.toml` admite Python 3.11+. El Dockerfile instala las dependencias Python de ejecución mediante `uv.lock` y `libexpat1` del sistema, necesaria para cargar `rasterio`. Durante el build comprueba `import rasterio` para detectar bibliotecas faltantes antes de arrancar.
 
 Compose fija `HOST`/`PORT`; el `.env.example` de esta app documenta los mismos valores para ejecución independiente. No requiere base de datos ni credenciales NASA.

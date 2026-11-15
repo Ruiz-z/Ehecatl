@@ -4,7 +4,7 @@ Herramienta de decisión para **rotación y cambio de cultivos** con datos NASA.
 
 ## Estado
 
-Scaffolding de infraestructura con las apps base y health. Los módulos de negocio se implementan en las tareas B y F.
+API, Geo y web integrados, con migraciones y seed automáticos en Compose. El motor combina datos NASA reales, contexto de zona y prioridades, y compara alternativas con mantener el cultivo actual. Evidencias y pendientes humanos en [`docs/pendientes-verificacion.md`](docs/pendientes-verificacion.md).
 
 ## Docker
 
@@ -20,7 +20,13 @@ docker compose up --build
 - Geo: http://localhost:8000/health
 - PostgreSQL 16: localhost:5432, con volumen nombrado `postgres_data`.
 
-Los valores de PostgreSQL en `.env.example` son exclusivamente para desarrollo local. Compose tiene los mismos valores por defecto para arrancar sin preparación adicional. No hay migraciones ni seed de negocio todavía (I5).
+Antes de levantar el stack, definir en `.env` un `JWT_SECRET` aleatorio de al menos 32 bytes y `SEED_DEMO_PASSWORD` de 12–72 bytes. `.env` está ignorado por Git. Los valores de PostgreSQL del ejemplo son exclusivamente para desarrollo local.
+
+Compose espera a PostgreSQL y Geo saludables. La API aplica `prisma migrate deploy`, ejecuta el seed ya compilado con `GEO_URL=http://geo:8000` y después empieza a escuchar. La primera precarga consulta NASA real y puede tardar varios minutos (margen del healthcheck: 10 minutos). Si falla la migración o falta NASA utilizable, el proceso termina con un error; tras recuperar la fuente, reintentar `docker compose up -d api`.
+
+Usuarios demo: `admin@demo.ehecatl`, `coahuila@demo.ehecatl`, `nevada@demo.ehecatl` y `mendoza@demo.ehecatl`; todos usan `SEED_DEMO_PASSWORD`. El seed es idempotente; cada arranque restablece los perfiles demo y sus prioridades, sin duplicar usuarios ni parcelas. Los perfiles siguen sujetos a H3. No ejecutar `docker compose down -v` sobre una base que se quiera conservar: elimina sus datos.
+
+El front de Compose usa la API real (`NEXT_PUBLIC_USE_MOCKS=false` por defecto); tanto esa opción como `NEXT_PUBLIC_API_URL` se inyectan en el build. Si se cambia cualquiera, reconstruir `web`. El modo de ejemplo local sigue disponible y se marca visiblemente.
 
 ## Desarrollo local
 
