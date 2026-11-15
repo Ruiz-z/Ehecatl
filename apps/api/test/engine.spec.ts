@@ -1,7 +1,8 @@
+import { groupRisks } from '../src/modules/rotation-engine/engine/risk-groups.js';
 import { crops, findCrop } from '../src/modules/crop-knowledge/crop-catalog.js';
 import { transition } from '../src/modules/rotation-engine/engine/transitions.js';
 import { viability, currentRisk } from '../src/modules/rotation-engine/engine/viability.js';
-import { recommend } from '../src/modules/rotation-engine/engine/sequences.js';
+import { recommend, rests } from '../src/modules/rotation-engine/engine/sequences.js';
 import { defaultWeights, normalizeWeights } from '../src/modules/farm-context/priorities/normalize.js';
 import { indicators } from './fixtures.js';
 
@@ -10,7 +11,7 @@ const input = () => ({ currentCropId: 'maize', history: [{ cropId: 'maize', plan
 describe('B12–B15 motor determinista y explicable', () => {
   it('prefiere cereal → leguminosa frente a repetir familia', () => {
     expect(transition(findCrop('maize')!, findCrop('cowpea')!).score).toBeGreaterThan(transition(findCrop('maize')!, findCrop('sorghum')!).score);
-    expect(transition(findCrop('maize')!, findCrop('cowpea')!).reasons.join()).toContain('nitrógeno');
+    expect(transition(findCrop('maize')!, findCrop('cowpea')!).reasons.map(reason => reason.text).join()).toContain('nitrógeno');
   });
   it('rechaza temperatura, agua, helada y duración insuficientes', () => {
     const data = indicators();
@@ -49,7 +50,7 @@ describe('B12–B15 motor determinista y explicable', () => {
     const data = input(); data.indicators.windows = data.indicators.windows.slice(0, 1);
     const result = recommend({ ...data, history: [] });
     expect(result.recommendations[0].sequence).toHaveLength(1);
-    expect(result.confidence).toBe('medium'); expect(result.warnings.join()).toContain('Menos de dos');
+    expect(result.confidence).toBe('low'); expect(result.warnings.join()).toContain('Menos de dos');
     data.indicators.sources.modis.status = 'unavailable';
     expect(recommend(data).confidence).toBe('low');
   });
@@ -169,4 +170,239 @@ describe('B4 prioridades', () => {
   it.each([{}, { ...defaultWeights, water: -1 }, { ...defaultWeights, water: '20' }, { ...defaultWeights, water: NaN }])('rechaza pesos inválidos', value => {
     expect(() => normalizeWeights(value)).toThrow();
   });
+});
+
+describe('explicación y descansos', () => {
+  it('publica efectos, clima redondeado, pesos únicos y riesgos sin duplicados', () => {
+    const data = input();
+    data.indicators.climatology.filter(n => n.variable === 'T2M').forEach(n => { n.value = 24.123456; });
+    const result = recommend(data);
+    for (const item of [...result.recommendations, result.baseline]) {
+      expect(item.explanation.filter(text => text.startsWith('Pesos'))).toHaveLength(item.sequence.length ? 1 : 0);
+      expect(new Set(item.risks).size).toBe(item.risks.length);
+      for (const step of item.sequence) {
+        expect(step.reasons.some(reason => reason.effect === 'neutral')).toBe(true);
+        expect(step.climate.meanTemperature).toBe(24.1);
+        expect(Number.isInteger(step.climate.rainMm)).toBe(true);
+      }
+    }
+    const tr = transition(findCrop('maize')!, findCrop('cowpea')!, [{cropId:'cowpea', plantedAt:'2024-01-01', harvestedAt:'2024-04-01'}]);
+    expect(tr.reasons.find(r => r.text.includes('nitrógeno'))?.effect).toBe('favor');
+    expect(tr.reasons.find(r => r.text.includes('retorno'))?.effect).toBe('contra');
+    expect(transition(findCrop('maize')!, findCrop('maize')!).reasons[0].effect).toBe('contra');
+  });
+
+  it('deduplica el aviso de riego repetido y conserva desconocidos como null', () => {
+    const data = input();
+    data.indicators.windows.forEach(window => { window.irrigated = true; window.meanTemperature = null; window.precipitationMm = null; });
+    data.indicators.climatology = data.indicators.climatology.filter(n => !['T2M','PRECTOTCORR'].includes(n.variable));
+    const result = recommend(data);
+    for (const item of [...result.recommendations, result.baseline]) {
+      expect(item.risks.filter(r => r === 'Viabilidad hídrica depende de disponibilidad efectiva de riego')).toHaveLength(1);
+      expect(item.sequence.length).toBeGreaterThan(1);
+      expect(item.sequence.every(step => step.climate.meanTemperature === null && step.climate.rainMm === null)).toBe(true);
+    }
+    expect(transition(findCrop('sunflower')!, crops.find(crop => crop.family === 'Brassicaceae')!).reasons[0].effect).toBe('neutral');
+  });
+  const horizon = {start:'2025-01-01',end:'2025-12-31'};
+  it('detecta huecos al inicio, entre ciclos y al final', () => {
+    const gaps = rests([{start:'2025-03-01',end:'2025-04-30'},{start:'2025-07-01',end:'2025-08-31'}], [{start:'2025-01-01',end:'2025-12-31'}], horizon);
+    expect(gaps.map(r => [r.start,r.end,r.months])).toEqual([['2025-01-01','2025-02-28',2],['2025-05-01','2025-06-30',2],['2025-09-01','2025-12-31',4]]);
+    expect(gaps.every(r => r.reason.includes('Ningún cultivo'))).toBe(true);
+  });
+  it('no crea descansos sin huecos ni por compartir mes', () => {
+    expect(rests([{start:'2025-01-01',end:'2025-06-15'},{start:'2025-06-16',end:'2025-12-31'}], [], horizon)).toEqual([]);
+  });
+  it('sin ventanas explica todo el horizonte como fuera de temporada', () => {
+    expect(rests([], [], horizon)).toEqual([{...horizon,months:12,reason:'Fuera de temporada: frío o falta de agua',suggestion:'Mantener cobertura o rastrojo para proteger el suelo'}]);
+  });
+  it('separa descansos por temporada y omite huecos menores de un mes', () => {
+    const gaps = rests([], [{start:'2025-03-01',end:'2025-08-31'}], horizon);
+    expect(gaps.map(r => r.months)).toEqual([2,6,4]);
+    expect(gaps[0].reason).toContain('Fuera de temporada');
+    expect(rests([{start:'2025-01-20',end:'2025-12-31'}], [], horizon)).toEqual([]);
+  });
+});
+
+import { riskScore } from '../src/modules/rotation-engine/engine/score.js';
+
+describe('balance de agua y márgenes medidos RF-10 a RF-13', () => {
+  it('el mismo cultivo puntúa distinto según lluvia y riego', () => {
+    const run = (rain: number, irrigated: boolean) => {
+      const data = input();
+      data.indicators.windows.forEach(w => {w.precipitationMm=rain;w.irrigated=irrigated;});
+      return recommend(data,[findCrop('maize')!]).baseline;
+    };
+    const wet = run(1200,false), dry = run(500,false), irrigated = run(500,true);
+    expect(wet.components!.water).toBe(100);
+    expect(dry.components!.water).toBeLessThan(wet.components!.water);
+    expect(irrigated.components!.water).toBeCloseTo(dry.components!.water,8);
+    expect(dry.score).toBeLessThan(wet.score!);
+  });
+  it('mide calor, óptimo, helada cercana, déficit, tendencias y familia', () => {
+    const data = indicators(), crop = findCrop('maize')!;
+    const climate={...data.windows[0],meanTemperature:crop.tempOptMax+2,temperatureMax:crop.tempMax+3,temperatureMin:1};
+    expect(riskScore(crop,climate,data,1,false)).toBe(62);
+    expect(riskScore(crop,{...climate,irrigated:true},data,.5,false)).toBe(54.5);
+    expect(riskScore(crop,climate,data,.5,true)).toBe(27);
+    data.trends=[{type:'heat',active:true,evidence:[]},{type:'drought',active:true,evidence:[]}];
+    expect(riskScore({...crop,droughtTolerance:59},climate,data,.5,true)).toBe(2);
+    expect(riskScore(crop,{...climate,temperatureMax:100,meanTemperature:100},data,0,true)).toBe(0);
+  });
+});
+
+it('la radiación de dos climas cambia agua para el mismo cultivo y fechas', () => {
+  const run = (rs: number) => {
+    const data = input();
+    data.indicators.windows.forEach(w => {w.irrigated=true;});
+    data.indicators.climatology.push(...Array.from({length:12},(_,i)=>({variable:'ALLSKY_SFC_SW_DWN',month:i+1,value:rs,samples:10,unit:'MJ/m²/day'})));
+    return recommend(data,[findCrop('maize')!]).baseline;
+  };
+  const cool = run(15), sunny = run(30);
+  expect(cool.sequence.map(s=>[s.start,s.end])).toEqual(sunny.sequence.map(s=>[s.start,s.end]));
+  expect(sunny.sequence[0].water.method).toBe('radiation');
+  expect(sunny.sequence[0].water.demandMm).toBeCloseTo(2*cool.sequence[0].water.demandMm,8);
+  expect(sunny.components!.water).toBeLessThan(cool.components!.water);
+});
+
+describe('RF-11 déficit acumulado de la secuencia', () => {
+  const arid = () => {
+    const data = input();
+    const values = {
+      T2M: [11.7,14.6,17.3,20.7,23.7,24.3,23.9,23.6,21.5,18.9,16,13.3],
+      ALLSKY_SFC_SW_DWN: [14.6,17.9,20.5,22.7,23.3,24.3,23.9,23.6,19.6,17.7,14.8,13.6],
+      PRECTOTCORR: [15.7,13.3,23.4,14.8,29,43,47.8,39.5,68.1,27.3,17.8,9.3],
+    };
+    data.indicators.climatology = Object.entries(values).flatMap(([variable, months]) => months.map((value,i) => ({variable,month:i+1,value,samples:10,unit:''})));
+    data.indicators.windows = [{...data.indicators.windows[0],start:'2025-01-01',end:'2026-12-31',durationDays:730,irrigated:true}];
+    data.indicators.trends = [{type:'drought',active:true,evidence:['Fixture Coahuila']}];
+    data.priorities = {water:60,soil:20,income:10,risk:10};
+    return data;
+  };
+  it('penaliza el perenne de alta demanda frente a caupí→sorgo→caupí y es determinista', () => {
+    const data = arid();
+    const perennial = recommend(data, [findCrop('alfalfa')!]).recommendations[0];
+    const short = recommend(data, [findCrop('cowpea')!,findCrop('sorghum')!]).recommendations.find(r => r.id === 'cowpea>sorghum>cowpea')!;
+    expect(short).toBeDefined();
+    expect(perennial.components.water).toBeLessThan(short.components.water);
+    const eto = horizonEto(Date.parse('2025-01-01T00:00:00Z'),Date.parse('2026-12-31T00:00:00Z'),data.indicators.climatology)!;
+    for (const plan of [perennial,short]) {
+      const deficit = plan.sequence.reduce((sum,s) => sum+Math.max(0,s.water.demandMm-(s.water.rainMm ?? 0)),0);
+      expect(plan.components.water).toBeCloseTo(100*(1-deficit/eto),8);
+      expect(plan.sequence.every(s => s.water.coveragePct === null || Number(s.water.coveragePct.toFixed(1)) === s.water.coveragePct)).toBe(true);
+    }
+    expect(recommend(data)).toEqual(recommend(data));
+  });
+  it('suma déficits y resume riesgos una vez, también en baseline', () => {
+    const result = recommend(arid());
+    for (const plan of [...result.recommendations, result.baseline]) {
+      const deficit = plan.sequence.reduce((sum,s) => sum+Math.max(0,s.water.demandMm-(s.water.rainMm ?? 0)),0);
+      expect(plan).toHaveProperty('irrigationNeedMm',Math.round(deficit));
+      expect(plan.risks.filter(r => r.startsWith('Agua faltante en 24 meses:'))).toHaveLength(plan.sequence.length ? 1 : 0);
+      expect(plan.risks.join()).not.toContain('Déficit hídrico potencial');
+    }
+  });
+  it('usa suma de demandas como respaldo sin radiación', () => {
+    const data = arid();
+    data.indicators.climatology = data.indicators.climatology.filter(n => n.variable !== 'ALLSKY_SFC_SW_DWN');
+    const result = recommend(data);
+    expect(result.confidence).toBe('low');
+    expect(result.warnings.join()).toContain('ETo del horizonte');
+    for (const plan of result.recommendations) {
+      const demand = plan.sequence.reduce((sum,s) => sum+s.water.demandMm,0);
+      const deficit = plan.sequence.reduce((sum,s) => sum+Math.max(0,s.water.demandMm-(s.water.rainMm ?? 0)),0);
+      expect(plan.components.water).toBeCloseTo(Math.max(0,100*(1-deficit/demand)),8);
+    }
+  });
+});
+
+import { horizonEto, etoDaily } from '../src/modules/rotation-engine/engine/evapotranspiration.js';
+
+it('ETo del horizonte incluye meses parciales, descansos y días bisiestos', () => {
+  const normals = Array.from({length:12},(_,i) => [
+    {variable:'T2M',month:i+1,value:20,samples:10,unit:'C'},
+    {variable:'ALLSKY_SFC_SW_DWN',month:i+1,value:18,samples:10,unit:'MJ/m²/día'},
+  ]).flat();
+  const start = Date.parse('2024-02-15T00:00:00Z'), end = Date.parse('2026-01-31T00:00:00Z');
+  expect(horizonEto(start,end,normals)).toBeCloseTo(((end-start)/86400000+1)*etoDaily(20,18),8);
+  expect(horizonEto(start,end,normals.filter(n => n.month !== 12))).toBeNull();
+  expect(horizonEto(start,end,normals.map(n => n.variable === 'ALLSKY_SFC_SW_DWN' ? {...n,value:0} : n))).toBeNull();
+});
+
+it('lluvia desconocida contabiliza toda la demanda y mantiene el aviso', () => {
+  const data = input();
+  data.indicators.windows.forEach(w => {w.irrigated=true;w.precipitationMm=null;});
+  const result = recommend(data);
+  for (const plan of [...result.recommendations,result.baseline]) {
+    expect(plan.irrigationNeedMm).toBe(Math.round(plan.sequence.reduce((sum,s) => sum+s.water.demandMm,0)));
+    if (plan.sequence.length) {
+      expect(plan.risks.join()).toContain('Falta precipitación');
+      expect(plan.components!.water).toBe(0);
+      expect(plan.sequence.every(s => s.water.coveragePct === null)).toBe(true);
+    }
+  }
+});
+
+
+describe('Bloque A: confianza según insumos', () => {
+  const complete = () => {
+    const data = input();
+    data.indicators.climatology.push(...Array.from({length:12}, (_,i) => ({variable:'ALLSKY_SFC_SW_DWN',month:i+1,value:18,samples:10,unit:'MJ/m²/day'})));
+    data.indicators.monthly.push(...Array.from({length:12}, (_,i) => ({variable:'NDVI',date:`2024-${String(i+1).padStart(2,'0')}-01`,value:.5,unit:'index',source:'MODIS',resolution:'250m'})));
+    return data;
+  };
+  it('reserva baja para POWER incompleto o demanda de catálogo', () => {
+    expect(recommend(complete()).confidence).toBe('high');
+    for (const status of ['partial','unavailable'] as const) {
+      const data = complete(); data.indicators.sources.power.status = status;
+      expect(recommend(data).confidence).toBe('low');
+    }
+    expect(recommend(input()).confidence).toBe('low');
+  });
+  it('un mes reciente de POWER sin publicar solo reduce a media y lo explica', () => {
+    const data = complete();
+    const row = data.indicators.monthly.find(m => m.variable === 'PRECTOTCORR')!;
+    data.indicators.monthly.push({ ...row, date: '2026-10-01', value: null });
+    const result = recommend(data);
+    expect(result.confidence).toBe('medium');
+    expect(result.warnings.join()).toContain('aún no publica');
+  });
+  it('MODIS parcial, meses NDVI faltantes e histórico corto solo reducen a media', () => {
+    for (const status of ['partial','unavailable'] as const) {
+      const data = complete(); data.indicators.sources.modis.status = status;
+      expect(recommend(data).confidence).toBe('medium');
+      expect(recommend(data).warnings.join()).toContain('MODIS');
+    }
+    const data = complete(); data.indicators.monthly = data.indicators.monthly.filter(row => row.date !== '2024-02-01' || row.variable !== 'NDVI');
+    expect(recommend(data).confidence).toBe('medium');
+    const historical = complete(); historical.indicators.climatology[0].samples = 8;
+    expect(recommend(historical).confidence).toBe('medium');
+    expect(recommend(historical).warnings.join()).toContain('histórica');
+    expect(recommend({...complete(),history:[]}).confidence).toBe('medium');
+  });
+  it('secuencia corta no baja confianza y respaldo del horizonte solo baja a media', () => {
+    const data = complete(); data.indicators.windows = data.indicators.windows.slice(0,1);
+    expect(recommend(data).confidence).toBe('high');
+    data.indicators.climatology = data.indicators.climatology.filter(n => n.variable !== 'ALLSKY_SFC_SW_DWN' || n.month !== 12);
+    const result = recommend(data);
+    expect(result.confidence).toBe('medium');
+    expect(result.warnings.join()).toContain('ETo del horizonte');
+    expect(result.recommendations.every(r => r.sequence.every(s => s.water.method === 'radiation'))).toBe(true);
+  });
+  it('agrupa calor con el peor margen y conserva riesgos originales', () => {
+    const data = complete(); data.indicators.windows.forEach(w => { w.temperatureMax = 37.4; w.irrigated = true; });
+    const result = recommend(data, [findCrop('common-bean')!]);
+    const plan = result.recommendations[0];
+    expect(plan.riskGroups.filter(g => g.type === 'heat')).toHaveLength(1);
+    expect(plan.riskGroups.find(g => g.type === 'heat')?.text).toContain('37.4 °C');
+    expect(plan.riskGroups.find(g => g.type === 'heat')?.text).toContain(`en ${plan.sequence.length} de ${plan.sequence.length} ciclos`);
+    expect(plan.risks.join()).toContain('Máxima mensual');
+    expect(result.baseline.riskGroups).toBeDefined();
+  });
+});
+
+it('agrupa el peor margen térmico sin mezclar tolerancias ni contar ciclos sanos', () => {
+  const risks = ['Máxima mensual 37.4 C supera tolerancia 32 C','Máxima mensual 39.0 C supera tolerancia 38 C'];
+  const groups = groupRisks([[risks[0]],[risks[1]],[]],risks,100,true);
+  expect(groups.find(g => g.type === 'heat')?.text).toBe('Calor: hasta 37.4 °C, tolerancia 32 °C, en 2 de 3 ciclos');
 });

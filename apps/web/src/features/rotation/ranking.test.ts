@@ -133,3 +133,21 @@ test('sin estrategia actual no hay delta que mostrar', () => {
   assert.equal(ranked.length, 2);
   assert.ok(ranked.every(item => item.delta === null));
 });
+
+test('reponderar conserva pasos y descansos sin mutar los candidatos', () => {
+  const data = candidates.map(item => ({...item, steps:[{cropName:'Sorgo',start:'2027-03-01',end:'2027-06-01',reasons:[{text:'Cambio de familia',effect:'favor' as const}]}],
+    rests:[{start:'2026-11-01',end:'2027-02-28',months:4,reason:'Fuera de temporada',suggestion:'Mantener cobertura'}]}));
+  const before = structuredClone(data);
+  const ranked = rankStrategies(data, {water:100,soil:0,income:0,risk:0});
+  assert.deepEqual(data, before);
+  assert.deepEqual(ranked[0]!.steps, data[0]!.steps);
+  assert.deepEqual(ranked[0]!.rests, data[0]!.rests);
+});
+
+import { scoreContributions, scoreLevel } from './ranking.ts';
+test('desglose usa pesos normalizados y niveles incluyen los límites', () => {
+  const parts = scoreContributions({water:98,soil:68,income:50,risk:80},{water:50,soil:25,income:10,risk:10});
+  assert.ok(Math.abs(parts.reduce((sum,part) => sum+part.value,0) - (4900+1700+500+800)/95)<1e-8);
+  assert.deepEqual([49,50,69,70].map(scoreLevel),['bajo','medio','medio','alto']);
+  assert.equal(scoreContributions({water:100,soil:100,income:100,risk:100},{water:0,soil:0,income:0,risk:0}).reduce((sum,part)=>sum+part.value,0),100);
+});

@@ -1,17 +1,19 @@
 'use client';
 
 import { useState } from 'react';
-import { Droplets, Sprout, TrendingUp, ShieldCheck, CalendarDays, ChevronDown, Check, RotateCcw } from 'lucide-react';
+import { Droplets, Sprout, TrendingUp, ShieldCheck, CalendarDays, ChevronDown, Check, RotateCcw, TriangleAlert, Minus } from 'lucide-react';
 import type { Parcel, Priorities } from '@/features/parcels/types';
 import { useDemo } from '@/features/identity/demo-provider';
 import { apiClient, useMocks } from '@/shared/api/client';
+import { formatDate } from '@/shared/api/adapters';
 import { waitingNote } from '@/shared/api/messages';
 import Link from 'next/link';
 import { parcelUrl } from '@/features/parcels/parcel-tabs';
 import { useAsync } from '@/shared/api/use-async';
 import { EmptyState, LoadingState, Notice } from '@/shared/components/ui';
-import { axes, normalizedWeights, rankStrategies } from './ranking';
-import type { RankedStrategy, RecommendationResult } from './types';
+import { axes, normalizedWeights, rankStrategies, scoreContributions, scoreLevel } from './ranking';
+import { summarizeRests } from './rests';
+import type { RankedStrategy, RecommendationResult, CycleWater } from './types';
 const icons = {
   water: Droplets,
   soil: Sprout,
@@ -22,23 +24,49 @@ const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep
 function horizonMonths(horizonStart: string) {
   const [year, month] = horizonStart.split('-').map(Number) as [number, number];
   const start = month - 1;
-  return { year, months: [...monthNames.slice(start), ...monthNames.slice(0, start)], range: `${monthNames[start]} ${year} — ${monthNames[(start + 23) % 12]} ${year + Math.floor((start + 23) / 12)}` };
+  return { year, months: [...monthNames.slice(start), ...monthNames.slice(0, start)], range: `${monthNames[start]} ${year} / ${monthNames[(start + 23) % 12]} ${year + Math.floor((start + 23) / 12)}` };
+}
+function shortDate(value: string) {
+  const [year, month] = value.split('-').map(Number);
+  return `${monthNames[month! - 1]!.toLowerCase()} ${year}`;
+}
+function timelinePosition(start: string, end: string, horizonStart: string) {
+  const first = Date.parse(`${horizonStart}-01T00:00:00Z`);
+  const last = new Date(first);
+  last.setUTCMonth(last.getUTCMonth() + 24);
+  const duration = last.getTime() - first;
+  const left = Math.max(first, Date.parse(`${start}T00:00:00Z`));
+  const right = Math.min(last.getTime(), Date.parse(`${end}T00:00:00Z`) + 86400000);
+  return { left: `${(left-first)/duration*100}%`, width: `${Math.max(0, right-left)/duration*100}%` };
 }
 const validation = 'Esta sugerencia se basa en datos satelitales de 10 años y reglas FAO/SARE; valida disponibilidad de semilla, maquinaria y mercado con tu agrónomo local';
+function cycleWaterText(water: CycleWater | undefined, irrigated: boolean): string {
+  if (!water) return 'Balance de agua no disponible';
+  const method = water.method === 'catalog' ? 'demanda estimada del catálogo' : 'ETc';
+  const rain = water.rainMm === null ? 'lluvia sin dato' : `la lluvia da ${Math.round(water.rainMm)} mm`;
+  const coverage = water.coveragePct === null ? 'cobertura sin dato' : `${Math.round(water.coveragePct)} %`;
+  let consequence = 'la lluvia cubre la demanda estimada';
+  if (water.coveragePct === null) consequence = 'falta lluvia para calcular el déficit';
+  else if (water.coveragePct < 100) consequence = irrigated ? 'el resto depende del riego' : 'déficit de lluvia; sin riego declarado';
+  return `Necesita ~${Math.round(water.demandMm)} mm (${method}) · ${rain} (${coverage}) · ${consequence}`;
+}
 function SequenceCard({
   strategy,
   index,
   weights,
-  horizonStart
+  horizonStart,
+  irrigated
 }: {
   strategy: RankedStrategy;
   index: number;
   weights: Priorities;
   horizonStart: string;
+  irrigated: boolean;
 }) {
   const horizon = horizonMonths(horizonStart);
   const [expanded, setExpanded] = useState<boolean | null>(null);
   const open = expanded ?? index === 0;
+  const contributions = scoreContributions(strategy.axes, weights);
   return <article tabIndex={0} aria-label={`Opción ${index + 1}: ${strategy.name}`} className={`sequence-card ${index === 0 ? 'best' : ''} ${strategy.baseline ? 'baseline' : ''}`}>
     <div className="sequence-label">
       <span>{index === 0 ? <><Check size={13} />Mejor ajuste para ti</> : strategy.baseline ? 'Si no cambias' : 'Otra opción viable'}</span>
@@ -48,7 +76,7 @@ function SequenceCard({
       <h3>{strategy.name}</h3>
       <div className="score">
         {strategy.score}
-        <small>/100</small>
+        <small>/100 · {scoreLevel(strategy.score)}</small>
       </div>
     </div>
     {(strategy.baseline || strategy.delta !== null) && <p className={`score-delta ${strategy.baseline ? 'muted' : strategy.delta! < 0 ? 'negative' : ''}`}>{strategy.baseline ? 'Estrategia actual · referencia' : `${strategy.delta! >= 0 ? '+' : ''}${strategy.delta} puntos frente a mantener lo actual`}</p>}
@@ -62,19 +90,35 @@ function SequenceCard({
         {[...horizon.months, ...horizon.months].map((month, i) => i % 3 === 0 ? <span key={i} style={{ gridColumn: `${i + 1} / span 3` }}>{month}</span> : null)}
       </div>
       <div className="timeline-tracks">
-        {strategy.windows.map((window, i) => <div key={i} className={`crop-window family-${window.family} ${window.current ? 'current-crop' : ''}`} style={{
-          gridColumn: `${window.startMonth + 1} / span ${Math.min(window.months, 24 - window.startMonth)}`
-        }} title={`${window.crop}: ${window.months} meses${window.current ? ', cultivo actual' : ''}`}>
+        {strategy.windows.map((window, i) => <div key={i} tabIndex={0} className={`crop-window family-${window.family} ${window.current ? 'current-crop' : ''}`} style={
+          window.start && window.end ? timelinePosition(window.start, window.end, horizonStart) :
+          { left: `${window.startMonth/24*100}%`, width: `${Math.min(window.months,24-window.startMonth)/24*100}%` }
+        } title={`${window.crop}: ${window.start ?? window.months} / ${window.end ?? 'meses'}${window.current ? ', cultivo actual' : ''}`}>
           <span>{window.crop}</span>
         </div>)}
+        {strategy.rests?.map(rest => <div key={rest.start} tabIndex={0} className="crop-window rest-window"
+          style={timelinePosition(rest.start, rest.end, horizonStart)}
+          title={`Descanso: ${rest.reason}. ${rest.suggestion}`} aria-label={`Descanso: ${shortDate(rest.start)} / ${shortDate(rest.end)}. ${rest.reason}. ${rest.suggestion}`}>
+          <span>Descanso</span>
+        </div>)}
       </div>
-      <p className="timeline-note"><span className="hatched-swatch" />Cultivo actual · horizonte de 24 meses</p>
+      <p className="timeline-note"><span className="hatched-swatch" />Cultivo actual · Descanso rayado: meses sin siembra</p>
     </div>
+    {!!strategy.rests?.length && (() => { const summary = summarizeRests(strategy.rests); return <div className="rest-list"><h4>Meses sin siembra</h4><ul>{summary.items.map(rest => <li key={rest.start}>
+      {shortDate(rest.start)} / {shortDate(rest.end)} · {rest.reason}
+    </li>)}</ul>{summary.suggestion && <p>Mientras tanto: {summary.suggestion}.</p>}</div>; })()}
     <div className="change-date">
       <CalendarDays size={17} />
       <div>
         <span>Cuándo cambiar</span>
         <strong>{strategy.changeAt}</strong>
+      </div>
+    </div>
+    <div className="score-breakdown">
+      <p>{strategy.irrigationNeedMm == null ? 'Agua faltante en 24 meses: sin dato' : `Agua faltante en 24 meses: ~${Math.round(strategy.irrigationNeedMm)} mm`}</p>
+      <p>Desglose del puntaje: {contributions.map(part => `${part.label.toLowerCase()} ${Math.round(part.value)}`).join(' + ')}</p>
+      <div className="score-stack" role="img" aria-label={contributions.map(part => `${part.label}: ${Math.round(part.value)} puntos`).join(', ')}>
+        {contributions.map(part => <span key={part.key} className={`score-part score-${part.key}`} style={{width: `${part.value}%`}} />)}
       </div>
     </div>
     <div className="axis-bars">
@@ -97,18 +141,31 @@ function SequenceCard({
     </div>
     <button className="reasons-toggle" aria-expanded={open} onClick={() => setExpanded(!open)}>Por qué y qué riesgos tiene<ChevronDown size={16} className={open ? 'rotate' : ''} /></button>
     {open && <div className="reasons-content">
-      {strategy.reasons.map((reason, i) => <div className="reason" key={i}>
-        <span className="reason-origin">{reason.origin ?? 'Motivo'}{reason.axis && <small>Pesó {weights[reason.axis] >= 0.3 ? 'mucho' : 'algo'}</small>}</span>
-        <p>{reason.text}</p>
-      </div>)}
+      <h4>Por qué</h4>
+      {strategy.steps?.some(step => step.reasons !== undefined) ? strategy.steps.map((step, i) => <section className="step-reasons" key={`${step.start}-${i}`}>
+        <h4>{i + 1} · {step.previousCropName ?? (i ? strategy.steps![i-1]!.cropName : 'Cultivo actual')} → {step.cropName}</h4>
+        <p className="muted">{formatDate(step.start)} / {formatDate(step.end)}</p>
+        <ul>{step.reasons?.map((reason, j) => {
+          const Icon = reason.effect === 'favor' ? Check : reason.effect === 'contra' ? TriangleAlert : Minus;
+          const label = reason.effect === 'favor' ? 'A favor' : reason.effect === 'contra' ? 'En contra' : 'Neutral';
+          return <li className={`step-reason effect-${reason.effect ?? 'neutral'}`} key={j}><Icon size={16} aria-hidden="true" /><span><strong>{label}: </strong>{reason.text}</span></li>;
+        })}</ul>
+        <p className="cycle-water">{cycleWaterText(step.water, irrigated)}</p>
+        <p className="cycle-climate">Clima del ciclo: {step.climate?.meanTemperature == null ? 'temperatura sin dato' : `${step.climate.meanTemperature.toFixed(1)} °C`} · {step.climate?.rainMm == null ? 'lluvia sin dato' : `${Math.round(step.climate.rainMm)} mm de lluvia`} · {step.climate?.cycleDays == null ? 'duración sin dato' : `${Math.round(step.climate.cycleDays)} días`}</p>
+      </section>) : <ul>{strategy.reasons.filter(reason => !reason.text.startsWith('Pesos ')).map((reason, i) => <li key={i}>{reason.text}</li>)}</ul>}
+      <p className="weights-note">Calculado con tus prioridades: {axes.map(axis => `${axis.label.toLowerCase()} ${Math.round(weights[axis.key]*100)} %`).join(' · ')}. Ingreso es una heurística, no un precio.</p>
       <h4>Antes de decidir</h4>
       <ul>
-        {strategy.risks.map((risk, i) => <li key={i}>{risk}</li>)}
+        {[...new Set(strategy.risks)].map((risk, i) => <li key={i}>{risk}</li>)}
       </ul>
     </div>}
     <div className="confidence">
       <span className="chip neutral-chip"><ShieldCheck size={13} />Confianza {strategy.confidence.toLowerCase()}</span>
-      <p>{strategy.confidenceReason}</p>
+      <div><h4>Qué sabemos</h4>
+        <ul>{(strategy.known?.length ? strategy.known : ['Sin detalle del estado de las fuentes en esta respuesta.']).map(text => <li key={text}>{text}</li>)}</ul>
+        <h4>Qué falta</h4>
+        {strategy.missing?.length ? <ul>{strategy.missing.map(text => <li key={text}>{text}</li>)}</ul> : <p>{strategy.confidenceReason}</p>}
+      </div>
     </div>
     <Notice variant="info" label="INFO · VALIDACIÓN LOCAL" title="Valida antes de sembrar"><p>{validation}</p></Notice>
   </article>;
@@ -181,7 +238,7 @@ function Advice({
     <p className="sr-only" aria-live="polite">Mejor opción: {ranked[0].name}, {ranked[0].score} puntos.</p>
     <p className="comparison-hint">{ranked.length} {ranked.length === 1 ? 'estrategia' : 'estrategias'} · Desplaza para comparar →</p>
     <div className="sequence-grid" tabIndex={0} role="region" aria-label="Comparación de estrategias; usa las flechas para recorrerlas">
-      {ranked.map((strategy, index) => <SequenceCard key={strategy.id} strategy={strategy} index={index} weights={normalized} horizonStart={result.horizonStart} />)}
+      {ranked.map((strategy, index) => <SequenceCard key={strategy.id} strategy={strategy} index={index} weights={normalized} horizonStart={result.horizonStart} irrigated={parcel.irrigation} />)}
     </div>
     <section id="prioridades" className="priorities">
       <div className="section-heading">

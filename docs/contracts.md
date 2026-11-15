@@ -133,3 +133,43 @@ Una perenne debe caber en el horizonte y ocupar ventanas consecutivas.
 
 H2 (contratos), H3 (perfiles demo) y H4 (agronomía) siguen siendo humanos.
 Los perfiles de seed son propuestas editables, no decisiones aprobadas.
+
+## Explicación por pasos y descansos (ampliación aditiva v1)
+
+Se conservan `explanation` y `risks`. Cada paso de `sequence` añade
+`reasons: [{text,effect}]`, con `effect: favor|contra|neutral`, y
+`climate: {meanTemperature,rainMm,cycleDays}`: temperatura en °C a un
+decimal, lluvia en mm y duración en días enteros; desconocidos `null`.
+Los pesos aparecen una sola vez en la explicación plana; los riesgos no se repiten.
+
+Cada recomendación y `baseline` (incluso inviable) añade
+`rests: [{start,end,months,reason,suggestion}]`. Fechas inclusivas dentro
+del horizonte de 24 meses (mes siguiente a `inputs.indicators.period.end`).
+Son huecos de al menos un mes de fecha a fecha o un mes calendario completo,
+separados por los límites de las ventanas originales (sin recorte a tres).
+`months` cuenta los meses calendario tocados por el tramo.
+Fuera de ventana: «Fuera de temporada: frío o falta de agua»; dentro:
+«Ningún cultivo completa su ciclo en este tramo». Sin ventanas se usa el
+primer motivo. Sugerencia: «Mantener cobertura o rastrojo para proteger el suelo».
+El front acepta respuestas antiguas sin estos campos y conserva su explicación.
+
+## Balance hídrico por paso (aditivo v1)
+
+Cada paso añade `water: {etoMm,kc,demandMm,rainMm,coveragePct,method}`.
+ETo acumulada y demanda ETc en mm; kc es el coeficiente estacional; lluvia
+en mm, coveragePct = 100 × min(1, lluvia/demanda). Método `radiation`
+con T2M y radiación mensual MJ/m²/día completos, o `catalog` si falta
+algún dato: etoMm=null y demandMm=waterMm del catálogo, con aviso.
+Lluvia desconocida y su cobertura son null; nunca se inventan aportes de riego.
+coveragePct se publica a un decimal; los cálculos internos conservan precisión. Clientes antiguos
+pueden omitir water; la UI muestra que no hay balance disponible.
+
+Cada recomendación y baseline añade `irrigationNeedMm` entero: suma de max(0,demandMm−rainMm), con demanda completa si lluvia es null; baseline inviable publica 0. Agua se calcula por secuencia como clamp(100 × (1−déficit acumulado/ETo del horizonte),0,100), igual con y sin riego. ETo recorre desde el día de decisión hasta el fin del horizonte de 24 meses; sin temperatura/radiación válida o ETo positiva usa suma de demandas de la secuencia, con aviso y confianza media, salvo POWER incompleto o demanda de catálogo (baja). El beam recalcula agua al extender; los otros ejes se promedian. Heurística pendiente de H4. Los riesgos hídricos se resumen una vez por secuencia, sin repetir déficit por ciclo. La tarjeta presenta agua faltante y aportes enteros; acepta respuestas antiguas sin irrigationNeedMm.
+
+## Bloque A — Credibilidad (2026-11-14)
+
+`confidence` aplica spec 005 RF-7b: `low` por POWER incompleto/ausente o demanda `catalog`; `medium` por MODIS/histórico/historial incompletos o respaldo de ETo del horizonte; `high` sin esas limitaciones. Cada limitación se incluye en `warnings`. No equivale a validación agronómica.
+
+Campo aditivo en recomendaciones y baseline: `riskGroups: [{type,text}]`. Tipos: `heat`, `temperature`, `frost`, `drought`, `water`, `data`, `schedule`, `other`. Calor resume el peor exceso sobre tolerancia (máxima y tolerancia del mismo ciclo) y ciclos afectados; `risks` conserva todos los textos originales. Baseline inviable: `riskGroups: []`. Clientes antiguos pueden omitir el campo.
+
+La UI usa `inputs.indicators.sources` y `warnings` para «Qué sabemos / Qué falta». El estado NASA usa `trends` y las anomalías del mes correspondiente; no se añaden campos ni umbrales al contrato de indicadores. La ausencia de tendencia no acredita normalidad.
