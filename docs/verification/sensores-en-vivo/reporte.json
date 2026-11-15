@@ -1,0 +1,16 @@
+{
+  "checks": [
+    "Lectura nueva, historial y destello sin pulsar Actualizar; variable y desplegable conservados",
+    "1440 y 390 px sin desbordamiento, sin jerga ni administración; ejemplo marcado; movimiento reducido sin destello",
+    "Riego manual confirmado: Orden enviada, Regando con segundos, Terminó sin recargar",
+    "Reloj avanza de hace un momento a minutos sin recibir consultas correctas; API detenida muestra Sin conexión, reintentando",
+    "API reiniciada: recuperación automática",
+    "Pérdida real de foco: cero peticiones durante 11 s y consulta inmediata al volver",
+    "Visibilidad hidden simulada por evento: pausa y cero peticiones durante 11 s; carga inmediata al restaurar. No se pudo verificar ocultamiento real en este navegador"
+  ],
+  "errors": [],
+  "screenshots": [
+    "docs/verification/sensores-en-vivo/en-vivo-1440.png",
+    "docs/verification/sensores-en-vivo/en-vivo-390.png"
+  ]
+}
