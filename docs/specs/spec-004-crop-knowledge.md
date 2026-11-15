@@ -13,6 +13,7 @@ Motor de rotación; el agricultor lo consulta al elegir cultivos; Administrador 
 
 ## Requisitos funcionales (EARS)
 - RF-1: EL SISTEMA mantiene un catálogo versionado en el repo con, por cultivo: nombre, familia botánica, rango de temperatura, demanda hídrica, duración del ciclo, ventana de siembra por clima, balance de nitrógeno (fija/consume), cobertura de suelo, tolerancia a sequía y `marketValueTier` (`bajo` | `medio` | `alto`, nivel categórico de valor comercial o forrajero por hectárea, con su fuente, p. ej. SIAP/FAOSTAT; si no hay fuente verificable se marca «estimado»).
+- RF-1b: EL SISTEMA exige `kc: {ini,mid,end}` entre 0.1 y 1.4 de FAO-56 Tabla 12, con `kcSource` identificando fila y selección dentro de rangos. Si usa categoría análoga, marca `kcEstimated: true`.
 - RF-2: EL SISTEMA guarda por cada cultivo su fuente (FAO/GAEZ u otra) y la expone en la API.
 - RF-3: CUANDO se consulta `GET /crops`, EL SISTEMA devuelve el catálogo completo.
 - RF-4: EL SISTEMA define compatibilidades de transición entre familias (buena, neutra, a evitar) con la razón agronómica.
@@ -32,6 +33,7 @@ Variedades/cultivares, rendimientos por híbrido, precios de mercado en tiempo r
 RF-1 a RF-5 con test en verde + revisión de que cada cultivo cita fuente.
 
 ## Decisiones
+- Corrección de ingreso (2026-11-15): categorías estimadas `bajo`/`medio`/`alto` se convierten a 25/60/90 puntos. Se registra explícitamente `marketValueSource: "estimado; pendiente de H4"`; no se atribuyen estos valores a fuentes climáticas. La validación exige categoría, fuente y consistencia del puntaje derivado.
 - No hay cultivos prioritarios fijos: dependen de cada zona. La viabilidad se calcula contra los indicadores NASA del punto.
 - Cada cultivo se describe por requisitos físicos (rango de temperatura, demanda hídrica, duración del ciclo en días, sensibilidad a heladas), no por fechas ni temporadas de un país. Encaja en una ventana de la zona si sus requisitos caben en ella.
 

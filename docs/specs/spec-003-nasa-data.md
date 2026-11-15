@@ -40,6 +40,7 @@ Motor de rotación y dashboard (consumidores internos); el agricultor ve los ind
 - Respuesta cacheada < 500 ms. Sin credenciales necesarias en v1.
 
 ## Casos límite
+- Preparación ESP32 (2026-11-15): se conservan fuente, producto, fecha y resolución por observación en la UI. Las lecturas se presentan por separado; no se comparan datos de hoy contra promedios mensuales como si fueran simultáneos.
 - Punto en el océano o sin cobertura MODIS → NDVI no disponible.
 - Valores de relleno de POWER (`-999`) → se tratan como faltantes, nunca como datos.
 - Rango de fechas futuro o inválido → 400.
@@ -71,3 +72,7 @@ RF-1 a RF-8 con test en verde + demo: tres puntos distintos (Coahuila, Nevada y 
 - Las observaciones Aqua se identifican como `MODIS MYD13Q1 / Microsoft Planetary Computer`. No se aceptan datos con calidad 3 ni se hacen excepciones por ubicación; si ambos productos carecen de datos válidos, se conserva `partial`/`unavailable`.
 - Verificación: precedencia de Terra, complemento mensual histórico/reciente, filtro de plataforma/producto Aqua, nubes y fallos del complemento, más las QA originales sin cambios.
 - Referencia NASA: [MODIS Terra/Aqua, resolución y composiciones desfasadas](https://modis.gsfc.nasa.gov/data/dataprod/mod13.php).
+
+## Bloque A — Perfiles agrícolas de demo (2026-11-14)
+
+Los perfiles conservan correos, cultivos, riego y prioridades. Los puntos candidatos son San Pedro/Comarca Lagunera (25.76, −102.98), Fallon/Lahontan (39.47, −118.78) y San Martín/Mendoza (−33.08, −68.47). H3 requiere imagen satelital de parcelas, pico estacional de climatología NDVI ≥0.4 y opciones de rotación para los tres. La comprobación NASA/mapa y la reejecución del seed quedan a cargo del usuario; cambiar coordenadas no acredita esos criterios. No hay reglas regionales.

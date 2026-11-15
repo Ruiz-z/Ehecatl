@@ -41,3 +41,11 @@ export function rankStrategies(strategies: Strategy[], weights: Priorities): Ran
     delta: baseline === undefined ? null : strategy.score - baseline
   })).sort((a, b) => b.score - a.score || b.axes.risk - a.axes.risk || a.name.localeCompare(b.name));
 }
+
+export function scoreLevel(score: number): 'alto' | 'medio' | 'bajo' {
+  return score >= 70 ? 'alto' : score >= 50 ? 'medio' : 'bajo';
+}
+export function scoreContributions(values: Priorities, weights: Priorities) {
+  const normalized = normalizedWeights(weights);
+  return axes.map(({key, label}) => ({key, label, value: values[key]*normalized[key]}));
+}

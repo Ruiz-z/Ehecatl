@@ -1,5 +1,7 @@
 # Auditoría QA E2E del Backend — 2026-11-14
 
+> Nota Bloque A (2026-11-14): los perfiles ahora apuntan a San Pedro (25.76, −102.98), Fallon (39.47, −118.78) y San Martín (−33.08, −68.47). La evidencia siguiente corresponde a los puntos anteriores y a las reglas de confianza de entonces; no acredita los nuevos puntos. Quedan pendientes seed, mapa, pico NDVI ≥0.4 y opciones reales, a verificar por el usuario.
+
 Reporte de hallazgos obtenido tras levantar el stack real (**PostgreSQL 16 + `apps/geo` FastAPI + `apps/api` NestJS**) y ejecutar las suites de QA E2E ubicadas en:
 
 - `apps/api/test/qa-e2e.spec.ts`

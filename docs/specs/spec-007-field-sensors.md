@@ -1,6 +1,21 @@
 # Spec 007 — Sensores a pie de parcela (verdad de terreno y confianza)
 
-> **Estado: borrador para aprobación (H2).** No se implementa nada hasta aprobarla. Reutiliza el patrón de dispositivos de SmartRiego MX (`~/personal/Hackregional/Regional/docs/specs/spec-003-dispositivos-iot.md`), con una diferencia de fondo: aquí el sistema **solo avisa**, nunca acciona.
+> **Estado: preparación de software autorizada por el usuario el 2026-11-15.** Se implementan dispositivos, lecturas, frescura, pantalla y simulador (RF-1 a RF-8, RF-13, RF-15 y RF-19). RF-9 a RF-12, RF-14 y RF-16 a RF-18 siguen como fase posterior, sujeta a datos equivalentes y validación H4. Se reutiliza el patrón de dispositivos de SmartRiego MX; aquí el sistema **solo informa**, nunca acciona.
+
+## Entrega inicial autorizada — 2026-11-15
+
+- Hardware confirmado: FC28 resistivo de dos puntas, DHT11 y MQ2; un punto por dispositivo lógico, conectado por WiFi. Profundidad y calibración de campo pendientes. No se incluyen servos, comandos ni control de bomba.
+- Administración con JWT y rol administrador; consulta por dueño o administrador. El origen `REAL` o `SIMULATED` se fija al registrar y no se puede cambiar. El simulador solo utiliza dispositivos `SIMULATED`.
+- Credencial aleatoria de 32 bytes, almacenada solo como SHA-256 y mostrada una vez. Rotación/revocación inmediatas. El dispositivo determina la zona; el payload no puede elegirla. La reasignación conserva las lecturas en su zona histórica.
+- Envío v1: `readingId` UUID estable por muestra, `measuredAt` ISO UTC y al menos uno de `soilMoistureRaw` (entero ADC 0–4095), `airTemperature` (°C, -50 a 80), `airHumidity` (%, 0–100), `mq2Raw` (entero ADC 0–4095). No se aceptan nombres ambiguos, comandos ni números no finitos. MQ2 es experimental, sin ppm ni influencia en recomendaciones.
+- Calibración opcional `dryRaw`/`wetRaw`, ambos enteros 0–4095 distintos. `soilMoisture=(raw-dryRaw)/(wetRaw-dryRaw)` es un índice relativo 0–1, no contenido volumétrico ni equivalente a GWETROOT. Sin calibración se guarda crudo e índice nulo; fuera del intervalo calibrado se rechaza sin recortar. Se conserva la versión de calibración por lectura.
+- Reintentos idempotentes por dispositivo y `readingId`: mismo contenido confirma sin duplicar; otro contenido devuelve 409. Fechas futuras o anteriores a `READINGS_MAX_AGE_HOURS` (168 por defecto) se rechazan. Se registra el motivo sin claves ni payload en logs.
+- Intervalo esperado 30–86400 s (300 por defecto). En línea si la última medición tiene antigüedad <= tres intervalos; recepción y medición se muestran separadas. Datos viejos reenviados no hacen aparecer fresco al sensor. Revocados nunca aparecen en línea.
+- JSON de ingestión máximo 4 KiB; máximo 60 solicitudes/minuto por dispositivo en la única instancia API de Compose. Limitador en memoria con limpieza; varias réplicas exigirán coordinación compartida. Retención de 90 días por defecto, configurable con `READINGS_RETENTION_DAYS` y comando explícito de limpieza.
+- Historial paginado por zona, orden descendente por fecha e ID; máximo 31 días y 200 muestras/página. Acceso y cursores validados antes de consultar.
+- Panel «Sensores»: lecturas, origen, fecha, calibración e historial; administración de dispositivos. Sin datos no simula mediciones. En modo de ejemplo no se registran dispositivos reales. «Comparación pendiente» sin clasificar concordancia ni aumentar confianza.
+
+La comparación y avisos siguientes describen la fase posterior. Siete días de campo no tienen una contraparte diaria en el servicio NASA mensual actual.
 
 ## Contexto y objetivo
 Ehécatl es una **app beta**. Los datos satelitales son útiles como contexto, pero no se pueden tomar como verdad de campo: cada fuente se actualiza con su propia frecuencia (en días o semanas), a una resolución de cientos de metros a decenas de kilómetros, y las condiciones de una parcela cambian más rápido. Quien decide en campo mide **a pie de parcela**.
@@ -25,8 +40,8 @@ Agricultor (ve lecturas, comparación y avisos de sus zonas), Administrador (da 
 - RF-4: EL SISTEMA marca un dispositivo como **en línea** si envió una lectura dentro de su intervalo esperado (configurable, por defecto 3 × el intervalo de envío) y **sin señal** en caso contrario.
 
 ### Lecturas
-- RF-5: CUANDO un dispositivo envía `POST /readings` con `measuredAt` y al menos una variable (`soilMoisture`, `soilTemperature`, `airTemperature`, `airHumidity`), EL SISTEMA las valida, las normaliza y las guarda asociadas a la zona del dispositivo.
-- RF-6: EL SISTEMA aplica la **calibración** del dispositivo (valores crudo en seco y en saturación) para llevar `soilMoisture` a una fracción 0–1 comparable con la humedad satelital; guarda también el valor crudo.
+- RF-5: CUANDO un dispositivo envía `POST /readings` con `readingId`, `measuredAt` y al menos una variable v1 (`soilMoistureRaw`, `airTemperature`, `airHumidity`, `mq2Raw`), EL SISTEMA las valida y las guarda en la zona del dispositivo; el índice de suelo se calcula exclusivamente en el servidor. No se declara temperatura de suelo con DHT11.
+- RF-6: EL SISTEMA aplica la calibración para obtener un índice relativo 0–1 y conserva el crudo. Sin calibración devuelve índice nulo. Este índice no equivale físicamente a NASA; la comparación requiere validación aparte.
 - RF-7: SI una lectura está fuera de rango físico (p. ej. humedad < 0 o > 1 tras calibrar, temperatura imposible) o su `measuredAt` es futuro o demasiado antiguo, ENTONCES EL SISTEMA la descarta, registra el motivo y no la usa en ninguna comparación.
 - RF-8: CUANDO el usuario consulta `GET /zones/:id/readings?from&to`, EL SISTEMA devuelve las lecturas con las reglas de acceso de la spec 001 (dueño o administrador).
 

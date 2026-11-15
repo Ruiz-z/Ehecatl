@@ -9,10 +9,7 @@ const inter = localFont({
 });
 export const metadata: Metadata = {
   title: 'Ehécatl · Tu siguiente ciclo',
-  description: 'El clima, tu parcela y tus prioridades para decidir qué sembrar después.',
-  icons: {
-    icon: 'data:,'
-  }
+  description: 'El clima, tu parcela y tus prioridades para decidir qué sembrar después.'
 };
 export default function RootLayout({
   children

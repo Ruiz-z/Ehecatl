@@ -1,6 +1,6 @@
 import { demoClimateByOwner } from '@/features/identity/fixtures/users';
 import type { Parcel } from '@/features/parcels/types';
-import type { CropFamily, Strategy } from '../types';
+import type { CropFamily, Strategy, CycleWater } from '../types';
 export function strategiesFor(parcel: Parcel): Strategy[] {
   const humid = demoClimateByOwner[parcel.ownerId] === 'humid';
   const families: Record<string, CropFamily> = {
@@ -17,12 +17,35 @@ export function strategiesFor(parcel: Parcel): Strategy[] {
     Alfalfa: 'legume',
     Girasol: 'other'
   };
+  // Datos de ejemplo: sin radiación ni lluvia se presenta demanda del catálogo.
+  const catalogWater: Record<string, Pick<CycleWater, 'kc' | 'demandMm'>> = {
+    "Maíz": {"kc": 0.8225, "demandMm": 600},
+    "Sorgo": {"kc": 0.785, "demandMm": 400},
+    "Trigo": {"kc": 0.78375, "demandMm": 450},
+    "Cebada": {"kc": 0.78375, "demandMm": 350},
+    "Avena": {"kc": 0.78375, "demandMm": 400},
+    "Arroz": {"kc": 1.09125, "demandMm": 1000},
+    "Soya": {"kc": 0.84125, "demandMm": 550},
+    "Frijol": {"kc": 0.82625, "demandMm": 350},
+    "Caupí": {"kc": 0.76875, "demandMm": 250},
+    "Garbanzo": {"kc": 0.74, "demandMm": 300},
+    "Lenteja": {"kc": 0.7925000000000001, "demandMm": 280},
+    "Alfalfa": {"kc": 0.7662500000000001, "demandMm": 1100},
+    "Girasol": {"kc": 0.8099999999999999, "demandMm": 400},
+    "Canola": {"kc": 0.8099999999999999, "demandMm": 450},
+    "Mostaza de cobertura": {"kc": 0.8099999999999999, "demandMm": 200},
+    "Papa": {"kc": 0.8987499999999999, "demandMm": 550},
+    "Tomate": {"kc": 0.92625, "demandMm": 600},
+    "Trigo sarraceno": {"kc": 0.79875, "demandMm": 250}
+  };
   const currentFamily = families[parcel.crop] ?? 'other';
   const restricted = parcel.crop === 'Alfalfa';
   const next = humid ? ['Trigo', 'Vicia', 'Maíz'] : restricted ? ['Cebada', 'Caupí', 'Sorgo'] : ['Sorgo', 'Frijol', 'Cebada'];
   const alternative = humid ? ['Maíz', 'Soja', 'Avena'] : ['Girasol', 'Garbanzo', 'Avena'];
   const common = {
-    confidence: parcel.dataState === 'error' ? 'Baja' as const : 'Media' as const,
+    confidence: 'Baja' as const,
+    known: ['Datos de ejemplo; no son observaciones reales de esta parcela.'],
+    missing: ['Demanda del catálogo: faltan los insumos NASA para calcular ETc.'],
     confidenceReason: parcel.dataState === 'error' ? 'Falta la humedad del suelo; calculamos con el resto de los datos.' : 'Falta validar el suelo y el mercado en campo.'
   };
   const strategies: Strategy[] = [{
@@ -195,9 +218,11 @@ export function strategiesFor(parcel: Parcel): Strategy[] {
       cursor = Math.max(cursor,window.startMonth+window.months);
     }
     return { ...strategy, windows, rests,
+      irrigationNeedMm: Math.round(windows.reduce((sum, window) => sum+(catalogWater[window.crop]?.demandMm ?? 0),0)),
       steps:windows.map((window,index) => ({cropName:window.crop, previousCropName:index ? windows[index-1]!.crop : parcel.crop,
         start:window.start, end:window.end,
         reasons:index === 0 ? strategy.reasons.map(reason => ({...reason,effect:'neutral' as const})) : [],
+        water:catalogWater[window.crop] ? {...catalogWater[window.crop]!,etoMm:null,rainMm:null,coveragePct:null,method:'catalog' as const} : undefined,
         climate:{meanTemperature:null,rainMm:null,cycleDays:null}})) };
   });
 }

@@ -13,14 +13,14 @@ Herramienta de decisión para **rotación y cambio de cultivos** con datos NASA 
 9. **Multiusuario**: varios agricultores con parcelas propias y perfiles distintos; roles fijos Agricultor y Administrador (superset). Auth con JWT (email + password, bcrypt). Un agricultor nunca accede a parcelas ajenas.
 10. **Prioridades del agricultor como pesos** (agua, salud del suelo, ingreso, riesgo) que cambian el ranking; mismas condiciones con distintas prioridades dan recomendaciones distintas.
 11. **Conocimiento de cultivos trazable**: el catálogo cita su fuente (FAO/GAEZ u otra) y se versiona en el repo.
-12. **IoT/ESP32 opcional**: queda como módulo stretch (verdad de terreno para SMAP) y no bloquea el MVP. Si se activa, API key por dispositivo.
+12. **IoT/ESP32**: preparación de software autorizada el 2026-11-15 (spec 007): API key individual, lecturas FC28/DHT11, MQ2 experimental y simulación marcada. Comparación y confianza posteriores. Nunca comandos ni riego; el montaje no bloquea esta entrega.
 13. **Secretos**: ninguna credencial se commitea; todo vía `.env` (no versionado) y secretos de CI.
 14. **Tests obligatorios** en: motor de transición/rotación, normalización de datos NASA, y control de acceso por dueño.
 15. **Idioma**: código e identificadores en inglés; documentación, specs y commits en español.
 16. **Antes de tocar código**: leer esta constitución y la spec activa. Los cambios de alcance actualizan primero la spec.
 
 ## Fuera de alcance v1
-App móvil, visión artificial/plagas, dron, despliegue en VM/CI complejo, adaptador EE. UU. y IoT (ambos stretch).
+App móvil, visión artificial/plagas, dron, despliegue en VM/CI complejo, adaptador EE. UU. (stretch) y control de riego/actuadores.
 
 ## Listo para demo cuando
 - [ ] `docker compose up` levanta todo desde cero.

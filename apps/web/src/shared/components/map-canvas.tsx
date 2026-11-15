@@ -68,10 +68,10 @@ export default function MapCanvas({
   const selected = parcels.find(parcel => parcel.id === selectedId) ?? parcels[0];
   const focus: [number, number] = center ?? initialCenter ?? (selected ? [selected.latitude, selected.longitude] : [20, 0]);
   const [failed, setFailed] = useState(false);
-  return <><MapContainer center={focus} zoom={selected || center ? 13 : 2} zoomControl={true} className="leaflet-map" attributionControl={true}><LayersControl position="topright"><LayersControl.BaseLayer checked name="Satélite"><TileLayer url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}" attribution="Tiles © Esri — Source: Esri, Maxar, Earthstar Geographics, GIS User Community" eventHandlers={{
+  return <><MapContainer center={focus} zoom={selected || center ? 13 : 2} zoomControl={true} className="leaflet-map" attributionControl={true}><LayersControl position="topright"><LayersControl.BaseLayer checked name="Satélite"><TileLayer url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}" attribution="Tiles © Esri · Source: Esri, Maxar, Earthstar Geographics, GIS User Community" eventHandlers={{
             tileerror: () => setFailed(true),
             tileload: () => setFailed(false)
-          }} /></LayersControl.BaseLayer><LayersControl.BaseLayer name="Calles"><TileLayer url="https://tile.openstreetmap.org/{z}/{x}/{y}.png" attribution='© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' /></LayersControl.BaseLayer>{selected && <LayersControl.Overlay checked={ndvi} name="NDVI · ejemplo"><Circle center={[selected.latitude, selected.longitude]} radius={280} pathOptions={{
+          }} /></LayersControl.BaseLayer><LayersControl.BaseLayer name="Calles"><TileLayer url="https://tile.openstreetmap.org/{z}/{x}/{y}.png" attribution='© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' /></LayersControl.BaseLayer>{selected && <LayersControl.Overlay checked={ndvi} name="Qué tan verdes están las plantas"><Circle center={[selected.latitude, selected.longitude]} radius={280} pathOptions={{
             className: 'ndvi-high',
             weight: 1,
             fillOpacity: 0.4

@@ -28,7 +28,7 @@ Dirección visual para `apps/web` (tareas F). Referencia: **OneSoil** (app web d
 2. **Mis parcelas** — panel: buscador + lista de parcelas (nombre, lugar, cultivo actual, chip de riesgo o "Sin datos NASA aún"). Mapa con un pin por parcela; al elegir una, el mapa vuela a ella.
 3. **Nueva parcela** — mapa para colocar el punto (o lat/lon manual), nombre, cultivo actual, riego sí/no. Funciona para cualquier lugar del mundo.
 4. **Parcela · Estado** — pestañas **Estado | Datos | Qué sembrar**. Estado: dos tarjetas lado a lado (NDVI de la zona + imagen satelital), cifras clave (lluvia vs. normal, temperatura vs. normal, humedad de suelo).
-5. **Parcela · Datos** — gráficas apiladas con tooltip (ver §6): lluvia acumulada, grados-día de crecimiento / temperatura, humedad de suelo, NDVI. Rango de fechas arriba a la derecha.
+5. **Parcela · Datos** — calendario de doce meses y un detalle a la vez (ver §6).
 6. **Parcela · Qué sembrar** — banner de riesgo (si aplica), 2–3 tarjetas de secuencia (ver §7), prioridades como sliders al pie.
 7. **Estados:** vacío, cargando (skeleton), error de datos, sin ventanas de cultivo.
 
@@ -86,11 +86,10 @@ Familia de cultivo (chips y barras de la tira): gramínea `#E8A23B`, leguminosa 
 - Iconos: **lucide-react**, trazo 1.75, 20 px.
 
 ## 6. Gráficas
-- Una sola librería (la que ya traiga shadcn charts / Recharts). Eje X fechas, sin cuadrícula vertical, cuadrícula horizontal muy tenue.
-- **Tooltip fijo** al pasar el cursor: etiqueta oscura con valor y fecha, como en la referencia.
-- Mostrar siempre la **línea de lo normal** (media 10 años) y resaltar la desviación en texto: "38 % menos que lo normal" (rojo/ámbar si es adverso, verde si no).
-- Debajo de cada gráfica: fuente y rango ("NASA POWER · nov 2025 – oct 2026").
-- Series distinguibles sin color (trazo, marcador, etiqueta directa); validar con daltonismo.
+- Calendario del año como pieza principal en Datos: tabla accesible de doce meses y cinco renglones (Lluvia, Calor, Tierra, Plantas, Se puede sembrar). Texto y color juntos; sin dato rayado. Cada renglón usa su familia de color: lluvia en arena y azules, calor en azul, gris y naranja, tierra en cafés, plantas en amarillo y verdes, siembra en verde o gris. En móvil, scroll dentro del contenedor y primera columna fija.
+- Un solo detalle seleccionado con botones aria-pressed, Lluvia por defecto. Barras de lluvia con marcas de normal; línea de temperatura promedio sin suavizado y con eje ajustado al rango real, normal punteada. Tierra y Plantas usan tiras ampliadas con valores debajo, sin línea ni eje.
+- Tokens existentes para todos los colores, foco visible, tablas de valores con encabezados y ámbitos. Los textos aprobados y umbrales orientativos se centralizan en copy.ts (heurística pendiente de H4).
+- Resúmenes anuales sin extrapolar faltantes, nota de mes pendiente y pie «Datos de NASA. {inicio} a {fin}.». Se conserva la marca de datos de ejemplo.
 
 ## 7. Tarjeta de secuencia ("Qué sembrar después")
 - **Siempre 3 tarjetas lado a lado** (spec 006 RF-4): **Estrategia actual** («Mantener lo actual», borde gris, etiqueta «Si no cambias») + las 2 mejores alternativas. Cada alternativa muestra la diferencia contra la actual («+18 puntos»). Si la actual gana, se dice y se explica.
@@ -103,7 +102,7 @@ Familia de cultivo (chips y barras de la tira): gramínea `#E8A23B`, leguminosa 
 - La tarjeta #1 con borde `--primary`; las otras con borde `--border`.
 
 ## 7b. Indicadores en lenguaje de campo (spec 006 RF-4b)
-Nunca mostrar nombres de variable como texto principal. Formato: **etiqueta llana + valor + semáforo + consecuencia**, p. ej. «Humedad en raíz: baja (22 %) — riesgo de estrés hídrico», punto verde/ámbar/rojo (con icono y texto, no solo color). El dato crudo (`GWETROOT`, `T2M_MAX`, fuente y fecha) va en un desplegable «Ver dato NASA».
+Usar los textos aprobados de `features/nasa/copy.ts` sin reescribirlos. Resumen con consejo, indicadores en prosa y ayudas con teclado. Humedad de la tierra y verdor llevan barras de tres zonas con texto visible. El desplegable «Ver el dato exacto» muestra valor, fuente y mes; la variable solo aparece en «Nombre técnico». Los umbrales de humedad y verdor son heurísticas pendientes de H4.
 
 ## 8. Interacción
 - Cambiar un slider de prioridad recalcula y reordena las tarjetas al instante (con transición corta, 150 ms).
@@ -120,3 +119,9 @@ Nunca mostrar nombres de variable como texto principal. Formato: **etiqueta llan
 - No agregues dependencias nuevas sin preguntar (Leaflet, lucide y una librería de gráficas sí están aprobadas).
 - Un commit por pantalla, Conventional Commits en español, sin `Co-Authored-By`, sin `git push`, rama desde `origin/dev` (`feat/f-...`).
 - Antes de dar algo por hecho: `pnpm lint`, `pnpm test`, `pnpm --filter web build` y captura de la pantalla en escritorio y móvil.
+
+## 11. Marca
+
+El símbolo propio une un tallo y una hoja a la izquierda con una espiral de viento a la derecha: viento que hace brotar. La hoja usa `--accent` (`#6FC20B`); el tallo y el viento heredan el color del texto, blanco sobre oscuro y `#0E1410` sobre claro. Tamaño mínimo: 16 px; cabecera y riel: 28 px. No usar el brote de lucide como logo; se conserva como ilustración de estados vacíos y como icono de navegación.
+
+La palabra «ehécatl.» conserva minúsculas y punto lima, con peso 650 y espaciado de letras de `-.03em`. El riel compacto muestra solo el símbolo. En el login, el logo blanco se apoya en un degradado oscuro superior de 160 px, sin placa; el pie conserva su placa. El favicon usa el símbolo sobre un fondo redondeado `#0E1410`.
