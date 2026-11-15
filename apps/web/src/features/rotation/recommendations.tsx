@@ -13,7 +13,7 @@ import { useAsync } from '@/shared/api/use-async';
 import { EmptyState, LoadingState, Notice } from '@/shared/components/ui';
 import { axes, normalizedWeights, rankStrategies, scoreContributions, scoreLevel } from './ranking';
 import { summarizeRests } from './rests';
-import { summarizeStep, waterSentence } from './step-summary';
+import { summarizeStep, waterSentence, historicalSentence, yieldSentence } from './step-summary';
 import type { RankedStrategy, RecommendationResult, CycleWater, Reason } from './types';
 const icons = {
   water: Droplets,
@@ -147,6 +147,8 @@ function SequenceCard({
       </div>;
       })}
       <p>Más alto = más favorable, también en riesgo.</p>
+      <p>Cosecha: rendimiento esperado frente al potencial. Suelo: regla agronómica publicada SARE/FAO.</p>
+      {strategy.steps?.some(step => step.yield?.irrigatedAssumed) && <p>Con tu riego se asume demanda cubierta. Cosecha da 100 y no distingue cultivos.</p>}
     </div>
     <button className="reasons-toggle" aria-expanded={open} onClick={() => setExpanded(!open)}>Por qué y qué riesgos tiene<ChevronDown size={16} className={open ? 'rotate' : ''} /></button>
     {open && <div className="reasons-content">
@@ -157,15 +159,18 @@ function SequenceCard({
         <h4>{i + 1} · {step.previousCropName ?? (i ? strategy.steps![i-1]!.cropName : 'Cultivo actual')} → {step.cropName}</h4>
         <p className="muted">{formatMonth(step.start)} a {formatMonth(step.end)}</p>
         <ReasonList reasons={shown} />
+        <p>{historicalSentence(step)}</p>
         <p className="cycle-water"><Droplets size={16} aria-hidden="true" />{waterSentence(step.water, irrigated)}</p>
         <details className="step-more"><summary>Ver más detalle</summary>
           <ReasonList reasons={hidden} />
+          <p className="cycle-climate">{yieldSentence(step.yield)}</p>
+          {step.yield && <p className="cycle-climate">Ky: {step.yield.ky}. {step.yield.kySource}</p>}
           <p className="cycle-climate">{cycleWaterText(step.water, irrigated)}</p>
           <p className="cycle-climate">Clima del ciclo: {step.climate?.meanTemperature == null ? 'temperatura sin dato' : `${step.climate.meanTemperature.toFixed(1)} °C`} · {step.climate?.rainMm == null ? 'lluvia sin dato' : `${Math.round(step.climate.rainMm)} mm de lluvia`} · {step.climate?.cycleDays == null ? 'duración sin dato' : `${Math.round(step.climate.cycleDays)} días`}</p>
           <p className="cycle-climate">Del {formatDate(step.start)} al {formatDate(step.end)}</p>
         </details>
       </section>; }) : <ul>{strategy.reasons.filter(reason => !reason.text.startsWith('Pesos ')).map((reason, i) => <li key={i}>{reason.text}</li>)}</ul>}
-      <p className="weights-note">Calculado con tus prioridades: {axes.map(axis => `${axis.label.toLowerCase()} ${Math.round(weights[axis.key]*100)} %`).join(' · ')}. Ingreso es una heurística, no un precio.</p>
+      <p className="weights-note">Calculado con tus prioridades: {axes.map(axis => `${axis.label.toLowerCase()} ${Math.round(weights[axis.key]*100)} %`).join(' · ')}.</p>
       <h4>Antes de decidir</h4>
       <ul>
         {[...new Set(strategy.risks)].map((risk, i) => <li key={i}>{risk}</li>)}
@@ -210,7 +215,7 @@ function Advice({ parcel, initial }: { parcel: Parcel; initial: RecommendationRe
         try { const saved = await apiClient.savePriorities(weights); setWeights(saved); setSaveMessage('Prioridades guardadas.'); }
         catch (e) { setSaveMessage(e instanceof Error ? e.message : 'No se pudo guardar.'); } finally { setSaving(false); }
       }}>Guardar prioridades</button> : <p className="form-note">Puedes explorar alternativas sin modificar las prioridades guardadas del dueño.</p>}
-      <p role="status">{saveMessage}</p><p className="form-note">Pesos normalizados a 100 %. Ingreso usa categorías estimadas de cultivos, no ganancias ni precios en tiempo real.</p>
+      <p role="status">{saveMessage}</p><p className="form-note">Pesos normalizados a 100 %. Cosecha mide rendimiento esperado frente al potencial según el agua disponible.</p>
     </section>
     {state.status === 'loading' ? <LoadingState note="Recalculando alternativas con tus prioridades…" /> : state.status === 'error'
       ? <EmptyState title="No pudimos actualizar las recomendaciones"><p>{state.message}</p><button className="button" onClick={state.retry}>Reintentar</button></EmptyState>

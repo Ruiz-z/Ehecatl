@@ -126,7 +126,7 @@ Empates: menor riesgo, nombre e identificador de secuencia; salida determinista.
 Si ninguna opción cabe, incluida la referencia: `status:no_viable_options`, lista
 vacía, referencia inviable, razones y sugerencia de cobertura/barbecho.
 Si solo cabe la referencia, `status:ok` y `recommendations:[]`.
-Ingreso es un indicador heurístico de oportunidad (no precio ni rentabilidad).
+Cosecha (`income`) es rendimiento relativo según FAO-33, no ingreso monetario. El respaldo sin historia conserva el indicador previo y se avisa.
 Una perenne debe caber en el horizonte y ocupar ventanas consecutivas.
 
 ## Aprobaciones pendientes
@@ -202,3 +202,21 @@ Cada recomendación y baseline añade `irrigationNeedMm` entero: suma de max(0,d
 Campo aditivo en recomendaciones y baseline: `riskGroups: [{type,text}]`. Tipos: `heat`, `temperature`, `frost`, `drought`, `water`, `data`, `schedule`, `other`. Calor resume el peor exceso sobre tolerancia (máxima y tolerancia del mismo ciclo) y ciclos afectados; `risks` conserva todos los textos originales. Baseline inviable: `riskGroups: []`. Clientes antiguos pueden omitir el campo.
 
 La UI usa `inputs.indicators.sources` y `warnings` para «Qué sabemos / Qué falta». El estado NASA usa `trends` y las anomalías del mes correspondiente; no se añaden campos ni umbrales al contrato de indicadores. La ausencia de tendencia no acredita normalidad.
+
+## Historia y ejes por datos (aditivo v1, 2026-11-15)
+
+Indicators añade `history?: {variable:string,year:number,month:number,value:number|null}[]` para las cinco variables POWER de spec 003 RF-3c. Geo lo devuelve siempre, incluso vacío. No se rellenan huecos. Caché indicators:v2.
+
+Cada paso añade `risk: {okYears,totalYears,failures:{heat,frost,temperature,water}} | null` y `yield: {relativePct,ky,irrigatedAssumed,kyEstimated,kySource} | null`. Menos de cinco años completos usa ambos campos nulos y respaldo compatible según spec 005 RF-12b. Clientes antiguos pueden omitirlos. El conteo incluye solamente calendarios con datos completos y años consecutivos reales, con días bisiestos. Las causas pueden solaparse; okYears cuenta años sin ninguna causa. `relativePct` promedia la función FAO acotada a 0..100 por año. `income` conserva nombre en API, base de datos y prioridades. Las etiquetas visibles usan Cosecha. Suelo sigue siendo regla SARE/FAO; agua no cambia. No cambia versión pública ni endpoints.
+
+## Cómo se elige la fecha de siembra
+
+El motor compara todos los arranques mensuales que caben en la ventana y pasan el filtro del clima normal, desde la fecha disponible. Repite cada calendario en el historial NASA. Con cinco años completos o más, elige la fecha con mayor proporción de años buenos. En empate elige la más temprana. Exige al menos 70 % de años buenos, un umbral pendiente de H4. Si ninguna fecha alcanza ese mínimo, descarta el cultivo y explica «Solo X de N años dentro de lo que aguanta el cultivo». Con menos de cinco años completos conserva la primera fecha viable y el respaldo anterior.
+
+La referencia y las alternativas siguen la misma regla. Las fechas elegidas viajan en `sequence[].start` y `end`; los años buenos siguen en `risk.okYears` y `risk.totalYears`. No cambian los pesos ni los cuatro ejes.
+
+Dentro de cada ventana, los descansos cuentan una vez por cultivo y causa los meses con calor, frío o falta de lluvia sin riego. Usan límites del catálogo y normales mensuales; también incluyen calor, frío, helada o falta de agua que exceden el margen histórico permitido, con cinco años completos. Gana la causa que afecta a más cultivos; en empate comparan cuántos pares cultivo y mes reportan cada causa. Si persiste el empate o no hay datos suficientes, conservan «Ningún cultivo completa su ciclo en este tramo». Es un resumen del catálogo, no afirma que cada cultivo falle. `rests[].reason` sigue siendo texto. La web solo cambia su primera letra a minúscula.
+
+## Riego solo manual (spec 007)
+JWT de dueño o administrador: POST /zones/:id/irrigation-commands con {durationSeconds: entero 1..30}; GET en la misma ruta devuelve las últimas 100 órdenes con requestedBy (id, name) y origin del dispositivo. DELETE /irrigation-commands/:id cancela solo PENDING. Errores: 400 duración, 403 acceso ajeno, 409 sin señal, ocupado o enfriamiento, 429 exceso de solicitudes (diez creaciones por usuario por minuto).
+X-Device-Key activo: GET /device/commands/next entrega una sola vez (204 sin orden); JSON con id, createdAt, expiresAt, durationSeconds. POST /device/commands/:id/result con {status: DONE|FAILED, actualSeconds: número 0..durationSeconds}. Reporte terminal repetido idéntico es idempotente; otro contenido da 409. No hay reentrega. Una orden vence a los dos minutos. El riego automático está prohibido.

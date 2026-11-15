@@ -8,7 +8,7 @@ describe('B11 catálogo trazable', () => {
     const families = new Set(crops.map(c => c.family));
     expect(familyRules).toHaveLength(families.size ** 2);
   });
-  it.each(['waterMm', 'cycleDays', 'family', 'sources', 'kc', 'kcSource', 'marketValueTier', 'marketValueSource'])('señala cultivo y campo %s faltante', field => {
+  it.each(['waterMm', 'cycleDays', 'family', 'sources', 'kc', 'kcSource', 'ky', 'kySource', 'kyEstimated', 'marketValueTier', 'marketValueSource'])('señala cultivo y campo %s faltante', field => {
     const broken = { ...crops[0], [field]: undefined };
     expect(() => validateCatalog([broken])).toThrow(new RegExp(`${crops[0].id}.*${field}`));
   });
@@ -28,4 +28,14 @@ describe('B11 catálogo trazable', () => {
 
 it.each([NaN, 0, 1.5, null, '0.3'])('rechaza Kc inválido %s', value => {
   expect(() => validateCatalog([{...crops[0],kc:{...crops[0].kc,ini:value}}])).toThrow('kc.ini');
+});
+
+it('cita la fila de Ky de FAO y marca los sustitutos', () => {
+  expect(crops.find(c => c.id === 'maize')!).toMatchObject({ky:1.25,kyEstimated:false});
+  expect(crops.find(c => c.id === 'lentil')!).toMatchObject({ky:1.15,kyEstimated:true});
+  expect(crops.find(c => c.id === 'lentil')!.kySource).toContain('Peas');
+  for (const crop of crops) {
+    expect(crop.kySource).toContain('tabla 1, p. 7');
+    expect(crop.kySource).toContain('https://www.fao.org/4/i2800e/i2800e.pdf');
+  }
 });

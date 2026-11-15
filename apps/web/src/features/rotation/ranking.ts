@@ -14,8 +14,8 @@ export const axes: {
   description: 'Recuperar la tierra'
 }, {
   key: 'income',
-  label: 'Ingreso',
-  description: 'Potencial de ingreso'
+  label: 'Cosecha',
+  description: 'Rendimiento esperado frente al potencial'
 }, {
   key: 'risk',
   label: 'Riesgo',

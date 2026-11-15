@@ -119,3 +119,30 @@ Valores iniciales vacíos heredan el grupo. En rangos se selecciona un extremo p
 | Papa | 0.5 / 1.15 / 0.75 | Potato | No |
 | Tomate | 0.6 / 1.15 / 0.7 | Tomato; extremo inferior de end | No |
 | Trigo sarraceno | 0.3 / 1.15 / 0.4 | Cereals (categoría); analogía de grano anual | Sí |
+
+## Ky estacional consultado el 2026-11-15
+
+Fuente: [FAO-66, capítulo 2, tabla 1, página 7](https://www.fao.org/4/i2800e/i2800e.pdf), valores de FAO-33. Trigo usa primavera porque el catálogo no especifica variedad. Los sustitutos son aproximaciones pendientes de H4: cereales por cereal, leguminosas por leguminosa, oleaginosa por girasol y cobertura Brassicaceae por repollo. Arroz usa maíz como cereal de verano y trigo sarraceno usa trigo como pseudocereal de grano; no son coeficientes validados para esos cultivos.
+
+| Cultivo | Ky | Fila de tabla 1 | Estimado |
+|---|---:|---|---|
+| Maíz | 1.25 | Maize | No |
+| Sorgo | 0.9 | Sorghum | No |
+| Trigo | 1.15 | Spring wheat | No |
+| Cebada | 1.15 | Spring wheat | Sí, sustituto |
+| Avena | 1.15 | Spring wheat | Sí, sustituto |
+| Arroz | 1.25 | Maize | Sí, sustituto |
+| Soya | 0.85 | Soybean | No |
+| Frijol | 1.15 | Beans | No |
+| Caupí | 1.15 | Beans | Sí, sustituto |
+| Garbanzo | 1.15 | Peas | Sí, sustituto |
+| Lenteja | 1.15 | Peas | Sí, sustituto |
+| Alfalfa | 1.1 | Alfalfa | No |
+| Girasol | 0.95 | Sunflower | No |
+| Canola | 0.95 | Sunflower | Sí, sustituto |
+| Mostaza de cobertura | 0.95 | Cabbage | Sí, sustituto |
+| Papa | 1.1 | Potato | No |
+| Tomate | 1.05 | Tomato | No |
+| Trigo sarraceno | 1.15 | Spring wheat | Sí, sustituto |
+
+La lluvia/ETc aproxima ETa/ETm. No modela almacenamiento del suelo, escurrimiento, pérdidas ni plagas. La cosecha relativa solo describe respuesta al agua, no toneladas ni precio. Con riego declarado supone demanda cubierta. Riesgo usa temperaturas mensuales, no detecta extremos diarios.

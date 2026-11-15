@@ -11,7 +11,9 @@ export interface CropWindow {
 }
 export interface CycleClimate { meanTemperature: number | null; rainMm: number | null; cycleDays: number | null }
 export interface CycleWater { etoMm: number | null; kc: number; demandMm: number; rainMm: number | null; coveragePct: number | null; method: 'radiation' | 'catalog' }
-export interface RotationStep { previousCropName?: string; cropName: string; start: string; end: string; reasons?: Reason[]; climate?: CycleClimate; water?: CycleWater }
+export interface CycleRisk { okYears: number; totalYears: number; failures: { heat: number; frost: number; temperature: number; water: number } }
+export interface CycleYield { relativePct: number; ky: number; irrigatedAssumed: boolean; kyEstimated: boolean; kySource: string }
+export interface RotationStep { risk?: CycleRisk | null; yield?: CycleYield | null; previousCropName?: string; cropName: string; start: string; end: string; reasons?: Reason[]; climate?: CycleClimate; water?: CycleWater }
 export interface Rest { start: string; end: string; months: number; reason: string; suggestion: string }
 export interface Reason {
   effect?: 'favor' | 'contra' | 'neutral';

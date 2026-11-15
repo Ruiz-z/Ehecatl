@@ -74,7 +74,7 @@ integration('PostgreSQL real: RF ownership, CRUD, cascadas y caché', () => {
       data.point = { lat: Number(query.get('lat')), lon: Number(query.get('lon')) };
       data.period = { start: query.get('start')!, end: query.get('end')! };
       res.writeHead(200, { 'Content-Type': 'application/json' }); res.end(JSON.stringify(data));
-      cacheKey = createHash('sha256').update(`indicators:v1:${query}`).digest('hex');
+      cacheKey = createHash('sha256').update(`indicators:v2:${query}`).digest('hex');
     });
     await new Promise<void>(resolve => geo.listen(0, '127.0.0.1', resolve));
     const address = geo.address();

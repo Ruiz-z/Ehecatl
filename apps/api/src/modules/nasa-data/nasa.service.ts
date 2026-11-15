@@ -30,6 +30,10 @@ export function validateIndicators(payload: unknown): Indicators {
       !Array.isArray(data.monthly) || !Array.isArray(data.climatology) || !Array.isArray(data.windows) || !Array.isArray(data.trends) ||
       !Array.isArray(data.anomalies) || !Array.isArray(data.warnings) || data.warnings.some(x => typeof x !== 'string') ||
       typeof data.fetchedAt !== 'string' || !Number.isFinite(Date.parse(data.fetchedAt))) throw new BadGatewayException('Contrato geo inválido');
+  if (data.history !== undefined && (!Array.isArray(data.history) || data.history.some(r => !r ||
+      !['T2M','T2M_MAX','T2M_MIN','PRECTOTCORR','ALLSKY_SFC_SW_DWN'].includes(r.variable) ||
+      !Number.isInteger(r.year) || r.year < 1 || r.year > 9999 || !Number.isInteger(r.month) || r.month < 1 || r.month > 12 ||
+      (r.value !== null && (!validNumber(r.value) || r.value === -999))))) throw new BadGatewayException('Historia geo inválida');
   if (data.monthly.some(r => !r || typeof r.variable !== 'string' || !/^\d{4}-\d{2}-01$/.test(r.date) ||
       (r.value !== null && !validNumber(r.value)) || typeof r.unit !== 'string' || typeof r.source !== 'string' || typeof r.resolution !== 'string') ||
       data.climatology.some(r => !r || typeof r.variable !== 'string' || !Number.isInteger(r.month) || r.month < 1 || r.month > 12 || !validNumber(r.value) || !Number.isInteger(r.samples) || r.samples < 1) ||
@@ -50,7 +54,7 @@ export class NasaService {
     end = end || period.end;
     validatePeriod(start, end);
     const query = new URLSearchParams({ lat: String(lat), lon: String(lon), irrigated: String(irrigated), start, end, baselineYears: '10' });
-    const key = createHash('sha256').update(`indicators:v1:${query}`).digest('hex');
+    const key = createHash('sha256').update(`indicators:v2:${query}`).digest('hex');
     const cached = await this.prisma.nasaCache.findUnique({ where: { key } });
     if (cached && cached.expiresAt > new Date()) {
       const payload = validateIndicators(cached.payload);

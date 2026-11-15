@@ -19,3 +19,10 @@ next-env.d.ts
 
 # Revisión visual local (herramientas de diseño)
 .taste-skill/
+
+# Configuración privada y binarios del ESP32
+firmware/**/config.h
+firmware/**/build/
+firmware/**/*.bin
+firmware/**/*.elf
+firmware/**/*.map

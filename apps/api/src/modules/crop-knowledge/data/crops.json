@@ -33,7 +33,10 @@
     "kcSource": "FAO-56 Tabla 12: Maize, Field (grain); cosecha seca, nota 11",
     "kcEstimated": false,
     "marketValueTier": "alto",
-    "marketValueSource": "estimado; pendiente de H4"
+    "marketValueSource": "estimado; pendiente de H4",
+    "ky": 1.25,
+    "kyEstimated": false,
+    "kySource": "FAO-66, capítulo 2, tabla 1, p. 7 (valores estacionales de FAO-33), fila Maize; https://www.fao.org/4/i2800e/i2800e.pdf"
   },
   {
     "id": "sorghum",
@@ -69,7 +72,10 @@
     "kcSource": "FAO-56 Tabla 12: Sorghum - grain; extremo superior de mid",
     "kcEstimated": false,
     "marketValueTier": "medio",
-    "marketValueSource": "estimado; pendiente de H4"
+    "marketValueSource": "estimado; pendiente de H4",
+    "ky": 0.9,
+    "kyEstimated": false,
+    "kySource": "FAO-66, capítulo 2, tabla 1, p. 7 (valores estacionales de FAO-33), fila Sorghum; https://www.fao.org/4/i2800e/i2800e.pdf"
   },
   {
     "id": "wheat",
@@ -105,7 +111,10 @@
     "kcSource": "FAO-56 Tabla 12: Spring Wheat; extremo inferior de end",
     "kcEstimated": false,
     "marketValueTier": "medio",
-    "marketValueSource": "estimado; pendiente de H4"
+    "marketValueSource": "estimado; pendiente de H4",
+    "ky": 1.15,
+    "kyEstimated": false,
+    "kySource": "FAO-66, capítulo 2, tabla 1, p. 7 (valores estacionales de FAO-33), fila Spring wheat; https://www.fao.org/4/i2800e/i2800e.pdf"
   },
   {
     "id": "barley",
@@ -141,7 +150,10 @@
     "kcSource": "FAO-56 Tabla 12: Barley",
     "kcEstimated": false,
     "marketValueTier": "medio",
-    "marketValueSource": "estimado; pendiente de H4"
+    "marketValueSource": "estimado; pendiente de H4",
+    "ky": 1.15,
+    "kyEstimated": true,
+    "kySource": "FAO-66, capítulo 2, tabla 1, p. 7 (valores estacionales de FAO-33), fila Spring wheat; sustituto de Cebada por cultivo afín de la misma tabla; https://www.fao.org/4/i2800e/i2800e.pdf"
   },
   {
     "id": "oats",
@@ -177,7 +189,10 @@
     "kcSource": "FAO-56 Tabla 12: Oats",
     "kcEstimated": false,
     "marketValueTier": "medio",
-    "marketValueSource": "estimado; pendiente de H4"
+    "marketValueSource": "estimado; pendiente de H4",
+    "ky": 1.15,
+    "kyEstimated": true,
+    "kySource": "FAO-66, capítulo 2, tabla 1, p. 7 (valores estacionales de FAO-33), fila Spring wheat; sustituto de Avena por cultivo afín de la misma tabla; https://www.fao.org/4/i2800e/i2800e.pdf"
   },
   {
     "id": "rice",
@@ -213,7 +228,10 @@
     "kcSource": "FAO-56 Tabla 12: Rice; extremo inferior de end",
     "kcEstimated": false,
     "marketValueTier": "alto",
-    "marketValueSource": "estimado; pendiente de H4"
+    "marketValueSource": "estimado; pendiente de H4",
+    "ky": 1.25,
+    "kyEstimated": true,
+    "kySource": "FAO-66, capítulo 2, tabla 1, p. 7 (valores estacionales de FAO-33), fila Maize; sustituto de Arroz por cultivo afín de la misma tabla; https://www.fao.org/4/i2800e/i2800e.pdf"
   },
   {
     "id": "soybean",
@@ -249,7 +267,10 @@
     "kcSource": "FAO-56 Tabla 12: Soybeans",
     "kcEstimated": false,
     "marketValueTier": "alto",
-    "marketValueSource": "estimado; pendiente de H4"
+    "marketValueSource": "estimado; pendiente de H4",
+    "ky": 0.85,
+    "kyEstimated": false,
+    "kySource": "FAO-66, capítulo 2, tabla 1, p. 7 (valores estacionales de FAO-33), fila Soybean; https://www.fao.org/4/i2800e/i2800e.pdf"
   },
   {
     "id": "common-bean",
@@ -285,7 +306,10 @@
     "kcSource": "FAO-56 Tabla 12: Beans, dry and Pulses",
     "kcEstimated": false,
     "marketValueTier": "medio",
-    "marketValueSource": "estimado; pendiente de H4"
+    "marketValueSource": "estimado; pendiente de H4",
+    "ky": 1.15,
+    "kyEstimated": false,
+    "kySource": "FAO-66, capítulo 2, tabla 1, p. 7 (valores estacionales de FAO-33), fila Beans; https://www.fao.org/4/i2800e/i2800e.pdf"
   },
   {
     "id": "cowpea",
@@ -321,7 +345,10 @@
     "kcSource": "FAO-56 Tabla 12: Green Gram and Cowpeas; cosecha seca, nota 6",
     "kcEstimated": false,
     "marketValueTier": "medio",
-    "marketValueSource": "estimado; pendiente de H4"
+    "marketValueSource": "estimado; pendiente de H4",
+    "ky": 1.15,
+    "kyEstimated": true,
+    "kySource": "FAO-66, capítulo 2, tabla 1, p. 7 (valores estacionales de FAO-33), fila Beans; sustituto de Caupí por cultivo afín de la misma tabla; https://www.fao.org/4/i2800e/i2800e.pdf"
   },
   {
     "id": "chickpea",
@@ -357,7 +384,10 @@
     "kcSource": "FAO-56 Tabla 12: Chick pea",
     "kcEstimated": false,
     "marketValueTier": "medio",
-    "marketValueSource": "estimado; pendiente de H4"
+    "marketValueSource": "estimado; pendiente de H4",
+    "ky": 1.15,
+    "kyEstimated": true,
+    "kySource": "FAO-66, capítulo 2, tabla 1, p. 7 (valores estacionales de FAO-33), fila Peas; sustituto de Garbanzo por cultivo afín de la misma tabla; https://www.fao.org/4/i2800e/i2800e.pdf"
   },
   {
     "id": "lentil",
@@ -393,7 +423,10 @@
     "kcSource": "FAO-56 Tabla 12: Lentil",
     "kcEstimated": false,
     "marketValueTier": "medio",
-    "marketValueSource": "estimado; pendiente de H4"
+    "marketValueSource": "estimado; pendiente de H4",
+    "ky": 1.15,
+    "kyEstimated": true,
+    "kySource": "FAO-66, capítulo 2, tabla 1, p. 7 (valores estacionales de FAO-33), fila Peas; sustituto de Lenteja por cultivo afín de la misma tabla; https://www.fao.org/4/i2800e/i2800e.pdf"
   },
   {
     "id": "alfalfa",
@@ -429,7 +462,10 @@
     "kcSource": "FAO-56 Tabla 12: Alfalfa Hay - averaged cutting effects",
     "kcEstimated": false,
     "marketValueTier": "medio",
-    "marketValueSource": "estimado; pendiente de H4"
+    "marketValueSource": "estimado; pendiente de H4",
+    "ky": 1.1,
+    "kyEstimated": false,
+    "kySource": "FAO-66, capítulo 2, tabla 1, p. 7 (valores estacionales de FAO-33), fila Alfalfa; https://www.fao.org/4/i2800e/i2800e.pdf"
   },
   {
     "id": "sunflower",
@@ -465,7 +501,10 @@
     "kcSource": "FAO-56 Tabla 12: Sunflower; extremo superior de mid",
     "kcEstimated": false,
     "marketValueTier": "medio",
-    "marketValueSource": "estimado; pendiente de H4"
+    "marketValueSource": "estimado; pendiente de H4",
+    "ky": 0.95,
+    "kyEstimated": false,
+    "kySource": "FAO-66, capítulo 2, tabla 1, p. 7 (valores estacionales de FAO-33), fila Sunflower; https://www.fao.org/4/i2800e/i2800e.pdf"
   },
   {
     "id": "canola",
@@ -501,7 +540,10 @@
     "kcSource": "FAO-56 Tabla 12: Rapeseed, Canola; extremo superior de mid",
     "kcEstimated": false,
     "marketValueTier": "alto",
-    "marketValueSource": "estimado; pendiente de H4"
+    "marketValueSource": "estimado; pendiente de H4",
+    "ky": 0.95,
+    "kyEstimated": true,
+    "kySource": "FAO-66, capítulo 2, tabla 1, p. 7 (valores estacionales de FAO-33), fila Sunflower; sustituto de Canola por cultivo afín de la misma tabla; https://www.fao.org/4/i2800e/i2800e.pdf"
   },
   {
     "id": "mustard",
@@ -537,7 +579,10 @@
     "kcSource": "FAO-56 Tabla 12: Rapeseed, Canola; analogía Brassicaceae, extremo superior de mid",
     "kcEstimated": true,
     "marketValueTier": "bajo",
-    "marketValueSource": "estimado; pendiente de H4"
+    "marketValueSource": "estimado; pendiente de H4",
+    "ky": 0.95,
+    "kyEstimated": true,
+    "kySource": "FAO-66, capítulo 2, tabla 1, p. 7 (valores estacionales de FAO-33), fila Cabbage; sustituto de Mostaza de cobertura por cultivo afín de la misma tabla; https://www.fao.org/4/i2800e/i2800e.pdf"
   },
   {
     "id": "potato",
@@ -573,7 +618,10 @@
     "kcSource": "FAO-56 Tabla 12: Potato",
     "kcEstimated": false,
     "marketValueTier": "alto",
-    "marketValueSource": "estimado; pendiente de H4"
+    "marketValueSource": "estimado; pendiente de H4",
+    "ky": 1.1,
+    "kyEstimated": false,
+    "kySource": "FAO-66, capítulo 2, tabla 1, p. 7 (valores estacionales de FAO-33), fila Potato; https://www.fao.org/4/i2800e/i2800e.pdf"
   },
   {
     "id": "tomato",
@@ -609,7 +657,10 @@
     "kcSource": "FAO-56 Tabla 12: Tomato; extremo inferior de end",
     "kcEstimated": false,
     "marketValueTier": "alto",
-    "marketValueSource": "estimado; pendiente de H4"
+    "marketValueSource": "estimado; pendiente de H4",
+    "ky": 1.05,
+    "kyEstimated": false,
+    "kySource": "FAO-66, capítulo 2, tabla 1, p. 7 (valores estacionales de FAO-33), fila Tomato; https://www.fao.org/4/i2800e/i2800e.pdf"
   },
   {
     "id": "buckwheat",
@@ -645,6 +696,9 @@
     "kcSource": "FAO-56 Tabla 12: Cereals (categoría); analogía de grano anual",
     "kcEstimated": true,
     "marketValueTier": "bajo",
-    "marketValueSource": "estimado; pendiente de H4"
+    "marketValueSource": "estimado; pendiente de H4",
+    "ky": 1.15,
+    "kyEstimated": true,
+    "kySource": "FAO-66, capítulo 2, tabla 1, p. 7 (valores estacionales de FAO-33), fila Spring wheat; sustituto de Trigo sarraceno por cultivo afín de la misma tabla; https://www.fao.org/4/i2800e/i2800e.pdf"
   }
 ]

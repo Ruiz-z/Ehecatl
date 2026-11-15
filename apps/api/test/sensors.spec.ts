@@ -1,10 +1,19 @@
 import { randomBytes, randomUUID } from 'node:crypto';
+import { readFileSync } from 'node:fs';
 import { BadRequestException } from '@nestjs/common';
 import { calibrated, measurementDate, readingInput } from '../src/modules/field-sensors/validation.js';
 import { deviceView } from '../src/modules/field-sensors/sensors.service.js';
 import type { FieldDevice } from '../src/generated/prisma/client.js';
 
 describe('Spec 007: normalización y frescura de mediciones', () => {
+  const firmwareReadings: Record<string, string | number>[] = JSON.parse(readFileSync(new URL('../../../docs/fixtures/esp32-readings.json', import.meta.url), 'utf8'));
+  it.each(firmwareReadings)('acepta el JSON generado por el firmware, incluso con DHT ausente: %j', body => {
+    const normalized = readingInput(body);
+    expect(normalized.readingId).toBe(body.readingId);
+    expect(normalized.measuredAt.toISOString()).toBe('2026-11-15T12:30:00.000Z');
+    for (const field of ['soilMoistureRaw', 'mq2Raw', 'airTemperature', 'airHumidity'] as const)
+      expect(normalized[field]).toBe(body[field] ?? null);
+  });
   const input = () => ({ readingId: randomUUID(), measuredAt: new Date().toISOString(), soilMoistureRaw: 1800, airTemperature: 24, airHumidity: 60, mq2Raw: 300 });
   it('normaliza muestras y calcula un hash estable independiente del orden JSON', () => {
     const data = input();

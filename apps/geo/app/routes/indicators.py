@@ -79,6 +79,9 @@ async def indicators(lat: str = "", lon: str = "", start: str = "", end: str = "
         warnings.append("Climatología con años faltantes; interpretar con menor confianza")
     return dict(version=1, point=dict(lat=latitude, lon=longitude), period=dict(start=start, end=end),
                 origin="live", fetchedAt=datetime.now(timezone.utc).isoformat(), sources=sources,
+                history=[dict(variable=r["variable"], year=int(r["date"][:4]), month=int(r["date"][5:7]), value=r["value"])
+                         for r in sorted(history, key=lambda r: (r["date"], r["variable"]))
+                         if r["variable"] in {"T2M", "T2M_MAX", "T2M_MIN", "PRECTOTCORR", "ALLSKY_SFC_SW_DWN"}],
                 monthly=sorted(monthly, key=lambda r: (r["date"], r["variable"])), climatology=normals,
                 anomalies=anomalies(monthly, normals), trends=trends(monthly, normals),
                 windows=calculate_windows(normals, add_months(last, 1), irrigated.lower() == "true"), warnings=warnings)

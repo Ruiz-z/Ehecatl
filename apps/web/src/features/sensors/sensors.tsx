@@ -6,6 +6,7 @@ import { useDemo } from '@/features/identity/demo-provider';
 import { useMocks } from '@/shared/api/client';
 import { useAsync } from '@/shared/api/use-async';
 import { EmptyState, LoadingState, Notice } from '@/shared/components/ui';
+import { Irrigation } from './irrigation';
 import { sensorsApi, type Device, type DeviceConfig, type IssuedKey, type Reading, type ReadingPage } from './api';
 
 const date = (value: string | null) => value ? new Date(value).toLocaleString('es-MX') : 'Sin lecturas';
@@ -51,9 +52,10 @@ export function Sensors({ parcel }: { parcel: Parcel }) {
   }
   return <section className="sensor-panel">
     <div className="section-heading"><div><h2>Sensores de esta zona</h2><p>FC28 · DHT11 · MQ2 experimental</p></div><button className="button" disabled={pending} onClick={refresh}>Actualizar</button></div>
-    <Notice variant="info" label="VERSIÓN BETA" title="Mediciones de campo"><p>Las lecturas complementan el contexto NASA. La comparación está pendiente; todavía no modifican la confianza de las recomendaciones. La aplicación no controla riego.</p></Notice>
+    <Notice variant="info" label="VERSIÓN BETA" title="Mediciones de campo"><p>Las lecturas complementan el contexto NASA. La comparación está pendiente; todavía no modifican la confianza de las recomendaciones. Versión beta. El riego es manual, el sistema nunca riega solo.</p></Notice>
     {issued && <div className="sensor-key" role="status"><strong>Clave de {issued.device.name} · copia y guarda ahora</strong><p>Se muestra una sola vez. Al cerrar este aviso no podrás volver a consultarla.</p><code>{issued.apiKey}</code><button className="button" onClick={() => setIssued(null)}>Ya guardé la clave</button></div>}
     {error && <p role="alert" className="error-text">{error}</p>}
+    <Irrigation key={parcel.zoneId} zoneId={parcel.zoneId} devices={state.status === 'ready' ? state.data.devices : []} />
     <label>Periodo del historial<select value={days} onChange={event => setDays(event.target.value)}><option value="1">Últimas 24 horas</option><option value="7">Últimos 7 días</option><option value="30">Últimos 30 días</option></select></label>
     {state.status === 'loading' ? <LoadingState /> : state.status === 'error' ? <EmptyState title="No pudimos consultar los sensores"><p>{state.message}</p><button className="button" onClick={state.retry}>Reintentar</button></EmptyState> : <>
       {!state.data.devices.length && <p>No hay dispositivos asignados a esta zona.{user?.role === 'admin' ? ' Puedes registrar uno abajo.' : ' Pide al administrador que registre tu dispositivo.'}</p>}

@@ -4,6 +4,7 @@ export interface Crop {
   id: string; name: string; family: string;
   tempMin: number; tempMax: number; tempOptMin: number; tempOptMax: number;
   kc: { ini: number; mid: number; end: number }; kcSource: string; kcEstimated?: boolean;
+  ky: number; kySource: string; kyEstimated: boolean;
   waterMm: number; waterDemand: 'low' | 'medium' | 'high'; cycleDays: number;
   frostSensitive: boolean; nitrogenBalance: 'fix' | 'neutral' | 'consume';
   soilCover: number; droughtTolerance: number; perennial: boolean;
@@ -47,6 +48,9 @@ export function validateCatalog(input: unknown): Crop[] {
     }
     if (typeof c.kcSource !== 'string' || !c.kcSource.trim()) fail('kcSource');
     if (c.kcEstimated !== undefined && typeof c.kcEstimated !== 'boolean') fail('kcEstimated');
+    if (!Number.isFinite(c.ky) || c.ky <= 0) fail('ky');
+    if (typeof c.kySource !== 'string' || !c.kySource.trim()) fail('kySource');
+    if (typeof c.kyEstimated !== 'boolean') fail('kyEstimated');
     if (c.waterMm <= 0) fail('waterMm');
     if (!Number.isInteger(c.cycleDays) || c.cycleDays < 1) fail('cycleDays');
     for (const field of ['soilCover', 'droughtTolerance', 'incomeOpportunity'] as const) if (c[field] < 0 || c[field] > 100) fail(field);

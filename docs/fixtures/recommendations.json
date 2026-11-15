@@ -3,12 +3,11 @@
   "zoneId": "00000000-0000-4000-8000-000000000001",
   "status": "ok",
   "origin": "mock",
-  "confidence": "low",
+  "confidence": "medium",
   "warnings": [
     "Fixture sintético exclusivo de tests",
     "Sin historial: menor confianza en la rotación",
-    "ETo del horizonte no disponible: se usa la suma de demandas de la secuencia",
-    "Balance hídrico incompleto: demanda del catálogo o lluvia desconocida"
+    "Ky estimado por cultivo afín de la tabla FAO: revisa la fuente en cada paso"
   ],
   "priorities": {
     "water": 25,
@@ -1132,6 +1131,90 @@
           "value": 0.6,
           "samples": 10,
           "unit": "index"
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "month": 1,
+          "value": 18,
+          "samples": 10,
+          "unit": "MJ/m²/day"
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "month": 2,
+          "value": 18,
+          "samples": 10,
+          "unit": "MJ/m²/day"
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "month": 3,
+          "value": 18,
+          "samples": 10,
+          "unit": "MJ/m²/day"
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "month": 4,
+          "value": 18,
+          "samples": 10,
+          "unit": "MJ/m²/day"
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "month": 5,
+          "value": 18,
+          "samples": 10,
+          "unit": "MJ/m²/day"
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "month": 6,
+          "value": 18,
+          "samples": 10,
+          "unit": "MJ/m²/day"
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "month": 7,
+          "value": 18,
+          "samples": 10,
+          "unit": "MJ/m²/day"
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "month": 8,
+          "value": 18,
+          "samples": 10,
+          "unit": "MJ/m²/day"
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "month": 9,
+          "value": 18,
+          "samples": 10,
+          "unit": "MJ/m²/day"
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "month": 10,
+          "value": 18,
+          "samples": 10,
+          "unit": "MJ/m²/day"
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "month": 11,
+          "value": 18,
+          "samples": 10,
+          "unit": "MJ/m²/day"
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "month": 12,
+          "value": 18,
+          "samples": 10,
+          "unit": "MJ/m²/day"
         }
       ],
       "anomalies": [],
@@ -1198,13 +1281,3615 @@
       ],
       "warnings": [
         "Fixture sintético exclusivo de tests"
+      ],
+      "history": [
+        {
+          "variable": "T2M",
+          "year": 2014,
+          "month": 1,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2014,
+          "month": 1,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2014,
+          "month": 1,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2014,
+          "month": 1,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2014,
+          "month": 2,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2014,
+          "month": 2,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2014,
+          "month": 2,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2014,
+          "month": 2,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2014,
+          "month": 3,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2014,
+          "month": 3,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2014,
+          "month": 3,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2014,
+          "month": 3,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2014,
+          "month": 4,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2014,
+          "month": 4,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2014,
+          "month": 4,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2014,
+          "month": 4,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2014,
+          "month": 5,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2014,
+          "month": 5,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2014,
+          "month": 5,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2014,
+          "month": 5,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2014,
+          "month": 6,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2014,
+          "month": 6,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2014,
+          "month": 6,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2014,
+          "month": 6,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2014,
+          "month": 7,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2014,
+          "month": 7,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2014,
+          "month": 7,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2014,
+          "month": 7,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2014,
+          "month": 8,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2014,
+          "month": 8,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2014,
+          "month": 8,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2014,
+          "month": 8,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2014,
+          "month": 9,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2014,
+          "month": 9,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2014,
+          "month": 9,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2014,
+          "month": 9,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2014,
+          "month": 10,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2014,
+          "month": 10,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2014,
+          "month": 10,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2014,
+          "month": 10,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2014,
+          "month": 11,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2014,
+          "month": 11,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2014,
+          "month": 11,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2014,
+          "month": 11,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2014,
+          "month": 12,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2014,
+          "month": 12,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2014,
+          "month": 12,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2014,
+          "month": 12,
+          "value": 90
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2014,
+          "month": 1,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2014,
+          "month": 2,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2014,
+          "month": 3,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2014,
+          "month": 4,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2014,
+          "month": 5,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2014,
+          "month": 6,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2014,
+          "month": 7,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2014,
+          "month": 8,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2014,
+          "month": 9,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2014,
+          "month": 10,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2014,
+          "month": 11,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2014,
+          "month": 12,
+          "value": 18
+        },
+        {
+          "variable": "T2M",
+          "year": 2015,
+          "month": 1,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2015,
+          "month": 1,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2015,
+          "month": 1,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2015,
+          "month": 1,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2015,
+          "month": 2,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2015,
+          "month": 2,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2015,
+          "month": 2,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2015,
+          "month": 2,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2015,
+          "month": 3,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2015,
+          "month": 3,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2015,
+          "month": 3,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2015,
+          "month": 3,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2015,
+          "month": 4,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2015,
+          "month": 4,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2015,
+          "month": 4,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2015,
+          "month": 4,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2015,
+          "month": 5,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2015,
+          "month": 5,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2015,
+          "month": 5,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2015,
+          "month": 5,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2015,
+          "month": 6,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2015,
+          "month": 6,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2015,
+          "month": 6,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2015,
+          "month": 6,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2015,
+          "month": 7,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2015,
+          "month": 7,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2015,
+          "month": 7,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2015,
+          "month": 7,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2015,
+          "month": 8,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2015,
+          "month": 8,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2015,
+          "month": 8,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2015,
+          "month": 8,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2015,
+          "month": 9,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2015,
+          "month": 9,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2015,
+          "month": 9,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2015,
+          "month": 9,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2015,
+          "month": 10,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2015,
+          "month": 10,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2015,
+          "month": 10,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2015,
+          "month": 10,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2015,
+          "month": 11,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2015,
+          "month": 11,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2015,
+          "month": 11,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2015,
+          "month": 11,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2015,
+          "month": 12,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2015,
+          "month": 12,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2015,
+          "month": 12,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2015,
+          "month": 12,
+          "value": 90
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2015,
+          "month": 1,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2015,
+          "month": 2,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2015,
+          "month": 3,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2015,
+          "month": 4,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2015,
+          "month": 5,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2015,
+          "month": 6,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2015,
+          "month": 7,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2015,
+          "month": 8,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2015,
+          "month": 9,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2015,
+          "month": 10,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2015,
+          "month": 11,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2015,
+          "month": 12,
+          "value": 18
+        },
+        {
+          "variable": "T2M",
+          "year": 2016,
+          "month": 1,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2016,
+          "month": 1,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2016,
+          "month": 1,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2016,
+          "month": 1,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2016,
+          "month": 2,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2016,
+          "month": 2,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2016,
+          "month": 2,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2016,
+          "month": 2,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2016,
+          "month": 3,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2016,
+          "month": 3,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2016,
+          "month": 3,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2016,
+          "month": 3,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2016,
+          "month": 4,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2016,
+          "month": 4,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2016,
+          "month": 4,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2016,
+          "month": 4,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2016,
+          "month": 5,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2016,
+          "month": 5,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2016,
+          "month": 5,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2016,
+          "month": 5,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2016,
+          "month": 6,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2016,
+          "month": 6,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2016,
+          "month": 6,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2016,
+          "month": 6,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2016,
+          "month": 7,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2016,
+          "month": 7,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2016,
+          "month": 7,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2016,
+          "month": 7,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2016,
+          "month": 8,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2016,
+          "month": 8,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2016,
+          "month": 8,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2016,
+          "month": 8,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2016,
+          "month": 9,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2016,
+          "month": 9,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2016,
+          "month": 9,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2016,
+          "month": 9,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2016,
+          "month": 10,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2016,
+          "month": 10,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2016,
+          "month": 10,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2016,
+          "month": 10,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2016,
+          "month": 11,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2016,
+          "month": 11,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2016,
+          "month": 11,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2016,
+          "month": 11,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2016,
+          "month": 12,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2016,
+          "month": 12,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2016,
+          "month": 12,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2016,
+          "month": 12,
+          "value": 90
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2016,
+          "month": 1,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2016,
+          "month": 2,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2016,
+          "month": 3,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2016,
+          "month": 4,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2016,
+          "month": 5,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2016,
+          "month": 6,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2016,
+          "month": 7,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2016,
+          "month": 8,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2016,
+          "month": 9,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2016,
+          "month": 10,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2016,
+          "month": 11,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2016,
+          "month": 12,
+          "value": 18
+        },
+        {
+          "variable": "T2M",
+          "year": 2017,
+          "month": 1,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2017,
+          "month": 1,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2017,
+          "month": 1,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2017,
+          "month": 1,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2017,
+          "month": 2,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2017,
+          "month": 2,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2017,
+          "month": 2,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2017,
+          "month": 2,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2017,
+          "month": 3,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2017,
+          "month": 3,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2017,
+          "month": 3,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2017,
+          "month": 3,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2017,
+          "month": 4,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2017,
+          "month": 4,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2017,
+          "month": 4,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2017,
+          "month": 4,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2017,
+          "month": 5,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2017,
+          "month": 5,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2017,
+          "month": 5,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2017,
+          "month": 5,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2017,
+          "month": 6,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2017,
+          "month": 6,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2017,
+          "month": 6,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2017,
+          "month": 6,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2017,
+          "month": 7,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2017,
+          "month": 7,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2017,
+          "month": 7,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2017,
+          "month": 7,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2017,
+          "month": 8,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2017,
+          "month": 8,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2017,
+          "month": 8,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2017,
+          "month": 8,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2017,
+          "month": 9,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2017,
+          "month": 9,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2017,
+          "month": 9,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2017,
+          "month": 9,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2017,
+          "month": 10,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2017,
+          "month": 10,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2017,
+          "month": 10,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2017,
+          "month": 10,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2017,
+          "month": 11,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2017,
+          "month": 11,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2017,
+          "month": 11,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2017,
+          "month": 11,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2017,
+          "month": 12,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2017,
+          "month": 12,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2017,
+          "month": 12,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2017,
+          "month": 12,
+          "value": 90
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2017,
+          "month": 1,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2017,
+          "month": 2,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2017,
+          "month": 3,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2017,
+          "month": 4,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2017,
+          "month": 5,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2017,
+          "month": 6,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2017,
+          "month": 7,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2017,
+          "month": 8,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2017,
+          "month": 9,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2017,
+          "month": 10,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2017,
+          "month": 11,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2017,
+          "month": 12,
+          "value": 18
+        },
+        {
+          "variable": "T2M",
+          "year": 2018,
+          "month": 1,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2018,
+          "month": 1,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2018,
+          "month": 1,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2018,
+          "month": 1,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2018,
+          "month": 2,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2018,
+          "month": 2,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2018,
+          "month": 2,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2018,
+          "month": 2,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2018,
+          "month": 3,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2018,
+          "month": 3,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2018,
+          "month": 3,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2018,
+          "month": 3,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2018,
+          "month": 4,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2018,
+          "month": 4,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2018,
+          "month": 4,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2018,
+          "month": 4,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2018,
+          "month": 5,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2018,
+          "month": 5,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2018,
+          "month": 5,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2018,
+          "month": 5,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2018,
+          "month": 6,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2018,
+          "month": 6,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2018,
+          "month": 6,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2018,
+          "month": 6,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2018,
+          "month": 7,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2018,
+          "month": 7,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2018,
+          "month": 7,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2018,
+          "month": 7,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2018,
+          "month": 8,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2018,
+          "month": 8,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2018,
+          "month": 8,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2018,
+          "month": 8,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2018,
+          "month": 9,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2018,
+          "month": 9,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2018,
+          "month": 9,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2018,
+          "month": 9,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2018,
+          "month": 10,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2018,
+          "month": 10,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2018,
+          "month": 10,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2018,
+          "month": 10,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2018,
+          "month": 11,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2018,
+          "month": 11,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2018,
+          "month": 11,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2018,
+          "month": 11,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2018,
+          "month": 12,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2018,
+          "month": 12,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2018,
+          "month": 12,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2018,
+          "month": 12,
+          "value": 90
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2018,
+          "month": 1,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2018,
+          "month": 2,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2018,
+          "month": 3,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2018,
+          "month": 4,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2018,
+          "month": 5,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2018,
+          "month": 6,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2018,
+          "month": 7,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2018,
+          "month": 8,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2018,
+          "month": 9,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2018,
+          "month": 10,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2018,
+          "month": 11,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2018,
+          "month": 12,
+          "value": 18
+        },
+        {
+          "variable": "T2M",
+          "year": 2019,
+          "month": 1,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2019,
+          "month": 1,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2019,
+          "month": 1,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2019,
+          "month": 1,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2019,
+          "month": 2,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2019,
+          "month": 2,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2019,
+          "month": 2,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2019,
+          "month": 2,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2019,
+          "month": 3,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2019,
+          "month": 3,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2019,
+          "month": 3,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2019,
+          "month": 3,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2019,
+          "month": 4,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2019,
+          "month": 4,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2019,
+          "month": 4,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2019,
+          "month": 4,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2019,
+          "month": 5,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2019,
+          "month": 5,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2019,
+          "month": 5,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2019,
+          "month": 5,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2019,
+          "month": 6,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2019,
+          "month": 6,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2019,
+          "month": 6,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2019,
+          "month": 6,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2019,
+          "month": 7,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2019,
+          "month": 7,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2019,
+          "month": 7,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2019,
+          "month": 7,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2019,
+          "month": 8,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2019,
+          "month": 8,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2019,
+          "month": 8,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2019,
+          "month": 8,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2019,
+          "month": 9,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2019,
+          "month": 9,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2019,
+          "month": 9,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2019,
+          "month": 9,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2019,
+          "month": 10,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2019,
+          "month": 10,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2019,
+          "month": 10,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2019,
+          "month": 10,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2019,
+          "month": 11,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2019,
+          "month": 11,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2019,
+          "month": 11,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2019,
+          "month": 11,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2019,
+          "month": 12,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2019,
+          "month": 12,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2019,
+          "month": 12,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2019,
+          "month": 12,
+          "value": 90
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2019,
+          "month": 1,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2019,
+          "month": 2,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2019,
+          "month": 3,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2019,
+          "month": 4,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2019,
+          "month": 5,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2019,
+          "month": 6,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2019,
+          "month": 7,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2019,
+          "month": 8,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2019,
+          "month": 9,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2019,
+          "month": 10,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2019,
+          "month": 11,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2019,
+          "month": 12,
+          "value": 18
+        },
+        {
+          "variable": "T2M",
+          "year": 2020,
+          "month": 1,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2020,
+          "month": 1,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2020,
+          "month": 1,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2020,
+          "month": 1,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2020,
+          "month": 2,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2020,
+          "month": 2,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2020,
+          "month": 2,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2020,
+          "month": 2,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2020,
+          "month": 3,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2020,
+          "month": 3,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2020,
+          "month": 3,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2020,
+          "month": 3,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2020,
+          "month": 4,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2020,
+          "month": 4,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2020,
+          "month": 4,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2020,
+          "month": 4,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2020,
+          "month": 5,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2020,
+          "month": 5,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2020,
+          "month": 5,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2020,
+          "month": 5,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2020,
+          "month": 6,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2020,
+          "month": 6,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2020,
+          "month": 6,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2020,
+          "month": 6,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2020,
+          "month": 7,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2020,
+          "month": 7,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2020,
+          "month": 7,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2020,
+          "month": 7,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2020,
+          "month": 8,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2020,
+          "month": 8,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2020,
+          "month": 8,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2020,
+          "month": 8,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2020,
+          "month": 9,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2020,
+          "month": 9,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2020,
+          "month": 9,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2020,
+          "month": 9,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2020,
+          "month": 10,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2020,
+          "month": 10,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2020,
+          "month": 10,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2020,
+          "month": 10,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2020,
+          "month": 11,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2020,
+          "month": 11,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2020,
+          "month": 11,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2020,
+          "month": 11,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2020,
+          "month": 12,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2020,
+          "month": 12,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2020,
+          "month": 12,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2020,
+          "month": 12,
+          "value": 90
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2020,
+          "month": 1,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2020,
+          "month": 2,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2020,
+          "month": 3,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2020,
+          "month": 4,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2020,
+          "month": 5,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2020,
+          "month": 6,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2020,
+          "month": 7,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2020,
+          "month": 8,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2020,
+          "month": 9,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2020,
+          "month": 10,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2020,
+          "month": 11,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2020,
+          "month": 12,
+          "value": 18
+        },
+        {
+          "variable": "T2M",
+          "year": 2021,
+          "month": 1,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2021,
+          "month": 1,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2021,
+          "month": 1,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2021,
+          "month": 1,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2021,
+          "month": 2,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2021,
+          "month": 2,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2021,
+          "month": 2,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2021,
+          "month": 2,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2021,
+          "month": 3,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2021,
+          "month": 3,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2021,
+          "month": 3,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2021,
+          "month": 3,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2021,
+          "month": 4,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2021,
+          "month": 4,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2021,
+          "month": 4,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2021,
+          "month": 4,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2021,
+          "month": 5,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2021,
+          "month": 5,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2021,
+          "month": 5,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2021,
+          "month": 5,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2021,
+          "month": 6,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2021,
+          "month": 6,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2021,
+          "month": 6,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2021,
+          "month": 6,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2021,
+          "month": 7,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2021,
+          "month": 7,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2021,
+          "month": 7,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2021,
+          "month": 7,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2021,
+          "month": 8,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2021,
+          "month": 8,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2021,
+          "month": 8,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2021,
+          "month": 8,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2021,
+          "month": 9,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2021,
+          "month": 9,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2021,
+          "month": 9,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2021,
+          "month": 9,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2021,
+          "month": 10,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2021,
+          "month": 10,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2021,
+          "month": 10,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2021,
+          "month": 10,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2021,
+          "month": 11,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2021,
+          "month": 11,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2021,
+          "month": 11,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2021,
+          "month": 11,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2021,
+          "month": 12,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2021,
+          "month": 12,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2021,
+          "month": 12,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2021,
+          "month": 12,
+          "value": 90
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2021,
+          "month": 1,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2021,
+          "month": 2,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2021,
+          "month": 3,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2021,
+          "month": 4,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2021,
+          "month": 5,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2021,
+          "month": 6,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2021,
+          "month": 7,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2021,
+          "month": 8,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2021,
+          "month": 9,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2021,
+          "month": 10,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2021,
+          "month": 11,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2021,
+          "month": 12,
+          "value": 18
+        },
+        {
+          "variable": "T2M",
+          "year": 2022,
+          "month": 1,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2022,
+          "month": 1,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2022,
+          "month": 1,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2022,
+          "month": 1,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2022,
+          "month": 2,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2022,
+          "month": 2,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2022,
+          "month": 2,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2022,
+          "month": 2,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2022,
+          "month": 3,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2022,
+          "month": 3,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2022,
+          "month": 3,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2022,
+          "month": 3,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2022,
+          "month": 4,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2022,
+          "month": 4,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2022,
+          "month": 4,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2022,
+          "month": 4,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2022,
+          "month": 5,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2022,
+          "month": 5,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2022,
+          "month": 5,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2022,
+          "month": 5,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2022,
+          "month": 6,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2022,
+          "month": 6,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2022,
+          "month": 6,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2022,
+          "month": 6,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2022,
+          "month": 7,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2022,
+          "month": 7,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2022,
+          "month": 7,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2022,
+          "month": 7,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2022,
+          "month": 8,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2022,
+          "month": 8,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2022,
+          "month": 8,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2022,
+          "month": 8,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2022,
+          "month": 9,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2022,
+          "month": 9,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2022,
+          "month": 9,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2022,
+          "month": 9,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2022,
+          "month": 10,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2022,
+          "month": 10,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2022,
+          "month": 10,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2022,
+          "month": 10,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2022,
+          "month": 11,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2022,
+          "month": 11,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2022,
+          "month": 11,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2022,
+          "month": 11,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2022,
+          "month": 12,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2022,
+          "month": 12,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2022,
+          "month": 12,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2022,
+          "month": 12,
+          "value": 90
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2022,
+          "month": 1,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2022,
+          "month": 2,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2022,
+          "month": 3,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2022,
+          "month": 4,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2022,
+          "month": 5,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2022,
+          "month": 6,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2022,
+          "month": 7,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2022,
+          "month": 8,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2022,
+          "month": 9,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2022,
+          "month": 10,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2022,
+          "month": 11,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2022,
+          "month": 12,
+          "value": 18
+        },
+        {
+          "variable": "T2M",
+          "year": 2023,
+          "month": 1,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2023,
+          "month": 1,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2023,
+          "month": 1,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2023,
+          "month": 1,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2023,
+          "month": 2,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2023,
+          "month": 2,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2023,
+          "month": 2,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2023,
+          "month": 2,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2023,
+          "month": 3,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2023,
+          "month": 3,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2023,
+          "month": 3,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2023,
+          "month": 3,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2023,
+          "month": 4,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2023,
+          "month": 4,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2023,
+          "month": 4,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2023,
+          "month": 4,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2023,
+          "month": 5,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2023,
+          "month": 5,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2023,
+          "month": 5,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2023,
+          "month": 5,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2023,
+          "month": 6,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2023,
+          "month": 6,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2023,
+          "month": 6,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2023,
+          "month": 6,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2023,
+          "month": 7,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2023,
+          "month": 7,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2023,
+          "month": 7,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2023,
+          "month": 7,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2023,
+          "month": 8,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2023,
+          "month": 8,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2023,
+          "month": 8,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2023,
+          "month": 8,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2023,
+          "month": 9,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2023,
+          "month": 9,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2023,
+          "month": 9,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2023,
+          "month": 9,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2023,
+          "month": 10,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2023,
+          "month": 10,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2023,
+          "month": 10,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2023,
+          "month": 10,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2023,
+          "month": 11,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2023,
+          "month": 11,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2023,
+          "month": 11,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2023,
+          "month": 11,
+          "value": 90
+        },
+        {
+          "variable": "T2M",
+          "year": 2023,
+          "month": 12,
+          "value": 24
+        },
+        {
+          "variable": "T2M_MIN",
+          "year": 2023,
+          "month": 12,
+          "value": 15
+        },
+        {
+          "variable": "T2M_MAX",
+          "year": 2023,
+          "month": 12,
+          "value": 32
+        },
+        {
+          "variable": "PRECTOTCORR",
+          "year": 2023,
+          "month": 12,
+          "value": 90
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2023,
+          "month": 1,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2023,
+          "month": 2,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2023,
+          "month": 3,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2023,
+          "month": 4,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2023,
+          "month": 5,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2023,
+          "month": 6,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2023,
+          "month": 7,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2023,
+          "month": 8,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2023,
+          "month": 9,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2023,
+          "month": 10,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2023,
+          "month": 11,
+          "value": 18
+        },
+        {
+          "variable": "ALLSKY_SFC_SW_DWN",
+          "year": 2023,
+          "month": 12,
+          "value": 18
+        }
       ]
     }
   },
   "recommendations": [
     {
-      "irrigationNeedMm": 67,
-      "id": "alfalfa>canola",
+      "irrigationNeedMm": 161,
+      "id": "alfalfa>sorghum",
       "sequence": [
         {
           "cropId": "alfalfa",
@@ -1216,12 +4901,12 @@
             "window-1"
           ],
           "water": {
-            "etoMm": null,
+            "etoMm": 2486.5315199999986,
             "kc": 0.7662500000000001,
-            "demandMm": 1100,
+            "demandMm": 1905.3047771999993,
             "rainMm": 1776.774193548387,
-            "coveragePct": 100,
-            "method": "catalog"
+            "coveragePct": 93.3,
+            "method": "radiation"
           },
           "reasons": [
             {
@@ -1241,6 +4926,23 @@
               "effect": "neutral"
             }
           ],
+          "risk": {
+            "okYears": 9,
+            "totalYears": 9,
+            "failures": {
+              "heat": 0,
+              "frost": 0,
+              "temperature": 0,
+              "water": 0
+            }
+          },
+          "yield": {
+            "relativePct": 92.50361533897247,
+            "ky": 1.1,
+            "irrigatedAssumed": false,
+            "kyEstimated": false,
+            "kySource": "FAO-66, capítulo 2, tabla 1, p. 7 (valores estacionales de FAO-33), fila Alfalfa; https://www.fao.org/4/i2800e/i2800e.pdf"
+          },
           "climate": {
             "meanTemperature": 24,
             "rainMm": 1777,
@@ -1248,21 +4950,21 @@
           }
         },
         {
-          "cropId": "canola",
-          "cropName": "Canola",
+          "cropId": "sorghum",
+          "cropName": "Sorgo",
           "windowId": "window-1",
           "start": "2026-08-24",
-          "end": "2026-12-31",
+          "end": "2026-12-11",
           "occupiedWindowIds": [
             "window-1"
           ],
           "water": {
-            "etoMm": null,
-            "kc": 0.8099999999999999,
-            "demandMm": 450,
-            "rainMm": 383.2258064516129,
-            "coveragePct": 85.2,
-            "method": "catalog"
+            "etoMm": 455.8641119999999,
+            "kc": 0.785,
+            "demandMm": 357.85332791999997,
+            "rainMm": 325.16129032258067,
+            "coveragePct": 90.9,
+            "method": "radiation"
           },
           "reasons": [
             {
@@ -1278,111 +4980,86 @@
               "effect": "neutral"
             }
           ],
+          "risk": {
+            "okYears": 10,
+            "totalYears": 10,
+            "failures": {
+              "heat": 0,
+              "frost": 0,
+              "temperature": 0,
+              "water": 0
+            }
+          },
+          "yield": {
+            "relativePct": 91.77796277354865,
+            "ky": 0.9,
+            "irrigatedAssumed": false,
+            "kyEstimated": false,
+            "kySource": "FAO-66, capítulo 2, tabla 1, p. 7 (valores estacionales de FAO-33), fila Sorghum; https://www.fao.org/4/i2800e/i2800e.pdf"
+          },
           "climate": {
             "meanTemperature": 24,
-            "rainMm": 383,
-            "cycleDays": 130
+            "rainMm": 325,
+            "cycleDays": 110
           }
         }
       ],
       "components": {
-        "water": 95.69198751300728,
+        "water": 94.67081987794973,
         "soil": 94,
-        "income": 75,
-        "risk": 93.7741935483871
+        "income": 92.14078905626056,
+        "risk": 100
       },
-      "score": 89.62,
+      "score": 95.2,
       "explanation": [
         "Maíz → Alfalfa: Alternar leguminosas favorece el balance de nitrógeno y rompe hospederos",
         "Maíz → Alfalfa: La leguminosa aporta fijación biológica de nitrógeno",
         "Maíz → Alfalfa: Cambio de familia: ruptura de hospederos de plagas",
         "Maíz → Alfalfa: Cobertura estimada 100/100 para reducir erosión",
         "Alfalfa: NASA T2M=24.0 C; lluvia=1777 mm/ciclo; ciclo=600 días",
-        "Alfalfa → Canola: Alternar leguminosas favorece el balance de nitrógeno y rompe hospederos",
-        "Alfalfa → Canola: Cambio de familia: ruptura de hospederos de plagas",
-        "Alfalfa → Canola: Cobertura estimada 80/100 para reducir erosión",
-        "Canola: NASA T2M=24.0 C; lluvia=383 mm/ciclo; ciclo=130 días",
-        "Pesos agua=25, suelo=25, ingreso=25, riesgo=25; ingreso es una heurística, no precio"
+        "Alfalfa → Sorgo: Alternar leguminosas favorece el balance de nitrógeno y rompe hospederos",
+        "Alfalfa → Sorgo: Cambio de familia: ruptura de hospederos de plagas",
+        "Alfalfa → Sorgo: Cobertura estimada 80/100 para reducir erosión",
+        "Sorgo: NASA T2M=24.0 C; lluvia=325 mm/ciclo; ciclo=110 días",
+        "Pesos agua=25, suelo=25, cosecha=25, riesgo=25; cosecha es rendimiento relativo frente al potencial"
       ],
       "risks": [
-        "Demanda estimada del catálogo: falta temperatura o radiación mensual válida para ETo",
-        "Máxima mensual 32.0 C supera tolerancia 30 C",
-        "Agua faltante en 24 meses: ~67 mm: la lluvia no cubre la demanda"
+        "Sin continuación viable en window-1; considerar barbecho",
+        "Agua faltante en 24 meses: ~161 mm: la lluvia no cubre la demanda"
       ],
       "riskGroups": [
         {
-          "type": "data",
-          "text": "Demanda estimada del catálogo: falta temperatura o radiación mensual válida para ETo"
-        },
-        {
-          "type": "heat",
-          "text": "Calor: hasta 32.0 °C, tolerancia 30 °C, en 1 de 2 ciclos"
+          "type": "schedule",
+          "text": "Sin continuación viable en window-1; considerar barbecho"
         },
         {
           "type": "water",
-          "text": "Agua faltante en 24 meses: ~67 mm: la lluvia no cubre la demanda"
+          "text": "Agua faltante en 24 meses: ~161 mm: la lluvia no cubre la demanda"
         }
       ],
       "rests": [],
-      "delta": null
+      "delta": 20.67
     },
     {
-      "irrigationNeedMm": 61,
-      "id": "canola>alfalfa",
+      "irrigationNeedMm": 157,
+      "id": "alfalfa>mustard",
       "sequence": [
-        {
-          "cropId": "canola",
-          "cropName": "Canola",
-          "windowId": "window-1",
-          "start": "2025-01-01",
-          "end": "2025-05-10",
-          "occupiedWindowIds": [
-            "window-1"
-          ],
-          "water": {
-            "etoMm": null,
-            "kc": 0.8099999999999999,
-            "demandMm": 450,
-            "rainMm": 389.0322580645161,
-            "coveragePct": 86.5,
-            "method": "catalog"
-          },
-          "reasons": [
-            {
-              "text": "Alternar familias diversifica hospederos; validar plagas compartidas localmente",
-              "effect": "neutral"
-            },
-            {
-              "text": "Cambio de familia: ruptura de hospederos de plagas",
-              "effect": "favor"
-            },
-            {
-              "text": "Cobertura estimada 80/100 para reducir erosión",
-              "effect": "neutral"
-            }
-          ],
-          "climate": {
-            "meanTemperature": 24,
-            "rainMm": 389,
-            "cycleDays": 130
-          }
-        },
         {
           "cropId": "alfalfa",
           "cropName": "Alfalfa",
           "windowId": "window-1",
-          "start": "2025-05-11",
-          "end": "2026-12-31",
+          "start": "2025-01-01",
+          "end": "2026-08-23",
           "occupiedWindowIds": [
             "window-1"
           ],
           "water": {
-            "etoMm": null,
+            "etoMm": 2486.5315199999986,
             "kc": 0.7662500000000001,
-            "demandMm": 1100,
-            "rainMm": 1770.967741935484,
-            "coveragePct": 100,
-            "method": "catalog"
+            "demandMm": 1905.3047771999993,
+            "rainMm": 1776.774193548387,
+            "coveragePct": 93.3,
+            "method": "radiation"
           },
           "reasons": [
             {
@@ -1402,41 +5079,112 @@
               "effect": "neutral"
             }
           ],
+          "risk": {
+            "okYears": 9,
+            "totalYears": 9,
+            "failures": {
+              "heat": 0,
+              "frost": 0,
+              "temperature": 0,
+              "water": 0
+            }
+          },
+          "yield": {
+            "relativePct": 92.50361533897247,
+            "ky": 1.1,
+            "irrigatedAssumed": false,
+            "kyEstimated": false,
+            "kySource": "FAO-66, capítulo 2, tabla 1, p. 7 (valores estacionales de FAO-33), fila Alfalfa; https://www.fao.org/4/i2800e/i2800e.pdf"
+          },
           "climate": {
             "meanTemperature": 24,
-            "rainMm": 1771,
+            "rainMm": 1777,
             "cycleDays": 600
+          }
+        },
+        {
+          "cropId": "mustard",
+          "cropName": "Mostaza de cobertura",
+          "windowId": "window-1",
+          "start": "2026-08-24",
+          "end": "2026-11-01",
+          "occupiedWindowIds": [
+            "window-1"
+          ],
+          "water": {
+            "etoMm": 290.09534399999995,
+            "kc": 0.8099999999999999,
+            "demandMm": 234.97722863999994,
+            "rainMm": 206.2258064516129,
+            "coveragePct": 87.8,
+            "method": "radiation"
+          },
+          "reasons": [
+            {
+              "text": "Alternar leguminosas favorece el balance de nitrógeno y rompe hospederos",
+              "effect": "favor"
+            },
+            {
+              "text": "Cambio de familia: ruptura de hospederos de plagas",
+              "effect": "favor"
+            },
+            {
+              "text": "Cobertura estimada 95/100 para reducir erosión",
+              "effect": "neutral"
+            }
+          ],
+          "risk": {
+            "okYears": 10,
+            "totalYears": 10,
+            "failures": {
+              "heat": 0,
+              "frost": 0,
+              "temperature": 0,
+              "water": 0
+            }
+          },
+          "yield": {
+            "relativePct": 88.37595828453051,
+            "ky": 0.95,
+            "irrigatedAssumed": false,
+            "kyEstimated": true,
+            "kySource": "FAO-66, capítulo 2, tabla 1, p. 7 (valores estacionales de FAO-33), fila Cabbage; sustituto de Mostaza de cobertura por cultivo afín de la misma tabla; https://www.fao.org/4/i2800e/i2800e.pdf"
+          },
+          "climate": {
+            "meanTemperature": 24,
+            "rainMm": 206,
+            "cycleDays": 70
           }
         }
       ],
       "components": {
-        "water": 96.06659729448491,
-        "soil": 84,
-        "income": 75,
-        "risk": 93.96774193548387
+        "water": 94.80107609847117,
+        "soil": 95.5,
+        "income": 90.43978681175149,
+        "risk": 100
       },
-      "score": 87.26,
+      "score": 95.19,
       "explanation": [
-        "Maíz → Canola: Alternar familias diversifica hospederos; validar plagas compartidas localmente",
-        "Maíz → Canola: Cambio de familia: ruptura de hospederos de plagas",
-        "Maíz → Canola: Cobertura estimada 80/100 para reducir erosión",
-        "Canola: NASA T2M=24.0 C; lluvia=389 mm/ciclo; ciclo=130 días",
-        "Canola → Alfalfa: Alternar leguminosas favorece el balance de nitrógeno y rompe hospederos",
-        "Canola → Alfalfa: La leguminosa aporta fijación biológica de nitrógeno",
-        "Canola → Alfalfa: Cambio de familia: ruptura de hospederos de plagas",
-        "Canola → Alfalfa: Cobertura estimada 100/100 para reducir erosión",
-        "Alfalfa: NASA T2M=24.0 C; lluvia=1771 mm/ciclo; ciclo=600 días",
-        "Pesos agua=25, suelo=25, ingreso=25, riesgo=25; ingreso es una heurística, no precio"
+        "Maíz → Alfalfa: Alternar leguminosas favorece el balance de nitrógeno y rompe hospederos",
+        "Maíz → Alfalfa: La leguminosa aporta fijación biológica de nitrógeno",
+        "Maíz → Alfalfa: Cambio de familia: ruptura de hospederos de plagas",
+        "Maíz → Alfalfa: Cobertura estimada 100/100 para reducir erosión",
+        "Alfalfa: NASA T2M=24.0 C; lluvia=1777 mm/ciclo; ciclo=600 días",
+        "Alfalfa → Mostaza de cobertura: Alternar leguminosas favorece el balance de nitrógeno y rompe hospederos",
+        "Alfalfa → Mostaza de cobertura: Cambio de familia: ruptura de hospederos de plagas",
+        "Alfalfa → Mostaza de cobertura: Cobertura estimada 95/100 para reducir erosión",
+        "Mostaza de cobertura: NASA T2M=24.0 C; lluvia=206 mm/ciclo; ciclo=70 días",
+        "Pesos agua=25, suelo=25, cosecha=25, riesgo=25; cosecha es rendimiento relativo frente al potencial"
       ],
       "risks": [
         "Máxima mensual 32.0 C supera tolerancia 30 C",
-        "Demanda estimada del catálogo: falta temperatura o radiación mensual válida para ETo",
-        "Agua faltante en 24 meses: ~61 mm: la lluvia no cubre la demanda"
+        "Sin continuación viable en window-1; considerar barbecho",
+        "Agua faltante en 24 meses: ~157 mm: la lluvia no cubre la demanda"
       ],
       "riskGroups": [
         {
-          "type": "data",
-          "text": "Demanda estimada del catálogo: falta temperatura o radiación mensual válida para ETo"
+          "type": "schedule",
+          "text": "Sin continuación viable en window-1; considerar barbecho"
         },
         {
           "type": "heat",
@@ -1444,33 +5192,223 @@
         },
         {
           "type": "water",
-          "text": "Agua faltante en 24 meses: ~61 mm: la lluvia no cubre la demanda"
+          "text": "Agua faltante en 24 meses: ~157 mm: la lluvia no cubre la demanda"
         }
       ],
-      "rests": [],
-      "delta": null
+      "rests": [
+        {
+          "start": "2026-11-02",
+          "end": "2026-12-31",
+          "months": 2,
+          "reason": "Falta lluvia y no hay riego declarado en este tramo",
+          "suggestion": "Mantener cobertura o rastrojo para proteger el suelo"
+        }
+      ],
+      "delta": 20.66
     }
   ],
   "baseline": {
+    "irrigationNeedMm": 162,
     "id": "baseline",
-    "irrigationNeedMm": 0,
-    "viable": false,
-    "score": null,
-    "components": null,
-    "sequence": [],
-    "explanation": [
-      "Maíz: Agua insuficiente para la demanda del ciclo; Ciclo de 120 días excede el horizonte o ventana disponible; Mejor lluvia disponible 360 mm frente a demanda de 600 mm/ciclo"
+    "sequence": [
+      {
+        "cropId": "maize",
+        "cropName": "Maíz",
+        "windowId": "window-1",
+        "start": "2025-01-01",
+        "end": "2025-04-30",
+        "occupiedWindowIds": [
+          "window-1"
+        ],
+        "water": {
+          "etoMm": 497.3063039999999,
+          "kc": 0.8225,
+          "demandMm": 409.03443503999995,
+          "rainMm": 360,
+          "coveragePct": 88,
+          "method": "radiation"
+        },
+        "reasons": [
+          {
+            "text": "Repetir familia mantiene hospederos de plagas y enfermedades",
+            "effect": "contra"
+          },
+          {
+            "text": "Cobertura estimada 80/100 para reducir erosión",
+            "effect": "neutral"
+          }
+        ],
+        "risk": {
+          "okYears": 10,
+          "totalYears": 10,
+          "failures": {
+            "heat": 0,
+            "frost": 0,
+            "temperature": 0,
+            "water": 0
+          }
+        },
+        "yield": {
+          "relativePct": 84.83334405651547,
+          "ky": 1.25,
+          "irrigatedAssumed": false,
+          "kyEstimated": false,
+          "kySource": "FAO-66, capítulo 2, tabla 1, p. 7 (valores estacionales de FAO-33), fila Maize; https://www.fao.org/4/i2800e/i2800e.pdf"
+        },
+        "climate": {
+          "meanTemperature": 24,
+          "rainMm": 360,
+          "cycleDays": 120
+        }
+      },
+      {
+        "cropId": "maize",
+        "cropName": "Maíz",
+        "windowId": "window-1",
+        "start": "2025-05-01",
+        "end": "2025-08-28",
+        "occupiedWindowIds": [
+          "window-1"
+        ],
+        "water": {
+          "etoMm": 497.3063039999999,
+          "kc": 0.8225,
+          "demandMm": 409.03443503999995,
+          "rainMm": 351.2903225806452,
+          "coveragePct": 85.9,
+          "method": "radiation"
+        },
+        "reasons": [
+          {
+            "text": "Repetir familia mantiene hospederos de plagas y enfermedades",
+            "effect": "contra"
+          },
+          {
+            "text": "Familia presente en el historial reciente: penalización por retorno",
+            "effect": "contra"
+          },
+          {
+            "text": "Cobertura estimada 80/100 para reducir erosión",
+            "effect": "neutral"
+          }
+        ],
+        "risk": {
+          "okYears": 10,
+          "totalYears": 10,
+          "failures": {
+            "heat": 0,
+            "frost": 0,
+            "temperature": 0,
+            "water": 0
+          }
+        },
+        "yield": {
+          "relativePct": 82.35352958311817,
+          "ky": 1.25,
+          "irrigatedAssumed": false,
+          "kyEstimated": false,
+          "kySource": "FAO-66, capítulo 2, tabla 1, p. 7 (valores estacionales de FAO-33), fila Maize; https://www.fao.org/4/i2800e/i2800e.pdf"
+        },
+        "climate": {
+          "meanTemperature": 24,
+          "rainMm": 351,
+          "cycleDays": 120
+        }
+      },
+      {
+        "cropId": "maize",
+        "cropName": "Maíz",
+        "windowId": "window-1",
+        "start": "2025-08-29",
+        "end": "2025-12-26",
+        "occupiedWindowIds": [
+          "window-1"
+        ],
+        "water": {
+          "etoMm": 497.30630399999984,
+          "kc": 0.8225,
+          "demandMm": 409.0344350399999,
+          "rainMm": 354.19354838709677,
+          "coveragePct": 86.6,
+          "method": "radiation"
+        },
+        "reasons": [
+          {
+            "text": "Repetir familia mantiene hospederos de plagas y enfermedades",
+            "effect": "contra"
+          },
+          {
+            "text": "Familia presente en el historial reciente: penalización por retorno",
+            "effect": "contra"
+          },
+          {
+            "text": "Cobertura estimada 80/100 para reducir erosión",
+            "effect": "neutral"
+          }
+        ],
+        "risk": {
+          "okYears": 10,
+          "totalYears": 10,
+          "failures": {
+            "heat": 0,
+            "frost": 0,
+            "temperature": 0,
+            "water": 0
+          }
+        },
+        "yield": {
+          "relativePct": 83.24074883587117,
+          "ky": 1.25,
+          "irrigatedAssumed": false,
+          "kyEstimated": false,
+          "kySource": "FAO-66, capítulo 2, tabla 1, p. 7 (valores estacionales de FAO-33), fila Maize; https://www.fao.org/4/i2800e/i2800e.pdf"
+        },
+        "climate": {
+          "meanTemperature": 24,
+          "rainMm": 354,
+          "cycleDays": 120
+        }
+      }
     ],
-    "riskGroups": [],
-    "risks": [],
+    "components": {
+      "water": 94.65770331018979,
+      "soil": 20,
+      "income": 83.4758741585016,
+      "risk": 100
+    },
+    "score": 74.53,
+    "explanation": [
+      "Maíz → Maíz: Repetir familia mantiene hospederos de plagas y enfermedades",
+      "Maíz → Maíz: Cobertura estimada 80/100 para reducir erosión",
+      "Maíz: NASA T2M=24.0 C; lluvia=360 mm/ciclo; ciclo=120 días",
+      "Maíz → Maíz: Repetir familia mantiene hospederos de plagas y enfermedades",
+      "Maíz → Maíz: Familia presente en el historial reciente: penalización por retorno",
+      "Maíz → Maíz: Cobertura estimada 80/100 para reducir erosión",
+      "Maíz: NASA T2M=24.0 C; lluvia=351 mm/ciclo; ciclo=120 días",
+      "Maíz → Maíz: Repetir familia mantiene hospederos de plagas y enfermedades",
+      "Maíz → Maíz: Familia presente en el historial reciente: penalización por retorno",
+      "Maíz → Maíz: Cobertura estimada 80/100 para reducir erosión",
+      "Maíz: NASA T2M=24.0 C; lluvia=354 mm/ciclo; ciclo=120 días",
+      "Pesos agua=25, suelo=25, cosecha=25, riesgo=25; cosecha es rendimiento relativo frente al potencial"
+    ],
+    "risks": [
+      "Agua faltante en 24 meses: ~162 mm: la lluvia no cubre la demanda"
+    ],
+    "riskGroups": [
+      {
+        "type": "water",
+        "text": "Agua faltante en 24 meses: ~162 mm: la lluvia no cubre la demanda"
+      }
+    ],
     "rests": [
       {
-        "start": "2025-01-01",
+        "start": "2025-12-27",
         "end": "2026-12-31",
-        "months": 24,
-        "reason": "Ningún cultivo completa su ciclo en este tramo",
+        "months": 13,
+        "reason": "Falta lluvia y no hay riego declarado en este tramo",
         "suggestion": "Mantener cobertura o rastrojo para proteger el suelo"
       }
-    ]
+    ],
+    "viable": true
   }
 }
