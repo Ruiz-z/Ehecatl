@@ -119,3 +119,9 @@ Usar los textos aprobados de `features/nasa/copy.ts` sin reescribirlos. Resumen 
 - No agregues dependencias nuevas sin preguntar (Leaflet, lucide y una librería de gráficas sí están aprobadas).
 - Un commit por pantalla, Conventional Commits en español, sin `Co-Authored-By`, sin `git push`, rama desde `origin/dev` (`feat/f-...`).
 - Antes de dar algo por hecho: `pnpm lint`, `pnpm test`, `pnpm --filter web build` y captura de la pantalla en escritorio y móvil.
+
+## 11. Marca
+
+El símbolo propio une un tallo y una hoja a la izquierda con una espiral de viento a la derecha: viento que hace brotar. La hoja usa `--accent` (`#6FC20B`); el tallo y el viento heredan el color del texto, blanco sobre oscuro y `#0E1410` sobre claro. Tamaño mínimo: 16 px; cabecera y riel: 28 px. No usar el brote de lucide como logo; se conserva como ilustración de estados vacíos y como icono de navegación.
+
+La palabra «ehécatl.» conserva minúsculas y punto lima, con peso 650 y espaciado de letras de `-.03em`. El riel compacto muestra solo el símbolo. En el login, el logo blanco se apoya en un degradado oscuro superior de 160 px, sin placa; el pie conserva su placa. El favicon usa el símbolo sobre un fondo redondeado `#0E1410`.
