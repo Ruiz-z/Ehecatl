@@ -163,7 +163,7 @@ function Advice({
       <span className="chip neutral-chip">{horizon.range}</span>
     </div>
     {result.risk.level === 'high' && <Notice variant="risk" label="RIESGO · CULTIVO ACTUAL" title={`${parcel.crop} corre riesgo en esta zona`}>
-      {result.risk.reasons.length ? <ul>{result.risk.reasons.map(reason => <li key={reason}>{reason}{mock ? ' Datos de ejemplo.' : ''}</li>)}</ul> : <p>Revisa los datos de la zona antes del siguiente ciclo.</p>}
+      {result.risk.reasons.length ? <ul>{result.risk.reasons.map(reason => <li key={reason}>{reason}</li>)}</ul> : <p>Revisa los datos de la zona antes del siguiente ciclo.</p>}
       <Link className="text-button" href={parcelUrl(parcel.id, 'datos')}>Ver datos de lluvia →</Link>
     </Notice>}
     {ranked[0].baseline && <div className="baseline-wins" role="status"><Check size={18} />Con tus prioridades, mantener lo actual es la mejor opción. Su potencial de ingreso compensa el menor aporte al suelo.</div>}
