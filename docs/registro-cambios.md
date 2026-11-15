@@ -1,5 +1,11 @@
 # Registro de cambios
 
+## 2026-11-15 — Propuesta del «Por qué» resumido
+
+- **Archivos:** `docs/propuesta-por-que-resumido.md`, `docs/registro-cambios.md`.
+- **Qué se cambió:** se documenta la propuesta de mostrar un motivo a favor, los motivos en contra y el agua en una frase por ciclo, con el resto en «Ver más detalle».
+- **Por qué:** la tarjeta mostraba más de veinte renglones con tres ciclos y saturaba al agricultor.
+
 ## 2026-11-15 — Colores por renglón en el calendario del año
 
 - **Archivos:** `apps/web/src/features/nasa/field-charts.tsx`, `apps/web/src/app/globals.css`, `docs/design.md`, `docs/registro-cambios.md`.
