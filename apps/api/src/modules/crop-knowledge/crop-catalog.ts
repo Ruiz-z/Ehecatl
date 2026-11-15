@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 export interface Crop {
   id: string; name: string; family: string;
   tempMin: number; tempMax: number; tempOptMin: number; tempOptMax: number;
+  kc: { ini: number; mid: number; end: number }; kcSource: string; kcEstimated?: boolean;
   waterMm: number; waterDemand: 'low' | 'medium' | 'high'; cycleDays: number;
   frostSensitive: boolean; nitrogenBalance: 'fix' | 'neutral' | 'consume';
   soilCover: number; droughtTolerance: number; perennial: boolean;
@@ -35,6 +36,12 @@ export function validateCatalog(input: unknown): Crop[] {
     }
     const c = crop as unknown as Crop;
     if (!(c.tempMin <= c.tempOptMin && c.tempOptMin <= c.tempOptMax && c.tempOptMax <= c.tempMax)) fail('temperature range');
+    if (!c.kc || typeof c.kc !== 'object') fail('kc');
+    for (const stage of ['ini', 'mid', 'end'] as const) {
+      if (!Number.isFinite(c.kc[stage]) || c.kc[stage] < .1 || c.kc[stage] > 1.4) fail(`kc.${stage}`);
+    }
+    if (typeof c.kcSource !== 'string' || !c.kcSource.trim()) fail('kcSource');
+    if (c.kcEstimated !== undefined && typeof c.kcEstimated !== 'boolean') fail('kcEstimated');
     if (c.waterMm <= 0) fail('waterMm');
     if (!Number.isInteger(c.cycleDays) || c.cycleDays < 1) fail('cycleDays');
     for (const field of ['soilCover', 'droughtTolerance', 'incomeOpportunity'] as const) if (c[field] < 0 || c[field] > 100) fail(field);

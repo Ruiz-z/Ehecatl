@@ -24,7 +24,14 @@
       "fao66",
       "sare-rotation",
       "sare-cover"
-    ]
+    ],
+    "kc": {
+      "ini": 0.3,
+      "mid": 1.2,
+      "end": 0.35
+    },
+    "kcSource": "FAO-56 Tabla 12: Maize, Field (grain); cosecha seca, nota 11",
+    "kcEstimated": false
   },
   {
     "id": "sorghum",
@@ -51,7 +58,14 @@
       "fao66",
       "sare-rotation",
       "sare-cover"
-    ]
+    ],
+    "kc": {
+      "ini": 0.3,
+      "mid": 1.1,
+      "end": 0.55
+    },
+    "kcSource": "FAO-56 Tabla 12: Sorghum - grain; extremo superior de mid",
+    "kcEstimated": false
   },
   {
     "id": "wheat",
@@ -78,7 +92,14 @@
       "fao66",
       "sare-rotation",
       "sare-cover"
-    ]
+    ],
+    "kc": {
+      "ini": 0.3,
+      "mid": 1.15,
+      "end": 0.25
+    },
+    "kcSource": "FAO-56 Tabla 12: Spring Wheat; extremo inferior de end",
+    "kcEstimated": false
   },
   {
     "id": "barley",
@@ -105,7 +126,14 @@
       "fao66",
       "sare-rotation",
       "sare-cover"
-    ]
+    ],
+    "kc": {
+      "ini": 0.3,
+      "mid": 1.15,
+      "end": 0.25
+    },
+    "kcSource": "FAO-56 Tabla 12: Barley",
+    "kcEstimated": false
   },
   {
     "id": "oats",
@@ -132,7 +160,14 @@
       "fao66",
       "sare-rotation",
       "sare-cover"
-    ]
+    ],
+    "kc": {
+      "ini": 0.3,
+      "mid": 1.15,
+      "end": 0.25
+    },
+    "kcSource": "FAO-56 Tabla 12: Oats",
+    "kcEstimated": false
   },
   {
     "id": "rice",
@@ -159,7 +194,14 @@
       "fao66",
       "sare-rotation",
       "sare-cover"
-    ]
+    ],
+    "kc": {
+      "ini": 1.05,
+      "mid": 1.2,
+      "end": 0.6
+    },
+    "kcSource": "FAO-56 Tabla 12: Rice; extremo inferior de end",
+    "kcEstimated": false
   },
   {
     "id": "soybean",
@@ -186,7 +228,14 @@
       "fao66",
       "sare-rotation",
       "sare-cover"
-    ]
+    ],
+    "kc": {
+      "ini": 0.4,
+      "mid": 1.15,
+      "end": 0.5
+    },
+    "kcSource": "FAO-56 Tabla 12: Soybeans",
+    "kcEstimated": false
   },
   {
     "id": "common-bean",
@@ -213,7 +262,14 @@
       "fao66",
       "sare-rotation",
       "sare-cover"
-    ]
+    ],
+    "kc": {
+      "ini": 0.4,
+      "mid": 1.15,
+      "end": 0.35
+    },
+    "kcSource": "FAO-56 Tabla 12: Beans, dry and Pulses",
+    "kcEstimated": false
   },
   {
     "id": "cowpea",
@@ -240,7 +296,14 @@
       "fao66",
       "sare-rotation",
       "sare-cover"
-    ]
+    ],
+    "kc": {
+      "ini": 0.4,
+      "mid": 1.05,
+      "end": 0.35
+    },
+    "kcSource": "FAO-56 Tabla 12: Green Gram and Cowpeas; cosecha seca, nota 6",
+    "kcEstimated": false
   },
   {
     "id": "chickpea",
@@ -267,7 +330,14 @@
       "fao66",
       "sare-rotation",
       "sare-cover"
-    ]
+    ],
+    "kc": {
+      "ini": 0.4,
+      "mid": 1,
+      "end": 0.35
+    },
+    "kcSource": "FAO-56 Tabla 12: Chick pea",
+    "kcEstimated": false
   },
   {
     "id": "lentil",
@@ -294,7 +364,14 @@
       "fao66",
       "sare-rotation",
       "sare-cover"
-    ]
+    ],
+    "kc": {
+      "ini": 0.4,
+      "mid": 1.1,
+      "end": 0.3
+    },
+    "kcSource": "FAO-56 Tabla 12: Lentil",
+    "kcEstimated": false
   },
   {
     "id": "alfalfa",
@@ -321,7 +398,14 @@
       "fao66",
       "sare-rotation",
       "sare-cover"
-    ]
+    ],
+    "kc": {
+      "ini": 0.4,
+      "mid": 0.95,
+      "end": 0.9
+    },
+    "kcSource": "FAO-56 Tabla 12: Alfalfa Hay - averaged cutting effects",
+    "kcEstimated": false
   },
   {
     "id": "sunflower",
@@ -348,7 +432,14 @@
       "fao66",
       "sare-rotation",
       "sare-cover"
-    ]
+    ],
+    "kc": {
+      "ini": 0.35,
+      "mid": 1.15,
+      "end": 0.35
+    },
+    "kcSource": "FAO-56 Tabla 12: Sunflower; extremo superior de mid",
+    "kcEstimated": false
   },
   {
     "id": "canola",
@@ -375,7 +466,14 @@
       "fao66",
       "sare-rotation",
       "sare-cover"
-    ]
+    ],
+    "kc": {
+      "ini": 0.35,
+      "mid": 1.15,
+      "end": 0.35
+    },
+    "kcSource": "FAO-56 Tabla 12: Rapeseed, Canola; extremo superior de mid",
+    "kcEstimated": false
   },
   {
     "id": "mustard",
@@ -402,7 +500,14 @@
       "fao66",
       "sare-rotation",
       "sare-cover"
-    ]
+    ],
+    "kc": {
+      "ini": 0.35,
+      "mid": 1.15,
+      "end": 0.35
+    },
+    "kcSource": "FAO-56 Tabla 12: Rapeseed, Canola; analogía Brassicaceae, extremo superior de mid",
+    "kcEstimated": true
   },
   {
     "id": "potato",
@@ -429,7 +534,14 @@
       "fao66",
       "sare-rotation",
       "sare-cover"
-    ]
+    ],
+    "kc": {
+      "ini": 0.5,
+      "mid": 1.15,
+      "end": 0.75
+    },
+    "kcSource": "FAO-56 Tabla 12: Potato",
+    "kcEstimated": false
   },
   {
     "id": "tomato",
@@ -456,7 +568,14 @@
       "fao66",
       "sare-rotation",
       "sare-cover"
-    ]
+    ],
+    "kc": {
+      "ini": 0.6,
+      "mid": 1.15,
+      "end": 0.7
+    },
+    "kcSource": "FAO-56 Tabla 12: Tomato; extremo inferior de end",
+    "kcEstimated": false
   },
   {
     "id": "buckwheat",
@@ -483,6 +602,13 @@
       "fao66",
       "sare-rotation",
       "sare-cover"
-    ]
+    ],
+    "kc": {
+      "ini": 0.3,
+      "mid": 1.15,
+      "end": 0.4
+    },
+    "kcSource": "FAO-56 Tabla 12: Cereals (categoría); analogía de grano anual",
+    "kcEstimated": true
   }
 ]
