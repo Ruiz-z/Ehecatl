@@ -438,6 +438,10 @@ small { font-size:13px; }
 .login-card > p { margin-top:0; }
 .login-field { display:grid; gap:8px; margin-top:20px; font-size:15px; }
 .login-field input { background:var(--card); color:var(--foreground); min-height:48px; border:1px solid var(--control-border); border-radius:14px; padding:12px; font-size:16px; }
+.password-wrap { position:relative; display:block; }
+.password-wrap input { width:100%; padding-right:52px; }
+.password-toggle { position:absolute; top:50%; right:6px; transform:translateY(-50%); display:grid; place-items:center; width:44px; height:44px; border:0; border-radius:10px; background:transparent; color:var(--muted-foreground); cursor:pointer; }
+.password-toggle:hover { color:var(--foreground); }
 .login-submit { margin-top:24px; }
 .demo-account { display:flex; flex-wrap:wrap; justify-content:space-between; gap:4px 12px; min-height:48px; width:100%; text-align:left; padding:12px 0; border:0; border-bottom:1px solid var(--border); background:transparent; font-size:15px; }
 .demo-account span { font-size:13px; color:var(--muted-foreground); }
