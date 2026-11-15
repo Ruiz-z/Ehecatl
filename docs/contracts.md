@@ -152,3 +152,14 @@ Fuera de ventana: «Fuera de temporada: frío o falta de agua»; dentro:
 «Ningún cultivo completa su ciclo en este tramo». Sin ventanas se usa el
 primer motivo. Sugerencia: «Mantener cobertura o rastrojo para proteger el suelo».
 El front acepta respuestas antiguas sin estos campos y conserva su explicación.
+
+## Balance hídrico por paso (aditivo v1)
+
+Cada paso añade `water: {etoMm,kc,demandMm,rainMm,coveragePct,method}`.
+ETo acumulada y demanda ETc en mm; kc es el coeficiente estacional; lluvia
+en mm, coveragePct = 100 × min(1, lluvia/demanda). Método `radiation`
+con T2M y radiación mensual MJ/m²/día completos, o `catalog` si falta
+algún dato: etoMm=null y demandMm=waterMm del catálogo, con aviso.
+Lluvia desconocida y su cobertura son null; nunca se inventan aportes de riego.
+Valores sin redondeo de cálculo; la UI redondea para presentar. Clientes antiguos
+pueden omitir water; la UI muestra que no hay balance disponible.

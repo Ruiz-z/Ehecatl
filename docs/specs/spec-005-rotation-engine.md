@@ -27,6 +27,13 @@ Agricultor (lee recomendaciones), dashboard (las muestra).
 - RF-8: SI no hay historial, ENTONCES EL SISTEMA recomienda igualmente y avisa de la menor confianza.
 - RF-9: DADAS las mismas condiciones y prioridades distintas, EL SISTEMA puede devolver rankings distintos.
 
+- RF-10: EL SISTEMA calcula ETo diaria = 0.0135 × (T2M + 17.8) × radiación × 0.408, con radiación NASA en MJ/m²/día, y suma por los días inclusivos del ciclo. ETc = ETo acumulada × Kc estacional; Kc estacional = 0.20 ini + 0.25 (ini+mid)/2 + 0.35 mid + 0.20 (mid+end)/2. Las fracciones de etapa son genéricas, no fenología observada. Si falta temperatura o radiación en cualquier mes, usa waterMm del catálogo, method=catalog y aviso, reduciendo confianza.
+- RF-11: EL SISTEMA usa ETc como demanda para viabilidad sin riego (lluvia ≥ 0.65 demanda) y déficit. Agua = 100 coverage sin riego o 50 + 50 coverage con riego, donde coverage=min(1,lluvia/demanda). Lluvia desconocida conserva null; el eje usa coverage=0 conservador y lo avisa.
+- RF-12: EL SISTEMA calcula seguridad desde 100: calor −4/°C por encima de tempMax (máximo 30), media fuera del óptimo −3/°C (máximo 20), mínima <2 °C en sensible −20, déficit −30(1−coverage) sin riego o −15(1−coverage) con riego, sequía activa y tolerancia <60 −15, calor activo −10 y misma familia −20. Acota 0–100; no cuenta textos de riesgos. Márgenes desconocidos no generan penalidad térmica y se avisan.
+- RF-13: EL SISTEMA expone water por paso sin perder reasons, climate ni rests. La tarjeta muestra aportes axes × pesos normalizados y nivel alto ≥70, medio ≥50 y bajo <50. Suelo e ingreso conservan sus reglas.
+
+Estas fórmulas, constantes, fracciones, umbrales y niveles son heurísticas pendientes de validación H4; la aproximación por radiación no es Penman-Monteith FAO-56. No usa extremos mensuales para Hargreaves por rango térmico.
+
 ## Requisitos no funcionales
 - Determinista: mismos insumos, misma salida. Respuesta < 2 s con datos cacheados.
 
@@ -39,7 +46,7 @@ Agricultor (lee recomendaciones), dashboard (las muestra).
 Modelos de rendimiento entrenados, optimización económica con precios de mercado en tiempo real, ML de caja negra.
 
 ## Criterios de finalización
-RF-1 a RF-9 (incluido RF-1c) con test en verde + demo: tres usuarios con ubicaciones y prioridades distintas reciben recomendaciones distintas y explicadas, siempre comparadas contra mantener lo actual.
+RF-1 a RF-13 (incluido RF-1c) con test en verde + demo: tres usuarios con ubicaciones y prioridades distintas reciben recomendaciones distintas y explicadas, siempre comparadas contra mantener lo actual.
 
 ## Decisiones
 - La recomendación se calcula **por zona** (spec 002).

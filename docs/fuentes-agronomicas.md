@@ -23,7 +23,9 @@ Este documento lista las fuentes de dónde sale cada dato del catálogo (`crops.
 ### FAO Irrigation and Drainage Paper 56 — Crop Evapotranspiration
 - **Link:** https://www.fao.org/4/x0490e/x0490e00.htm
 - **Qué da:** coeficientes de cultivo (Kc) por etapa, duración de etapas y método Penman-Monteith para evapotranspiración.
-- **Campos que alimenta:** `waterDemand` (bajo/medio/alto) y, si da tiempo, el cálculo de demanda con temperatura y radiación de NASA POWER.
+- **Campos que alimenta:** `kc`, `kcSource`, `kcEstimated` y ETc por ciclo.
+- **ETo:** [capítulo 3](https://www.fao.org/4/x0490e/x0490e06.htm), referencia metodológica FAO-56. Implementación MVP por radiación: 0.0135 × (Tmedia+17.8) × Rs × 0.408; aproximación pendiente H4, no Penman-Monteith.
+- **Kc:** [Tabla 12, capítulo 6](https://www.fao.org/4/x0490e/x0490e0b.htm), consultada 2026-11-14. Valores iniciales heredados del encabezado de grupo cuando la fila está vacía. Se documentan fila, extremo elegido y analogías en el catálogo. Las fracciones genéricas de etapas son heurísticas H4.
 
 ### FAO Irrigation and Drainage Paper 66 — Crop Yield Response to Water
 - **Link:** https://www.fao.org/4/i2800e/i2800e.pdf
@@ -92,3 +94,28 @@ Cada cultivo lleva un campo `sources` con las claves de este documento:
 ```
 
 Claves: `ecocrop`, `gaez`, `fao56`, `fao66`, `sare-rotation`, `sare-cover`, `nrcs-328`, `siap`, `inifap`, `nass`.
+
+## Kc empleados (ini / mid / end) — Tabla 12
+
+Valores iniciales vacíos heredan el grupo. En rangos se selecciona un extremo publicado (no interpolado). Cereales de primavera, granos secos y forrajes con cortes promediados son supuestos del prototipo pendientes H4.
+
+| Cultivo | ini / mid / end | Fila de FAO-56 | Estimado por analogía |
+|---|---|---|---|
+| Maíz | 0.3 / 1.2 / 0.35 | Maize, Field (grain); cosecha seca, nota 11 | No |
+| Sorgo | 0.3 / 1.1 / 0.55 | Sorghum - grain; extremo superior de mid | No |
+| Trigo | 0.3 / 1.15 / 0.25 | Spring Wheat; extremo inferior de end | No |
+| Cebada | 0.3 / 1.15 / 0.25 | Barley | No |
+| Avena | 0.3 / 1.15 / 0.25 | Oats | No |
+| Arroz | 1.05 / 1.2 / 0.6 | Rice; extremo inferior de end | No |
+| Soya | 0.4 / 1.15 / 0.5 | Soybeans | No |
+| Frijol | 0.4 / 1.15 / 0.35 | Beans, dry and Pulses | No |
+| Caupí | 0.4 / 1.05 / 0.35 | Green Gram and Cowpeas; cosecha seca, nota 6 | No |
+| Garbanzo | 0.4 / 1 / 0.35 | Chick pea | No |
+| Lenteja | 0.4 / 1.1 / 0.3 | Lentil | No |
+| Alfalfa | 0.4 / 0.95 / 0.9 | Alfalfa Hay - averaged cutting effects | No |
+| Girasol | 0.35 / 1.15 / 0.35 | Sunflower; extremo superior de mid | No |
+| Canola | 0.35 / 1.15 / 0.35 | Rapeseed, Canola; extremo superior de mid | No |
+| Mostaza de cobertura | 0.35 / 1.15 / 0.35 | Rapeseed, Canola; analogía Brassicaceae, extremo superior de mid | Sí |
+| Papa | 0.5 / 1.15 / 0.75 | Potato | No |
+| Tomate | 0.6 / 1.15 / 0.7 | Tomato; extremo inferior de end | No |
+| Trigo sarraceno | 0.3 / 1.15 / 0.4 | Cereals (categoría); analogía de grano anual | Sí |
