@@ -103,7 +103,7 @@ Familia de cultivo (chips y barras de la tira): gramínea `#E8A23B`, leguminosa 
 - La tarjeta #1 con borde `--primary`; las otras con borde `--border`.
 
 ## 7b. Indicadores en lenguaje de campo (spec 006 RF-4b)
-Nunca mostrar nombres de variable como texto principal. Formato: **etiqueta llana + valor + semáforo + consecuencia**, p. ej. «Humedad en raíz: baja (22 %) — riesgo de estrés hídrico», punto verde/ámbar/rojo (con icono y texto, no solo color). El dato crudo (`GWETROOT`, `T2M_MAX`, fuente y fecha) va en un desplegable «Ver dato NASA».
+Usar los textos aprobados de `features/nasa/copy.ts` sin reescribirlos. Resumen con consejo, indicadores en prosa y ayudas con teclado. Humedad de la tierra y verdor llevan barras de tres zonas con texto visible. El desplegable «Ver el dato exacto» muestra valor, fuente y mes; la variable solo aparece en «Nombre técnico». Los umbrales de humedad y verdor son heurísticas pendientes de H4.
 
 ## 8. Interacción
 - Cambiar un slider de prioridad recalcula y reordena las tarjetas al instante (con transición corta, 150 ms).
