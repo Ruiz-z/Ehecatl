@@ -44,3 +44,7 @@ Referencias técnicas:
 
 `tests/fixtures/power.json` y `modis.json` son casos sintéticos de borde,
 identificados como tests; las verificaciones de red se documentan aparte.
+
+## Ejes históricos (2026-11-15)
+
+Riesgo usa al menos cinco calendarios completos. Sin riego falla si lluvia <65 % de ETc. Temperaturas de tolerancia provienen del catálogo ECOCROP y helada se define como mínima mensual ≤0 °C en sensibles. Son umbrales pendientes de H4. La ETo por radiación y las fracciones de Kc conservan sus limitaciones; no son Penman-Monteith. Cada año usa días reales, meses parciales y años consecutivos. No se interpola historia ni se rellenan huecos. Lluvia sustituye agua disponible en la función FAO-33; no es ETa medida. Con riego se supone demanda cubierta y se avisa. El respaldo conserva las penalizaciones anteriores solo sin cinco años completos; no son frecuencia NASA.
