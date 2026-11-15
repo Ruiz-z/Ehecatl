@@ -24,7 +24,8 @@ export function mockIndicatorResponse(parcel: Parcel): ApiIndicators {
     const date = `${index < 2 ? 2025 : 2026}-${String(month).padStart(2,'0')}-01`;
     for (const [variable,key,normalKey,unit] of keys) {
       const scale = variable === 'GWETROOT' ? .01 : 1;
-      const value = point[key]!*scale, normal = point[normalKey]!*scale;
+      const offset = variable === 'T2M_MAX' ? 10 : 0;
+      const value = point[key]!*scale + offset, normal = point[normalKey]!*scale + offset;
       monthly.push({variable,date,value,unit,source:variable === 'NDVI' ? 'MODIS · ejemplo' : 'NASA POWER · ejemplo'});
       climatology.push({variable,month,value:normal,samples:10});
       anomalies.push({variable,date,value:value-normal,percent:normal ? (value-normal)/Math.abs(normal)*100 : null});

@@ -97,10 +97,10 @@ test('los indicadores se explican en lenguaje llano con su semáforo', () => {
   const result = mapIndicators(indicators);
   const [rain, heat, root] = result.observations;
   assert.equal(rain?.value, '30 mm');
-  assert.equal(rain?.status, 'Sequía observada');
+  assert.equal(rain?.status, 'Llovió 50 % menos de lo normal.');
   assert.equal(rain?.tone, 'warning');
-  assert.match(rain?.consequence ?? '', /50 % menos que lo normal/);
-  assert.equal(heat?.status, 'Elevado');
+  assert.match(rain?.status ?? '', /50 % menos de lo normal/);
+  assert.equal(heat?.status, 'Hizo 2.1 °C más de lo normal.');
   assert.equal(root?.value, '22 %');
   assert.equal(root?.tone, 'neutral');
   assert.equal(result.origin, 'live');
@@ -116,7 +116,7 @@ test('los faltantes quedan nulos y NDVI sin cobertura no se inventa', () => {
   assert.equal(october?.temperature, null);
   assert.equal(october?.ndvi, null);
   assert.equal(result.summaries.ndvi, undefined);
-  assert.equal(result.summaries.rainfall?.text, '50 % menos que lo normal.');
+  assert.equal(result.summaries.rainfall?.text, 'Llovió 50 % menos de lo normal.');
 });
 
 test('mapea pasos con efectos, clima y descansos sin duplicar riesgos', () => {
@@ -164,23 +164,23 @@ test('Bloque A: sequía del motor prevalece aunque el mes solo esté 23 % bajo l
   const data = { ...indicators, trends: [{type:'drought' as const,active:true,evidence:['-26.83']}],
     anomalies: [{variable:'PRECTOTCORR',date:'2026-10-01',value:-13.8,percent:-23}] };
   const result = mapIndicators(data);
-  assert.equal(result.observations[0]?.status, 'Sequía observada');
+  assert.equal(result.observations[0]?.status, 'Llovió 23 % menos de lo normal.');
   assert.equal(result.observations[0]?.tone, 'warning');
-  assert.match(result.observations[0]?.consequence ?? '', /23 % menos/);
-  assert.match(result.observations[0]?.consequence ?? '', /12 meses.*incompleto/i);
+  assert.match(result.observations[0]?.status ?? '', /23 % menos/);
+  assert.match(result.observations[0]?.consequence ?? '', /Faltan datos de algunos meses/);
 });
 test('Bloque A: NDVI bajo absoluto puede estar más verde que su normal', () => {
   const result = mapIndicators({...indicators,
     monthly:[...indicators.monthly,{variable:'NDVI',date:'2026-10-01',value:.2295,unit:'index',source:'MODIS'}],
     anomalies:[{variable:'NDVI',date:'2026-10-01',value:.0848,percent:58.6}],
     trends:[{type:'vegetation_stress',active:false,evidence:[]}]});
-  assert.equal(result.ndvi.label, '59 % más verde que lo normal para octubre');
+  assert.equal(result.ndvi.label, 'Las plantas de la zona se ven más verdes que en octubre de otros años.');
   assert.equal(result.ndvi.value, .2295);
 });
 test('Bloque A: no inventa normalidad ni interpreta índices absolutos sin normal', () => {
   const result = mapIndicators({...indicators,trends:[],anomalies:[],climatology:[],
     monthly:[...indicators.monthly,{variable:'NDVI',date:'2026-10-01',value:.23,unit:'index',source:'MODIS'}]});
-  assert.match(result.ndvi.label, /Sin normal/);
+  assert.match(result.ndvi.label, /Sin comparación suficiente/);
   assert.equal(result.observations[0]?.tone, 'neutral');
   assert.notEqual(result.observations[0]?.status, 'Normal');
 });
@@ -190,9 +190,9 @@ test('Bloque A: acumula doce meses completos y sus normales sin duplicar ni extr
   const monthly = Array.from({length:12},(_,i) => ({variable:'PRECTOTCORR',date:`${i<2 ? 2025 : 2026}-${String((i+10)%12+1).padStart(2,'0')}-01`,value:10,unit:'mm/month',source:'NASA POWER'}));
   const data = {...indicators,monthly,climatology:Array.from({length:12},(_,i) => ({variable:'PRECTOTCORR',month:i+1,value:20})),
     anomalies:[{variable:'PRECTOTCORR',date:'2026-10-01',value:-10,percent:-50}],trends:[{type:'drought' as const,active:true,evidence:[]}]};
-  assert.match(mapIndicators(data).observations[0]!.consequence,/Últimos 12 meses: 120 mm frente a 240 mm normales/);
-  assert.match(mapIndicators({...data,climatology:[]}).observations[0]!.consequence,/sin normal completa/);
-  assert.match(mapIndicators({...data,monthly:monthly.slice(1)}).observations[0]!.consequence,/incompleto \(11\/12 meses\)/);
+  assert.match(mapIndicators(data).observations[0]!.consequence,/En 12 meses llovieron 120 mm; lo normal son 240 mm/);
+  assert.match(mapIndicators({...data,climatology:[]}).observations[0]!.consequence,/Sin comparación suficiente/);
+  assert.match(mapIndicators({...data,monthly:monthly.slice(1)}).observations[0]!.consequence,/Faltan datos de algunos meses/);
 });
 test('Bloque A: riesgos agrupados y todos los faltantes se conservan para la tarjeta', () => {
   const warning = 'Aviso largo: '+ 'faltante '.repeat(30);
@@ -204,10 +204,46 @@ test('Bloque A: riesgos agrupados y todos los faltantes se conservan para la tar
   assert.ok(strategy.missing!.includes(warning));
   assert.match(strategy.missing!.join(),/MODIS: datos parciales; Dos meses/);
 });
-test('Bloque A: sin señal activa no inventa exceso de calor ni suelo seco por umbrales', () => {
+test('sin señal activa conserva los tonos y clasifica la humedad con cortes orientativos', () => {
   const result = mapIndicators({...indicators,trends:[{type:'heat',active:false,evidence:[]},{type:'drought',active:false,evidence:[]}]});
-  assert.equal(result.observations[0]!.status,'Sin señal de sequía');
-  assert.equal(result.observations[1]!.status,'Sin señal de calor inusual');
-  assert.equal(result.observations[2]!.status,'Reserva relativa del suelo');
+  assert.equal(result.observations[0]!.status,'Llovió lo normal para esta época.');
+  assert.equal(result.observations[1]!.status,'Hizo el calor de siempre para esta época.');
+  assert.equal(result.observations[2]!.status,'Seca');
   assert.equal(result.observations[2]!.rawValue,'0.22 fraction');
+});
+
+test('humedad usa cortes orientativos de 30 y 50 sin cambiar el tono del API', () => {
+  for (const [value, zone, status] of [[.299, 0, 'Seca'], [.30, 1, 'Regular'], [.499, 1, 'Regular'], [.50, 2, 'Buena']] as const) {
+    const result = mapIndicators({ ...indicators, monthly: [{ variable: 'GWETROOT', date: '2026-10-01', value, unit: 'fraction', source: 'NASA POWER' }] });
+    assert.equal(result.observations[0]?.zone, zone);
+    assert.equal(result.observations[0]?.status, status);
+    assert.equal(result.observations[0]?.tone, 'neutral');
+    assert.match(result.observations[0]!.consequence, /Es una estimación del satélite/);
+  }
+});
+test('verdor compara el mismo mes con límites inclusivos sin usar el valor absoluto', () => {
+  for (const [percent, zone] of [[-20, 0], [-19.99, 1], [19.99, 1], [20, 2]] as const) {
+    const result = mapIndicators({ ...indicators,
+      monthly: [{variable:'NDVI',date:'2026-10-01',value:.38,unit:'index',source:'MODIS'}],
+      anomalies: [{variable:'NDVI',date:'2026-10-01',value:0,percent}] });
+    assert.equal(result.ndvi.zone, zone);
+    assert.match(result.ndvi.label, /octubre de otros años\./);
+  }
+});
+test('una lectura nula reciente no se rellena con el verdor de otro mes', () => {
+  const result = mapIndicators({ ...indicators, monthly: [
+    {variable:'NDVI',date:'2026-09-01',value:.38,unit:'index',source:'MODIS'},
+    {variable:'NDVI',date:'2026-10-01',value:null,unit:'index',source:'MODIS'}
+  ] });
+  assert.equal(result.ndvi.value, null);
+  assert.equal(result.summaries.ndvi, undefined);
+  assert.equal(result.ndvi.zone, undefined);
+  assert.equal(result.ndvi.label, 'El satélite no tiene una lectura clara este mes y no la inventamos.');
+});
+
+test('la comparación ausente no recibe tono bueno aunque la tendencia esté inactiva', () => {
+  const result = mapIndicators({ ...indicators, anomalies: [], trends: [{type:'drought',active:false,evidence:[]}] });
+  assert.equal(result.observations[0]?.tone, 'neutral');
+  assert.equal(result.summaries.rainfall?.tone, 'neutral');
+  assert.equal(result.summaries.rainfall?.text, 'Sin comparación suficiente');
 });

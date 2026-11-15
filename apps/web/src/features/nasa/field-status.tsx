@@ -1,4 +1,7 @@
 'use client';
+import { useId, useState } from 'react';
+import { copy } from './copy';
+import { buildVerdict } from './verdict';
 import { parcelUrl } from '@/features/parcels/parcel-tabs';
 
 import { Droplets, Thermometer, Sprout, ArrowUpRight, TriangleAlert, CheckCircle2, Satellite } from 'lucide-react';
@@ -28,6 +31,9 @@ function Status({
   data: Indicators;
 }) {
   const mock = data.origin === 'mock';
+  const now = new Date();
+  const expectedMonth = new Date(Date.UTC(now.getFullYear(), now.getMonth()-1, 1)).toISOString().slice(0,7);
+  const verdict = buildVerdict(data.observations, parcel.crop, data.lastDataMonth ?? '', expectedMonth, data.ndvi.zone === 0);
   return <div className="status-content">
     <div className="section-heading">
       <div>
@@ -36,22 +42,24 @@ function Status({
       </div>
       <Satellite size={20} />
     </div>
+    <section className={`field-verdict ${verdict.tone}`}>
+      <h3>{verdict.title}</h3><p>{verdict.text}</p>
+      {verdict.note && <p>{verdict.note}</p>}
+      {verdict.showButton && <Link className="button primary" href={parcelUrl(parcel.id)}>{copy.verdict.button}</Link>}
+    </section>
     <div className="field-visuals">
       <div className="ndvi-card">
         <div className="visual-heading">
-          <span>Verdor de la zona</span>
-          <span className="chip neutral-chip">NDVI</span>
+          <span>{copy.vegetation.title}</span>
+          <Help label={copy.vegetation.title} text={copy.help.vegetation} />
         </div>
-        <strong className="ndvi-headline">{data.ndvi.label}</strong>
-        {data.ndvi.value === null ? <small>MODIS no tiene una lectura confiable para este punto; no la inventamos.</small> : <details>
-          <summary>Ver dato NASA</summary>
-          <dl>
-            <div><dt>Variable</dt><dd>NDVI</dd></div>
-            <div><dt>Valor</dt><dd>{data.ndvi.value}</dd></div>
-            <div><dt>Fuente</dt><dd>{data.ndvi.source ?? 'MODIS'}</dd></div>
-            <div><dt>Fecha</dt><dd>{data.ndvi.date ?? data.lastObservation}</dd></div>
-            <div><dt>Origen</dt><dd>{mock ? 'mock · datos de ejemplo' : data.origin}</dd></div>
-          </dl>
+        {data.ndvi.zone === undefined && <strong className="ndvi-headline">{data.ndvi.label}</strong>}
+        {data.ndvi.zone !== undefined && <ZoneBar zone={data.ndvi.zone} labels={copy.vegetation.descriptions.map(describe => describe((data.ndvi.date ?? data.lastObservation).split(' de ')[0]!))} />}
+        <p>{copy.vegetation.note}</p>
+        {data.ndvi.value !== null && <details>
+          <summary>{copy.exact.title}</summary>
+          <p>{copy.exact.value(String(data.ndvi.value), data.ndvi.date ?? data.lastObservation)}</p>
+          <p className="muted">{copy.exact.technical} NDVI</p>
         </details>}
       </div>
       <div className="satellite-card" role="img" aria-label={`Vista satelital de la ubicación de ${parcel.name}`} style={{
@@ -62,7 +70,7 @@ function Status({
         <small>Imagen © Esri</small>
       </div>
     </div>
-    <p className="visual-disclaimer">NDVI ilustrativo de la zona; no mide una parcela delimitada.</p>
+
     <div className="indicators">
       {data.observations.filter(item => parcel.dataState !== 'error' || item.variable !== 'GWETROOT').map((observation, i) => {
         const Icon = icons[i] ?? Sprout;
@@ -71,31 +79,15 @@ function Status({
           <span><Icon size={19} />{observation.label}</span>
           <strong>{observation.value}</strong>
         </div>
-        <p className={`indicator-status ${observation.tone === 'good' ? 'good-text' : observation.tone === 'warning' ? 'warning-text' : 'muted'}`}>{observation.tone === 'warning' ? <TriangleAlert size={15} /> : observation.tone === 'good' ? <CheckCircle2 size={15} /> : null}{observation.status}</p>
+        {observation.variable === 'T2M_MAX' && <small>{copy.heat.note}</small>}
+        {observation.variable !== 'GWETROOT' && <Help label={copy.charts.normal} text={copy.help.normal} />}
+        {observation.zone !== undefined && <ZoneBar zone={observation.zone} labels={copy.moisture.zones} />}
+        {observation.zone === undefined && <p className={`indicator-status ${observation.tone === 'good' ? 'good-text' : observation.tone === 'warning' ? 'warning-text' : 'muted'}`}>{observation.tone === 'warning' ? <TriangleAlert size={15} /> : observation.tone === 'good' ? <CheckCircle2 size={15} /> : null}{observation.status}</p>}
         <p>{observation.consequence}</p>
         <details>
-          <summary>Ver dato NASA</summary>
-          <dl>
-            <div>
-              <dt>Variable</dt>
-              <dd>{observation.variable}</dd>
-            </div>
-            <div>
-              <dt>Valor crudo</dt><dd>{observation.rawValue ?? observation.value}</dd>
-            </div>
-            <div>
-              <dt>Fuente</dt>
-              <dd>{observation.source}</dd>
-            </div>
-            <div>
-              <dt>Fecha</dt>
-              <dd>{observation.date}</dd>
-            </div>
-            <div>
-              <dt>Origen</dt>
-              <dd>{mock ? 'mock · datos de ejemplo' : data.origin}</dd>
-            </div>
-          </dl>
+          <summary>{copy.exact.title}</summary>
+          <dl><div><dt>Valor</dt><dd>{observation.rawValue ?? observation.value}</dd></div><div><dt>Fuente</dt><dd>{observation.source}</dd></div><div><dt>Fecha</dt><dd>{observation.date}</dd></div></dl>
+          <p className="muted">{copy.exact.technical} {observation.variable}</p>
         </details>
       </article>;
       })}
@@ -110,4 +102,16 @@ function Status({
 }
 function MapCross() {
   return <span className="satellite-cross" aria-hidden="true"><i /><i /></span>;
+}
+
+function Help({ label, text }: { label: string; text: string }) {
+  const [open, setOpen] = useState(false);
+  const id = useId();
+  return <span className="indicator-help"><button type="button" aria-label={label} aria-expanded={open} aria-controls={id} onClick={() => setOpen(!open)}>?</button><span id={id} hidden={!open}>{text}</span></span>;
+}
+function ZoneBar({ zone, labels }: { zone: number; labels: readonly string[] }) {
+  return <div className="zone-bar" role="img" aria-label={labels[zone]}>
+    <div className="zone-track" aria-hidden="true">{labels.map((label, index) => <span key={label} className={`zone-${index}${index === zone ? ' selected' : ''}`} />)}</div>
+    <span>{labels[zone]}</span>
+  </div>;
 }

@@ -1,3 +1,4 @@
+import { copy, moistureZone, vegetationZone } from '../../features/nasa/copy.ts';
 // Traducción pura de las respuestas de apps/api (contrato en docs/contracts.md)
 // a los modelos de vista del front. Sin acceso a red ni a localStorage.
 import type { DemoUser, Parcel, Priorities } from '@/features/parcels/types';
@@ -128,9 +129,6 @@ const round = (value: number, digits = 1) => Number(value.toFixed(digits));
 function normalOf(response: ApiIndicators, variable: string, date: string): number | null {
   return response.climatology.find(item => item.variable === variable && item.month === Number(date.slice(5, 7)))?.value ?? null;
 }
-function percentVs(value: number, normal: number | null): number | null {
-  return normal ? Math.round(((value - normal) / normal) * 100) : null;
-}
 
 export function mapSeries(response: ApiIndicators): TimePoint[] {
   const dates = [...new Set(response.monthly.map(row => row.date))].sort();
@@ -154,87 +152,82 @@ function anomalyOf(response: ApiIndicators, row: ApiMonthly) {
 function trendOf(response: ApiIndicators, type: ApiIndicators['trends'][number]['type']) {
   return response.trends.find(item => item.type === type);
 }
-function relativeText(percent: number | null | undefined): string {
-  return percent == null ? 'Sin normal histórica para comparar.'
-    : `${Math.abs(Math.round(percent))} % ${percent < 0 ? 'menos' : 'más'} que lo normal.`;
-}
 function rainYear(response: ApiIndicators, date: string): string {
   const end = monthIndex(date);
   const months = Array.from({length:12}, (_,i) => end-11+i);
   const rows = months.map(index => response.monthly.find(row => row.variable === 'PRECTOTCORR' && monthIndex(row.date) === index && row.value !== null));
   const count = rows.filter(Boolean).length;
-  if (count !== 12) return `Últimos 12 meses: acumulado incompleto (${count}/12 meses); no se extrapola.`;
+  if (count !== 12) return copy.rain.incomplete;
   const total = rows.reduce((sum,row) => sum+row!.value!,0);
   const normals = rows.map(row => normalOf(response, 'PRECTOTCORR', row!.date));
-  if (normals.some(value => value === null)) return `Últimos 12 meses: ${Math.round(total)} mm; sin normal completa para comparar.`;
+  if (normals.some(value => value === null)) return copy.insufficient;
   const normal = normals.reduce<number>((sum,value) => sum+value!,0);
-  return `Últimos 12 meses: ${Math.round(total)} mm frente a ${Math.round(normal)} mm normales. ${relativeText(percentVs(total, normal))}`;
+  return copy.rain.year(Math.round(total), Math.round(normal));
 }
 export function mapObservations(response: ApiIndicators): Observation[] {
-  const origin = response.origin;
   const out: Observation[] = [];
-  const rain = last(response.monthly, 'PRECTOTCORR');
-  if (rain) {
-    const drought = trendOf(response, 'drought');
-    const erratic = trendOf(response, 'erratic_rain');
-    const delta = anomalyOf(response, rain)?.percent;
-    const warning = drought?.active || erratic?.active;
-    out.push({ label: 'Lluvia del mes', variable: 'PRECTOTCORR', value: `${Math.round(rain.value!)} mm`, rawValue: `${rain.value} ${rain.unit}`,
-      status: drought?.active ? 'Sequía observada' : erratic?.active ? 'Lluvia irregular' : delta == null || !drought ? 'Sin comparación suficiente' : 'Sin señal de sequía',
-      consequence: `Este mes: ${relativeText(delta)} ${rainYear(response, response.period.end)}${drought?.active ? ' Cuida el agua del próximo ciclo.' : ''}${erratic?.active ? ' La lluvia reciente es irregular.' : ''}`,
-      source: rain.source, date: formatMonth(rain.date), origin, tone: warning ? 'warning' : delta == null || !drought ? 'neutral' : 'good' });
-  }
-  const heat = last(response.monthly, 'T2M_MAX');
-  if (heat) {
-    const trend = trendOf(response, 'heat');
-    const diff = anomalyOf(response, heat)?.value;
-    out.push({ label: 'Calor en el campo', variable: 'T2M_MAX', value: `${round(heat.value!)} °C`, rawValue: `${heat.value} ${heat.unit}`,
-      status: trend?.active ? 'Elevado' : diff == null || !trend ? 'Sin comparación suficiente' : 'Sin señal de calor inusual',
-      consequence: `${diff == null ? 'Sin normal histórica de la máxima para comparar.' : `Máxima del mes: ${Math.abs(round(diff))} °C ${diff < 0 ? 'menos' : 'más'} que lo normal.`}${trend?.active ? ' La temperatura media reciente indica calor; el cultivo puede perder más agua.' : ''}`,
-      source: heat.source, date: formatMonth(heat.date), origin, tone: trend?.active ? 'warning' : diff == null || !trend ? 'neutral' : 'good' });
-  }
-  const root = last(response.monthly, 'GWETROOT');
-  if (root) {
-    out.push({ label: 'Humedad en raíz', variable: 'GWETROOT', value: `${Math.round(root.value!*100)} %`, rawValue: `${root.value} ${root.unit}`,
-      status: 'Reserva relativa del suelo', consequence: `${relativeText(anomalyOf(response, root)?.percent)} Este índice no mide el agua disponible para un cultivo específico.`,
-      source: root.source, date: formatMonth(root.date), origin, tone: 'neutral' });
+  for (const variable of ['PRECTOTCORR', 'T2M_MAX', 'GWETROOT']) {
+    const row = last(response.monthly, variable);
+    if (!row) continue;
+    const month = longMonths[Number(row.date.slice(5,7))-1]!;
+    const trend = trendOf(response, variable === 'PRECTOTCORR' ? 'drought' : 'heat');
+    const delta = anomalyOf(response, row);
+    const root = variable === 'GWETROOT';
+    const rain = variable === 'PRECTOTCORR';
+    const zone = root ? moistureZone(row.value!*100) : undefined;
+    const comparable = rain ? delta?.percent != null : delta?.value != null;
+    const status = root ? copy.moisture.zones[zone!]! : !comparable || !trend ? copy.insufficient
+      : rain ? trend.active && delta!.percent! < 0 ? copy.rain.low(Math.abs(Math.round(delta!.percent!)))
+        : delta!.percent! > 0 ? copy.rain.high(Math.round(delta!.percent!)) : copy.rain.normal
+      : trend.active && delta!.value > 0 ? copy.heat.high(round(delta!.value)) : copy.heat.normal;
+    const consequence = root ? `${copy.moisture.descriptions[zone!]} ${copy.moisture.note}`
+      : rain ? `${trend?.active ? copy.rain.advice + ' ' : ''}${rainYear(response, response.period.end)}`
+      : trend?.active ? copy.heat.advice : '';
+    out.push({ label: root ? copy.moisture.title : rain ? copy.rain.title(month) : copy.heat.title(month), variable,
+      value: root ? `${Math.round(row.value!*100)} %` : rain ? `${Math.round(row.value!)} mm` : `${row.value!.toFixed(1)} °C`,
+      rawValue: `${row.value} ${row.unit}`, status, consequence, source: row.source, date: formatMonth(row.date), origin: response.origin,
+      zone, alertActive: root ? undefined : trend?.active,
+      tone: root ? 'neutral' : trend?.active || rain && trendOf(response, 'erratic_rain')?.active ? 'warning' : !trend || !comparable ? 'neutral' : 'good' });
   }
   return out;
 }
 
-function summarize(points: TimePoint[], key: 'rainfall' | 'temperature' | 'moisture' | 'ndvi', normalKey: 'rainfallNormal' | 'temperatureNormal' | 'moistureNormal' | 'ndviNormal', unit: string, active: boolean | undefined): MetricSummary | undefined {
-  const pairs = points.filter(point => point[key] !== null && point[normalKey] !== null);
-  if (!pairs.length) return undefined;
-  const mean = (items: number[]) => items.reduce((a, b) => a + b, 0) / items.length;
-  const value = mean(pairs.map(point => point[key]!));
-  const normal = mean(pairs.map(point => point[normalKey]!));
+function summarize(response: ApiIndicators, key: MetricKey, active: boolean | undefined): MetricSummary | undefined {
+  const variable = { rainfall: 'PRECTOTCORR', temperature: 'T2M', moisture: 'GWETROOT', ndvi: 'NDVI' }[key];
+  const row = key === 'ndvi' ? response.monthly.filter(row => row.variable === variable).sort((a,b) => a.date.localeCompare(b.date)).at(-1) : last(response.monthly, variable);
+  if (!row || row.value === null || normalOf(response, variable, row.date) === null) return undefined;
+  const delta = anomalyOf(response, row);
   const tone = active ? 'warning' : active === false ? 'good' : 'neutral';
-  if (unit === '°C') {
-    const diff = round(value-normal);
-    return {text: `${Math.abs(diff)} °C ${diff < 0 ? 'menos' : 'más'} que lo normal`, tone};
-  }
-  const delta = percentVs(value, normal);
-  return {text: relativeText(delta), tone: delta === null ? 'neutral' : tone};
+  const text = key === 'rainfall' ? active === undefined || delta?.percent == null ? copy.insufficient
+    : active && delta.percent < 0 ? copy.rain.low(Math.abs(Math.round(delta.percent))) : delta.percent > 0 ? copy.rain.high(Math.round(delta.percent)) : copy.rain.normal
+    : key === 'temperature' ? active === undefined || delta?.value == null ? copy.insufficient
+    : active && delta.value > 0 ? copy.heat.high(round(delta.value)) : copy.heat.normal
+    : key === 'moisture' ? copy.moisture.descriptions[moistureZone(row.value!*100)]!
+    : ndviLabel(response, row);
+  const comparable = key === 'rainfall' || key === 'ndvi' ? delta?.percent != null : key === 'temperature' ? delta?.value != null : true;
+  return { text, tone: comparable ? tone : 'neutral' };
 }
 
 export function mapIndicators(response: ApiIndicators): Indicators {
   const series = mapSeries(response);
-  const ndvi = last(response.monthly, 'NDVI');
+  const ndvi = response.monthly.filter(row => row.variable === 'NDVI').sort((a,b) => a.date.localeCompare(b.date)).at(-1);
   const lastRow = response.monthly.filter(row => row.value !== null).map(row => row.date).sort().at(-1);
   const summaries: Partial<Record<MetricKey, MetricSummary>> = {};
-  for (const [key, normalKey, unit] of [['rainfall', 'rainfallNormal', 'mm'], ['temperature', 'temperatureNormal', '°C'], ['moisture', 'moistureNormal', '%'], ['ndvi', 'ndviNormal', 'ndvi']] as const) {
+  for (const key of ['rainfall', 'temperature', 'moisture', 'ndvi'] as const) {
     const type = key === 'rainfall' ? 'drought' : key === 'temperature' ? 'heat' : key === 'ndvi' ? 'vegetation_stress' : undefined;
     const active = key === 'rainfall' && trendOf(response, 'erratic_rain')?.active ? true : type ? trendOf(response, type)?.active : undefined;
-    const summary = summarize(series, key, normalKey, unit, active);
+    const summary = summarize(response, key, active);
     if (summary) summaries[key] = summary;
   }
   return {
     observations: mapObservations(response), series, summaries,
     ndvi: { value: ndvi?.value ?? null,
       source: ndvi?.source, date: ndvi ? formatMonth(ndvi.date) : undefined,
-      label: ndvi ? ndviLabel(response, ndvi) : 'Sin dato de vegetación' },
+      zone: ndvi?.value != null && anomalyOf(response, ndvi)?.percent != null ? vegetationZone(anomalyOf(response, ndvi)!.percent!) : undefined,
+      label: ndvi?.value != null ? ndviLabel(response, ndvi) : copy.vegetation.missing },
+    lastDataMonth: [last(response.monthly, 'PRECTOTCORR')?.date, last(response.monthly, 'T2M_MAX')?.date].filter((date): date is string => Boolean(date)).sort()[0]?.slice(0,7),
     lastObservation: lastRow ? formatMonth(lastRow) : '',
-    periodLabel: `${formatDate(response.period.start)} — ${formatDate(response.period.end)}`,
+    periodLabel: `${formatDate(response.period.start)} / ${formatDate(response.period.end)}`,
     origin: response.origin,
     warnings: response.warnings
   };
@@ -242,6 +235,6 @@ export function mapIndicators(response: ApiIndicators): Indicators {
 
 function ndviLabel(response: ApiIndicators, row: ApiMonthly): string {
   const percent = anomalyOf(response, row)?.percent;
-  if (percent == null) return 'Sin normal histórica para comparar el verdor de este mes';
-  return `${Math.abs(Math.round(percent))} % ${percent < 0 ? 'menos' : 'más'} verde que lo normal para ${longMonths[Number(row.date.slice(5,7))-1]}`;
+  if (percent == null) return copy.insufficient;
+  return copy.vegetation.descriptions[vegetationZone(percent)]!(longMonths[Number(row.date.slice(5,7))-1]!);
 }

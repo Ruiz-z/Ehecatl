@@ -9,6 +9,8 @@ export interface Observation {
   origin: 'live' | 'cache' | 'mock';
   tone: 'warning' | 'good' | 'neutral';
   rawValue?: string;
+  alertActive?: boolean;
+  zone?: number;
 }
 export interface TimePoint {
   month: string;

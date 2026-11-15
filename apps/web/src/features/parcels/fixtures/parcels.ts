@@ -1,4 +1,5 @@
 import type { Parcel } from '../types';
+// El estado usa el mismo diccionario que los datos reales mediante mockIndicatorResponse.
 export const demoParcels: Parcel[] = [{
   id: 'el-mezquite',
   ownerId: 'ana',

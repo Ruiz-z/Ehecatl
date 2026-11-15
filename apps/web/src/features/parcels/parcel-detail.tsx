@@ -78,7 +78,7 @@ function Detail({
     </section>
     <div className="map-context">
       <span className="source-dot" />
-      <span>{useMocks && tab === 'estado' && parcel.dataState !== 'empty' ? 'NDVI · capa ilustrativa' : 'Ubicación de tu parcela'}</span>
+      <span>{useMocks && tab === 'estado' && parcel.dataState !== 'empty' ? 'Qué tan verdes están las plantas' : 'Ubicación de tu parcela'}</span>
     </div>
   </main>;
 }

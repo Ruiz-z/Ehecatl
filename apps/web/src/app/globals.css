@@ -577,3 +577,19 @@ summary { min-height:44px; align-content:center; }
 .ndvi-card { display:flex; flex-direction:column; justify-content:space-between; gap:16px; }
 .ndvi-card > strong.ndvi-headline { font-size:26px; line-height:1.2; font-weight:600; letter-spacing:-.02em; margin:0; color:var(--foreground); }
 .ndvi-card > small, .ndvi-card > details { margin-top:0; }
+
+.field-verdict { padding: 20px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--accent-soft); margin-bottom: 20px; }
+.field-verdict.warning { background: var(--warning-soft); }
+.field-verdict.neutral { background: var(--card); }
+.field-verdict h3 { font-size: 22px; margin: 0 0 12px; }
+.field-verdict p { margin: 0 0 12px; }
+.zone-bar { margin: 16px 0; font-size: 14px; }
+.zone-track { display: flex; gap: 4px; height: 14px; margin-bottom: 8px; }
+.zone-track span { flex: 1; border: 1px solid var(--control-border); }
+.zone-track .zone-0 { background: var(--warning-soft); }
+.zone-track .zone-1 { background: var(--border); }
+.zone-track .zone-2 { background: var(--accent-soft); }
+.zone-track .selected { outline: 2px solid var(--foreground); outline-offset: 2px; }
+.indicator-help { display: inline-flex; align-items: baseline; gap: 8px; margin: 8px 0; }
+.indicator-help button { border: 1px solid var(--control-border); background: var(--card); border-radius: 50%; min-width: 32px; min-height: 32px; cursor: pointer; }
+.indicator-help button:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }

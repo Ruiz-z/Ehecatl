@@ -1,5 +1,6 @@
 'use client';
 
+import { copy } from './copy';
 import { useState } from 'react';
 import { Area, CartesianGrid, ComposedChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import type { Parcel } from '@/features/parcels/types';
@@ -11,26 +12,26 @@ import { EmptyState, LoadingState } from '@/shared/components/ui';
 const metrics = [{
   key: 'rainfall',
   normal: 'rainfallNormal',
-  title: 'Lluvia por mes',
+  title: copy.charts.rain,
   unit: 'mm',
   color: 'var(--foreground)'
 }, {
   key: 'temperature',
   normal: 'temperatureNormal',
-  title: 'Temperatura del aire',
+  title: copy.charts.heat,
   unit: '°C',
   color: 'var(--foreground)'
 }, {
   key: 'moisture',
   normal: 'moistureNormal',
-  title: 'Humedad en raíz',
+  title: copy.moisture.title,
   unit: '%',
   color: 'var(--foreground)'
 }, {
   key: 'ndvi',
   normal: 'ndviNormal',
-  title: 'Verdor de la vegetación',
-  unit: 'NDVI',
+  title: copy.vegetation.title,
+  unit: '',
   color: 'var(--foreground)'
 }];
 export function FieldCharts({
@@ -75,8 +76,8 @@ function Charts({
         <div className="chart-legend">
           <span><i style={{
               background: metric.color
-            }} />Este ciclo</span>
-          <span><i className="normal-line" />Lo normal</span>
+            }} />{copy.charts.current}</span>
+          <span><i className="normal-line" />{copy.charts.normal}</span>
         </div>
         <div className="chart-frame" role="img" aria-label={`${metric.title}${summary ? `: ${summary.text}` : ''}. Comparación mensual con la media histórica.`}>
           <ResponsiveContainer width="100%" height="100%"><ComposedChart data={data} margin={{
@@ -98,9 +99,9 @@ function Charts({
                 fontSize: 13
               }} labelStyle={{
                 color: 'var(--card)'
-              }} formatter={(value, name) => [`${Number(value).toFixed(metric.key === 'ndvi' ? 2 : 1)} ${metric.unit}`, name]} />{metric.key === 'rainfall' ? <Area isAnimationActive={false} type="monotone" dataKey={metric.key} name="Este ciclo" fill={metric.color} fillOpacity={0.2} stroke={metric.color} strokeWidth={2} /> : <Line isAnimationActive={false} type="monotone" dataKey={metric.key} name="Este ciclo" stroke={metric.color} strokeWidth={2.5} dot={{
+              }} formatter={(value, name) => [`${Number(value).toFixed(metric.key === 'ndvi' ? 2 : 1)} ${metric.unit}`, name]} />{metric.key === 'rainfall' ? <Area isAnimationActive={false} type="monotone" dataKey={metric.key} name={copy.charts.current} fill={metric.color} fillOpacity={0.2} stroke={metric.color} strokeWidth={2} /> : <Line isAnimationActive={false} type="monotone" dataKey={metric.key} name={copy.charts.current} stroke={metric.color} strokeWidth={2.5} dot={{
                 r: 2
-              }} />}<Line isAnimationActive={false} type="monotone" dataKey={metric.normal} name="Lo normal (10 años)" stroke="var(--data-normal)" strokeDasharray="5 4" dot={false} strokeWidth={2} /></ComposedChart></ResponsiveContainer>
+              }} />}<Line isAnimationActive={false} type="monotone" dataKey={metric.normal} name={copy.charts.normal} stroke="var(--data-normal)" strokeDasharray="5 4" dot={false} strokeWidth={2} /></ComposedChart></ResponsiveContainer>
         </div>
         <p className="chart-source">{metric.key === 'ndvi' ? 'MODIS / ORNL DAAC' : 'NASA POWER'} · {indicators.periodLabel} · origen: {indicators.origin}</p>
         <details className="chart-table">
@@ -110,8 +111,8 @@ function Charts({
             <thead>
               <tr>
                 <th>Mes</th>
-                <th>Este ciclo</th>
-                <th>Lo normal</th>
+                <th>{copy.charts.current}</th>
+                <th>{copy.charts.normal}</th>
               </tr>
             </thead>
             <tbody>
@@ -129,5 +130,5 @@ function Charts({
   </div>;
 }
 function cell(value: string | number | null, key: string) {
-  return typeof value === 'number' ? value.toFixed(key === 'ndvi' ? 2 : 1) : '—';
+  return typeof value === 'number' ? value.toFixed(key === 'ndvi' ? 2 : 1) : '';
 }

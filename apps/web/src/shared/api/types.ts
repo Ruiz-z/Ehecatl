@@ -12,8 +12,9 @@ export interface Indicators {
   observations: Observation[];
   series: TimePoint[];
   summaries: Partial<Record<MetricKey, MetricSummary>>;
-  ndvi: { value: number | null; label: string; source?: string; date?: string };
+  ndvi: { value: number | null; label: string; source?: string; date?: string; zone?: number };
   lastObservation: string;
+  lastDataMonth?: string;
   periodLabel: string;
   origin: 'live' | 'cache' | 'mock';
   warnings: string[];
