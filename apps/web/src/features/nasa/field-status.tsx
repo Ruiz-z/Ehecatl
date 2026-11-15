@@ -42,7 +42,7 @@ function Status({
           <span>Verdor de la zona</span>
           <span className="chip neutral-chip">NDVI</span>
         </div>
-        <p>{data.ndvi.label}</p>
+        <strong className="ndvi-headline">{data.ndvi.label}</strong>
         {data.ndvi.value === null ? <small>MODIS no tiene una lectura confiable para este punto; no la inventamos.</small> : <details>
           <summary>Ver dato NASA</summary>
           <dl>

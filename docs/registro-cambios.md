@@ -1,5 +1,11 @@
 # Registro de cambios
 
+## 2026-11-14 — Tarjeta de NDVI sin hueco vacío
+
+- **Archivos:** `apps/web/src/features/nasa/field-status.tsx`, `apps/web/src/app/globals.css`, `docs/registro-cambios.md`.
+- **Qué se cambió:** el texto relativo del NDVI («5 % menos verde que lo normal para octubre») pasa a ser el titular de la tarjeta, que reparte su contenido en la altura de la imagen satelital con el dato técnico abajo.
+- **Por qué:** al quitar el número absoluto, la tarjeta quedaba con un bloque gris casi vacío junto al mapa.
+
 ## 2026-11-14 — Bloque A: credibilidad de la demo
 
 - **Archivos:** `docs/specs/spec-{003-nasa-data,005-rotation-engine,006-web-ui}.md`, `docs/contracts.md`, `apps/api/prisma/demo-profiles.json`, `apps/api/src/modules/rotation-engine/engine/{sequences,risk-groups}.ts`, `apps/api/test/{engine,contracts}.spec.ts`, `apps/geo/tests/{test_qa_e2e,test_planetary_modis}.py`, `apps/web/src/shared/api/{adapters,adapters.test,client,types}.ts`, `apps/web/src/features/nasa/{types.ts,field-status.tsx,field-charts.tsx,fixtures/observations.ts}`, `apps/web/src/features/rotation/{types.ts,recommendations.tsx,fixtures/strategies.ts}`, `docs/fixtures/{indicators,recommendations}.json`, `docs/{backend-verification,pendientes-verificacion,qa-audit-backend,qa-fixes-backend}.md`, `docs/registro-cambios.md`.

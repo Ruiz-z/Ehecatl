@@ -572,3 +572,8 @@ summary { min-height:44px; align-content:center; }
 .score-income { background: var(--earth); }
 .score-risk { background: var(--crop-other); }
 .cycle-water { margin-block: 8px; font-size: 13px; }
+
+/* La tarjeta de NDVI llena su celda: titular relativo al centro y el dato técnico abajo. */
+.ndvi-card { display:flex; flex-direction:column; justify-content:space-between; gap:16px; }
+.ndvi-card > strong.ndvi-headline { font-size:26px; line-height:1.2; font-weight:600; letter-spacing:-.02em; margin:0; color:var(--foreground); }
+.ndvi-card > small, .ndvi-card > details { margin-top:0; }
