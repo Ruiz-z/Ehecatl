@@ -2,6 +2,8 @@
 
 Fecha: 15 de noviembre de 2026. Complemento del [reporte de conformidad](reporte-revision-esp32.md).
 
+**Actualización de integración:** el usuario entregó otra copia funcional de sensores y confirmó conexión en la misma red. El [firmware adaptado a Ehécatl](../firmware/README.md) conserva los pines del montaje, utiliza el contrato v1 y deja la bomba pendiente. Los hallazgos siguientes corresponden a los programas originales de SmartRiego; la verificación del nuevo firmware se registra en `registro-cambios.md`. No se incorporan las credenciales recibidas.
+
 Se revisaron las dos versiones entregadas por el usuario como referencia de SmartRiego. Se excluyen los servos y sus funciones, como pidió el usuario. No se copiaron los programas originales al repositorio porque contienen credenciales. Esta es una revisión estática: no se compilaron ni se cargaron a una placa.
 
 ## Versión actual: un punto de medición y una bomba
