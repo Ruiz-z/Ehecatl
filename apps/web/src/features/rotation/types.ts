@@ -22,6 +22,8 @@ export interface Reason {
 }
 export interface Strategy {
   irrigationNeedMm?: number;
+  score?: number;
+  delta?: number | null;
   id: string;
   baseline: boolean;
   name: string;
@@ -43,6 +45,7 @@ export interface RankedStrategy extends Strategy {
   delta: number | null;
 }
 export interface RecommendationResult {
+  priorities?: Priorities;
   status: 'ok' | 'no_viable_options';
   origin: 'live' | 'cache' | 'mock';
   confidence: 'Alta' | 'Media' | 'Baja';

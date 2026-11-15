@@ -131,6 +131,35 @@ Una perenne debe caber en el horizonte y ocupar ventanas consecutivas.
 
 ## Aprobaciones pendientes
 
+La autorización del usuario del 2026-11-15 cubre la preparación siguiente de sensores y la previsualización de prioridades. No aprueba umbrales agronómicos ni actuación.
+
+## Preparación de sensores v1 — 2026-11-15
+
+- `POST /zones/:id/recommendations` con JWT y `{priorities:{water,soil,income,risk}}`: calcula sin guardar, mismos permisos y respuesta del GET. Pesos validados y normalizados como `/me/priorities`.
+- `POST /devices` (admin JWT): `{zoneId,name,origin:"REAL"|"SIMULATED",expectedIntervalSeconds?,dryRaw?,wetRaw?,depthCm?}`. Modelo inicial FC28+DHT11+MQ2. Respuesta 201 `{device,apiKey}`; solo esta respuesta y la rotación muestran la clave.
+- `GET /zones/:id/devices` (dueño/admin): dispositivos sin hash ni clave, con `status`, `origin`, `connection:online|offline|revoked`, fecha/antigüedad de la última medición y recepción; calibración opcional versionada.
+- `PATCH /devices/:id` (admin): nombre, intervalo, profundidad, zona y par de calibración; ambos valores nulos eliminan calibración. No cambia origen ni lecturas anteriores.
+- `POST /devices/:id/rotate-key` y `/revoke` (admin): rotar devuelve clave una vez y revocar invalida; no hay reactivación de dispositivos revocados.
+- `GET /device` con `X-Device-Key`: diagnóstico del propio dispositivo, sin datos de terceros ni secretos. Permite al simulador verificar `SIMULATED` antes del primer envío.
+- `POST /readings` con `X-Device-Key`, JSON <=4 KiB:
+
+```json
+{
+  "readingId": "00000000-0000-4000-8000-000000000001",
+  "measuredAt": "2026-11-15T12:00:00.000Z",
+  "soilMoistureRaw": 1800,
+  "airTemperature": 24,
+  "airHumidity": 60,
+  "mq2Raw": 300
+}
+```
+
+Al menos una variable. ADC entero 0–4095, aire -50..80 °C y 0..100 %RH. La fecha del ejemplo debe sustituirse por la medición real. No se aceptan zona, origen ni índice de suelo calculado por el cliente. Se aplica la calibración guardada; sin ella `soilMoisture:null`. Confirmación 200 `{accepted:true,duplicate,id,readingId,measuredAt,receivedAt,origin}` sin comandos. Repetir el mismo contenido es idempotente; mismo identificador con contenido diferente 409. Clave inválida/revocada 401, dato inválido 400, exceso de solicitudes 429, JSON demasiado grande 413. Claves y hash nunca se devuelven en consultas ni logs.
+
+- `GET /zones/:id/readings?from&to&limit&cursor` (dueño/admin): fechas ISO UTC, intervalo <=31 días; últimos siete días y 50 filas por defecto, hasta 200. Respuesta `{items,nextCursor,from,to}`; por fila se conserva zona, dispositivo, origen, fechas, ADC, índice relativo nullable, variables opcionales y versión de calibración. No mezcla lecturas de zonas ni expone hashes. Cursor ajeno se rechaza.
+- `READINGS_MAX_AGE_HOURS=168` regula antigüedad admitida y `READINGS_RETENTION_DAYS=90` la limpieza explícita. Fecha futura se rechaza. Intervalo esperado de 300 s por defecto, mínimo 30; en línea hasta tres intervalos desde la medición más reciente. Limitador 60 peticiones/minuto por dispositivo en una instancia API. Reasignar o recalibrar no altera el historial.
+- No existen eventos ni órdenes de riego. Simulación marcada desde el registro, antes de enviar; MQ2 no se convierte a ppm ni cambia el motor. La comparación con NASA se presenta pendiente.
+
 H2 (contratos), H3 (perfiles demo) y H4 (agronomía) siguen siendo humanos.
 Los perfiles de seed son propuestas editables, no decisiones aprobadas.
 

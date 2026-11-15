@@ -1,0 +1,51 @@
+// Dispositivo de ejemplo: nunca imprime claves ni registra lecturas como reales.
+import { randomUUID } from 'node:crypto';
+import { setTimeout as wait } from 'node:timers/promises';
+import { pathToFileURL } from 'node:url';
+
+export async function simulate({ baseUrl, apiKey, count = 5, intervalMs = 5000, soilRaw = 1800, fetcher = fetch, sleep = wait }) {
+  if (!apiKey) throw new Error('Define DEVICE_API_KEY sin ponerla en argumentos ni en Git.');
+  if (!Number.isInteger(count) || count < 1 || count > 10000 || !Number.isFinite(intervalMs) || intervalMs < 1000 || intervalMs > 86400000 || !Number.isInteger(soilRaw) || soilRaw < 0 || soilRaw > 4095) throw new Error('Cantidad, intervalo o ADC inválidos.');
+  const base = new URL(baseUrl);
+  if (base.protocol !== 'https:' && !(base.protocol === 'http:' && ['localhost', '127.0.0.1', '[::1]'].includes(base.hostname))) throw new Error('Usa HTTPS; HTTP solo se permite en localhost.');
+  const headers = { 'Content-Type': 'application/json', 'X-Device-Key': apiKey };
+  const self = await fetcher(new URL('/device', base), { headers, signal: AbortSignal.timeout(10000) });
+  if (!self.ok) throw new Error(`No se pudo autenticar el dispositivo (${self.status}).`);
+  const device = await self.json();
+  if (device.origin !== 'SIMULATED') throw new Error('El simulador exige un dispositivo SIMULATED; no se envió ninguna lectura.');
+  const receipts = [];
+  for (let n = 0; n < count; n++) {
+    const payload = { readingId: randomUUID(), measuredAt: new Date().toISOString(), soilMoistureRaw: soilRaw,
+      airTemperature: Number((24 + Math.sin(n / 3)).toFixed(2)), airHumidity: Number((60 + Math.cos(n / 3) * 3).toFixed(2)), mq2Raw: 300 + n % 10 };
+    let accepted;
+    for (let attempt = 0; attempt < 4; attempt++) {
+      try {
+        const response = await fetcher(new URL('/readings', base), { method: 'POST', headers, body: JSON.stringify(payload), signal: AbortSignal.timeout(10000) });
+        if (!response.ok) {
+          if (response.status >= 500 || response.status === 429) { if (attempt === 3) throw new Error('Reintentos agotados.'); await sleep(response.status === 429 ? 60000 : 1000 * 2 ** attempt); continue; }
+          throw new Error(`Lectura rechazada (${response.status}); revisar fecha, rangos y calibración.`);
+        }
+        const result = await response.json();
+        if (result.accepted !== true || result.readingId !== payload.readingId || result.origin !== 'SIMULATED') throw new Error('Confirmación incompatible.');
+        accepted = result;
+        break;
+      } catch (error) {
+        // Solo errores de transporte se reintentan aquí; los errores HTTP son explícitos.
+        if (!(error instanceof TypeError || error?.name === 'TimeoutError' || error?.name === 'AbortError') || attempt === 3) throw error;
+        await sleep(1000 * 2 ** attempt);
+      }
+    }
+    if (!accepted) throw new Error('No se recibió confirmación.');
+    receipts.push(accepted);
+    if (n < count - 1) await sleep(intervalMs);
+  }
+  return receipts;
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  try {
+    const results = await simulate({ baseUrl: process.env.SIMULATOR_API_URL ?? 'http://localhost:3001', apiKey: process.env.DEVICE_API_KEY,
+      count: Number(process.env.SIMULATOR_COUNT ?? 5), intervalMs: Number(process.env.SIMULATOR_INTERVAL_MS ?? 5000), soilRaw: Number(process.env.SIMULATOR_SOIL_RAW ?? 1800) });
+    console.log(`Simulación terminada: ${results.length} lecturas de ejemplo confirmadas.`);
+  } catch (error) { console.error(error instanceof Error ? error.message : 'Falló el simulador.'); process.exitCode = 1; }
+}

@@ -5,6 +5,7 @@ export interface Observation {
   status: string;
   consequence: string;
   source: string;
+  resolution?: string;
   date: string;
   origin: 'live' | 'cache' | 'mock';
   tone: 'warning' | 'good' | 'neutral';

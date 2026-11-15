@@ -4,6 +4,7 @@ import { demoParcels } from '@/features/parcels/fixtures/parcels';
 import { observationsFor, mockIndicatorResponse } from '@/features/nasa/fixtures/observations';
 import { strategiesFor } from '@/features/rotation/fixtures/strategies';
 import { validateLogin } from '@/features/identity/validation';
+import { selectZone } from '@/features/parcels/zones';
 import { authClient } from './auth-client';
 import { mapCrops, mapIndicators, mapParcel, mapRecommendations, mapSession, type ApiCrop, type ApiIndicators, type ApiLogin, type ApiParcel, type ApiRecommendations } from './adapters';
 import type { ApiClient, Crop, Indicators, Parcel, Priorities, Session } from './types';
@@ -19,7 +20,7 @@ function localParcels(): Parcel[] {
   const stored: Parcel[] = JSON.parse(localStorage.getItem(parcelKey) ?? '[]');
   return [...demoParcels.filter(p => !stored.some(s => s.id === p.id)), ...stored];
 }
-async function request<T>(path: string, method = 'GET', body?: unknown, token?: string): Promise<T> {
+export async function request<T>(path: string, method = 'GET', body?: unknown, token?: string): Promise<T> {
   const bearer = token ?? authClient.getSession()?.accessToken;
   const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'}${path}`, {
     method, headers: { 'Content-Type': 'application/json', ...(bearer ? { Authorization: `Bearer ${bearer}` } : {}) },
@@ -29,13 +30,17 @@ async function request<T>(path: string, method = 'GET', body?: unknown, token?: 
   if (response.status === 403) throw new Error('No tienes acceso a esta parcela.');
   if (response.status === 404) throw new Error('No encontramos lo que buscas.');
   if (response.status === 502 || response.status === 504) throw new Error('No pudimos consultar los datos NASA ahora. Intenta de nuevo en un momento.');
-  if (!response.ok) throw new Error('No se pudo completar la solicitud. Intenta de nuevo.');
+  if (!response.ok) {
+    const failure = await response.json().catch(() => null) as { message?: unknown } | null;
+    throw new Error(typeof failure?.message === 'string' ? failure.message : 'No se pudo completar la solicitud. Intenta de nuevo.');
+  }
   return response.status === 204 ? (undefined as T) : response.json() as Promise<T>;
 }
 function mockIndicators(parcel: Parcel): Indicators {
   return mapIndicators(mockIndicatorResponse(parcel));
 }
 const mock: ApiClient = {
+  async createZone() { throw new Error('La gestión de zonas requiere el modo conectado a la API.'); },
   async login(input) {
     const user = authenticateDemo(input);
     return { user, accessToken: `mock-${user.id}`, expiresAt: Date.now() + 3600000 };
@@ -50,11 +55,11 @@ const mock: ApiClient = {
     return owned;
   },
   async getIndicators(parcel) { session(); return mockIndicators(parcel); },
-  async getRecommendations(parcel) {
+  async getRecommendations(parcel, priorities) {
     session();
     const first = observationsFor(parcel)[0]!;
     return {
-      status: parcel.dataState === 'no-windows' ? 'no_viable_options' : 'ok', origin: 'mock', horizonStart: '2026-11',
+      status: parcel.dataState === 'no-windows' ? 'no_viable_options' : 'ok', origin: 'mock', horizonStart: '2026-11', priorities,
       confidence: 'Baja', warnings: ['Datos de ejemplo: demanda del catálogo, sin cálculo ETc NASA.'],
       risk: { level: parcel.risk === 'high' ? 'high' : 'low', reasons: [`${first.value} de lluvia disponible. ${first.consequence}`] },
       strategies: parcel.dataState === 'no-windows' ? [] : strategiesFor(parcel)
@@ -68,6 +73,14 @@ function crops(): Promise<Crop[]> {
   return cropCache;
 }
 const remote: ApiClient = {
+  async createZone(parcel, input) {
+    const zone = await request<{ id: string }>(`/parcels/${encodeURIComponent(parcel.id)}/zones`, 'POST', input);
+    const mapped = mapParcel(await request<ApiParcel>(`/parcels/${encodeURIComponent(parcel.id)}`), await crops());
+    if (!mapped) throw new Error('La parcela no tiene zonas.');
+    const selected = selectZone(mapped, zone.id);
+    if (!selected) throw new Error('No se encontró la zona creada.');
+    return selected;
+  },
   async login(input) {
     const error = validateLogin(input); if (error) throw new Error(error);
     const login = await request<ApiLogin>('/auth/login', 'POST', input);
@@ -90,9 +103,9 @@ const remote: ApiClient = {
     if (!parcel.zoneId) throw new Error('La parcela no incluye zoneId; no se pueden pedir indicadores por zona.');
     return mapIndicators(await request<ApiIndicators>(`/zones/${encodeURIComponent(parcel.zoneId)}/indicators`));
   },
-  async getRecommendations(parcel) {
+  async getRecommendations(parcel, priorities) {
     if (!parcel.zoneId) throw new Error('La parcela no incluye zoneId; no se puede pedir una recomendación por zona.');
-    const [response, catalog] = await Promise.all([request<ApiRecommendations>(`/zones/${encodeURIComponent(parcel.zoneId)}/recommendations`), crops()]);
+    const [response, catalog] = await Promise.all([request<ApiRecommendations>(`/zones/${encodeURIComponent(parcel.zoneId)}/recommendations`, priorities ? 'POST' : 'GET', priorities ? { priorities } : undefined), crops()]);
     return mapRecommendations(response, catalog);
   },
   async savePriorities(weights) {

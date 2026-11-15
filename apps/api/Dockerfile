@@ -19,6 +19,7 @@ COPY --from=build /workspace/apps/api/node_modules ./apps/api/node_modules
 COPY --from=build /workspace/apps/api/dist ./apps/api/dist
 COPY --from=build /workspace/apps/api/dist-seed ./apps/api/dist-seed
 COPY --from=build /workspace/apps/api/package.json ./apps/api/package.json
+COPY --from=build /workspace/apps/api/scripts ./apps/api/scripts
 COPY --from=build /workspace/apps/api/prisma ./apps/api/prisma
 COPY --from=build /workspace/apps/api/prisma.config.ts ./apps/api/prisma.config.ts
 COPY --chmod=755 apps/api/scripts/docker-entrypoint.sh /usr/local/bin/ehecatl-api-entrypoint
