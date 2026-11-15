@@ -15,6 +15,19 @@
 - Historial paginado por zona, orden descendente por fecha e ID; máximo 31 días y 200 muestras/página. Acceso y cursores validados antes de consultar.
 - Panel «Sensores»: lecturas, origen, fecha, calibración e historial; administración de dispositivos. Sin datos no simula mediciones. En modo de ejemplo no se registran dispositivos reales. «Comparación pendiente» sin clasificar concordancia ni aumentar confianza.
 
+## Integración del firmware — 2026-11-15
+
+Adaptación autorizada del programa funcional recibido, en una rama creada desde `origin/dev` conforme a la indicación corregida del usuario y a `AGENTS.md`. Se conserva DHT11 GPIO27, FC28 GPIO35, MQ2 GPIO33 y botón GPIO12. GPIO18 queda en LOW antes de habilitar su salida; no existe lógica de bomba, comandos ni eventos de riego. La polaridad del relé debe comprobarse antes de conectar una bomba.
+
+- La API y el ESP32 están en la misma red. El destino se configura con la IP LAN del equipo y puerto 3001, nunca `localhost`. HTTP se admite solo mediante autorización local explícita y destino IPv4 privado; para HTTPS se exige una CA, sin desactivar verificación TLS.
+- El firmware usa el contrato v1 existente: UUID v4, fecha UTC sincronizada por NTP, ADC crudo del FC28 y MQ2 y variables válidas de aire. Nunca convierte el ADC en porcentaje sin calibración ni envía NaN. Sin hora fiable sigue mostrando valores locales y espera para transmitir.
+- Lectura local cada dos segundos y envío cada 300 segundos por defecto, configurable entre 30 y 86400 segundos. El botón pausa la creación de muestras para enviar; los sensores y la página local continúan visibles. Se aplica antirrebote por flanco, sin alternar repetidamente al mantenerlo presionado.
+- La red se atiende en una tarea separada para no detener el botón ni la página local. Se conserva una muestra pendiente y hasta ocho en cola RAM; los reintentos mantienen exactamente ID, fecha y contenido. Cola llena: se omite la muestra nueva y se informa. Un reinicio pierde los pendientes; no se inventan ni reconstruyen muestras perdidas.
+- Errores de red, 408, 425, 429 y 5xx reintentan con espera creciente de 5 a 60 segundos. Otros errores HTTP se muestran sin exponer secretos y descartan la muestra rechazada; 401/403 suspenden el envío hasta corregir configuración y reiniciar. Solo HTTP 200 confirma recepción; no se interpreta como orden de riego.
+- Configuración privada en `config.h` ignorado por Git y plantilla pública sin credenciales. Se reutilizan las bibliotecas del programa recibido (Arduino-ESP32 y DHT), sin añadir un parser JSON ni dependencias al backend o front.
+
+La compilación y pruebas de software se registran por separado de la prueba física. La bomba y su alimentación siguen pendientes. Montaje, profundidad, calibración y verificación extremo a extremo con el nodo real se realizan en campo; no se declaran completados por compilar el firmware.
+
 La comparación y avisos siguientes describen la fase posterior. Siete días de campo no tienen una contraparte diaria en el servicio NASA mensual actual.
 
 ## Contexto y objetivo

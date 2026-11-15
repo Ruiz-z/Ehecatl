@@ -67,3 +67,7 @@ docker compose config -q
 
 ## Módulos
 `identity` · `farm-context` · `nasa-data` · `crop-knowledge` · `rotation-engine` · `web-ui` · `iot-optional` (stretch)
+
+## Firmware ESP32
+
+El [programa y la guía del ESP32](firmware/README.md) conectan DHT11, FC28 y MQ2 a la API de Ehécatl en la misma red. La bomba sigue pendiente.
