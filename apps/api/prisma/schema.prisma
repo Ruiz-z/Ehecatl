@@ -22,6 +22,7 @@ model User {
   role         Role        @default(FARMER)
   createdAt    DateTime    @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt    DateTime    @updatedAt @map("updated_at") @db.Timestamptz(3)
+  irrigationCommands IrrigationCommand[]
   parcels      Parcel[]
   priorities   Priorities?
   @@map("users")
@@ -67,6 +68,7 @@ model Zone {
   updatedAt     DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
   parcel        Parcel        @relation(fields: [parcelId], references: [id], onDelete: Cascade)
   history       CropHistory[]
+  irrigationCommands IrrigationCommand[]
   devices       FieldDevice[]
   readings      FieldReading[]
   @@index([parcelId])
@@ -127,6 +129,7 @@ model FieldDevice {
   createdAt               DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt               DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
   zone                    Zone          @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+  irrigationCommands      IrrigationCommand[]
   readings                FieldReading[]
   @@index([zoneId])
   @@map("field_devices")
@@ -155,4 +158,35 @@ model FieldReading {
   @@index([zoneId, measuredAt, id])
   @@index([measuredAt])
   @@map("field_readings")
+}
+
+
+enum IrrigationStatus {
+  PENDING
+  DELIVERED
+  DONE
+  EXPIRED
+  CANCELLED
+  FAILED
+}
+
+model IrrigationCommand {
+  id String @id @default(uuid()) @db.Uuid
+  deviceId String @map("device_id") @db.Uuid
+  zoneId String @map("zone_id") @db.Uuid
+  requestedByUserId String @map("requested_by_user_id") @db.Uuid
+  durationSeconds Int @map("duration_seconds")
+  status IrrigationStatus @default(PENDING)
+  origin ReadingOrigin
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  expiresAt DateTime @map("expires_at") @db.Timestamptz(3)
+  deliveredAt DateTime? @map("delivered_at") @db.Timestamptz(3)
+  finishedAt DateTime? @map("finished_at") @db.Timestamptz(3)
+  actualSeconds Float? @map("actual_seconds")
+  device FieldDevice @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  zone Zone @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+  requestedBy User @relation(fields: [requestedByUserId], references: [id], onDelete: Cascade)
+  @@index([zoneId, createdAt])
+  @@index([deviceId, status])
+  @@map("irrigation_commands")
 }

@@ -30,3 +30,27 @@ test('clave rechazada y exceso de tasa no se interpretan como éxito', async () 
 test('no envía credenciales por HTTP a destinos remotos ni acepta cantidades ilimitadas', async () => {
   for (const change of [{ baseUrl: 'http://remote.invalid' }, { count: 0 }, { count: 10001 }, { intervalMs: 0 }, { soilRaw: 4096 }]) await assert.rejects(simulate({ ...options, ...change }), /HTTPS|inválidos/);
 });
+
+test('el simulador recoge, ejecuta y reporta una orden manual marcada', async () => {
+  const { pollIrrigation } = await import('./simulate-device.mjs');
+  let clock = 2000000000000, reported;
+  const startedAt = clock - 1000;
+  const result = await pollIrrigation({ ...options, startedAt, now: () => clock,
+    sleep: async ms => { clock += ms; }, fetcher: async (url, init) => {
+      if (url.pathname === '/device') return { ok: true, json: async () => ({ origin: 'SIMULATED' }) };
+      if (url.pathname.endsWith('/next')) return { ok: true, status: 200, json: async () => ({ id: 'test-command', durationSeconds: 10, createdAt: new Date(clock).toISOString(), expiresAt: new Date(clock + 120000).toISOString() }) };
+      reported = JSON.parse(init.body); return { ok: true };
+    } });
+  assert.equal(result.origin, 'SIMULATED'); assert.deepEqual(reported, { status: 'DONE', actualSeconds: 10 });
+});
+
+test('el simulador rechaza orden previa al arranque y no espera para regar', async () => {
+  const { pollIrrigation } = await import('./simulate-device.mjs');
+  const clock = 2000000000000; let slept = false, reported;
+  await pollIrrigation({ ...options, startedAt: clock, now: () => clock, sleep: async () => { slept = true; }, fetcher: async (url, init) => {
+    if (url.pathname === '/device') return { ok: true, json: async () => ({ origin: 'SIMULATED' }) };
+    if (url.pathname.endsWith('/next')) return { ok: true, status: 200, json: async () => ({ id: 'old', durationSeconds: 10, createdAt: new Date(clock - 1).toISOString(), expiresAt: new Date(clock + 120000).toISOString() }) };
+    reported = JSON.parse(init.body); return { ok: true };
+  } });
+  assert.equal(slept, false); assert.deepEqual(reported, { status: 'FAILED', actualSeconds: 0 });
+});

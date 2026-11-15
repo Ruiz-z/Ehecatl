@@ -1,13 +1,13 @@
 # Spec 007 — Sensores a pie de parcela (verdad de terreno y confianza)
 
-> **Estado: preparación de software autorizada por el usuario el 2026-11-15.** Se implementan dispositivos, lecturas, frescura, pantalla y simulador (RF-1 a RF-8, RF-13, RF-15 y RF-19). RF-9 a RF-12, RF-14 y RF-16 a RF-18 siguen como fase posterior, sujeta a datos equivalentes y validación H4. Se reutiliza el patrón de dispositivos de SmartRiego MX; aquí el sistema **solo informa**, nunca acciona.
+> **Estado: preparación de software autorizada por el usuario el 2026-11-15.** Se implementan dispositivos, lecturas, frescura, pantalla y simulador (RF-1 a RF-8, RF-13, RF-15 y RF-19 a RF-23). RF-9 a RF-12, RF-14 y RF-16 a RF-18 siguen como fase posterior, sujeta a datos equivalentes y validación H4. Se reutiliza el patrón de dispositivos de SmartRiego MX; se autoriza además riego solo manual. El riego automático sigue prohibido.
 
 ## Entrega inicial autorizada — 2026-11-15
 
-- Hardware confirmado: FC28 resistivo de dos puntas, DHT11 y MQ2; un punto por dispositivo lógico, conectado por WiFi. Profundidad y calibración de campo pendientes. No se incluyen servos, comandos ni control de bomba.
+- Hardware confirmado: FC28 resistivo de dos puntas, DHT11 y MQ2; un punto por dispositivo lógico, conectado por WiFi. Profundidad y calibración de campo pendientes. No se incluyen servos ni riego automático. Se autoriza una bomba con órdenes manuales.
 - Administración con JWT y rol administrador; consulta por dueño o administrador. El origen `REAL` o `SIMULATED` se fija al registrar y no se puede cambiar. El simulador solo utiliza dispositivos `SIMULATED`.
 - Credencial aleatoria de 32 bytes, almacenada solo como SHA-256 y mostrada una vez. Rotación/revocación inmediatas. El dispositivo determina la zona; el payload no puede elegirla. La reasignación conserva las lecturas en su zona histórica.
-- Envío v1: `readingId` UUID estable por muestra, `measuredAt` ISO UTC y al menos uno de `soilMoistureRaw` (entero ADC 0–4095), `airTemperature` (°C, -50 a 80), `airHumidity` (%, 0–100), `mq2Raw` (entero ADC 0–4095). No se aceptan nombres ambiguos, comandos ni números no finitos. MQ2 es experimental, sin ppm ni influencia en recomendaciones.
+- Envío v1: `readingId` UUID estable por muestra, `measuredAt` ISO UTC y al menos uno de `soilMoistureRaw` (entero ADC 0–4095), `airTemperature` (°C, -50 a 80), `airHumidity` (%, 0–100), `mq2Raw` (entero ADC 0–4095). No se aceptan nombres ambiguos ni números no finitos. Las lecturas no transportan comandos. MQ2 es experimental, sin ppm ni influencia en recomendaciones.
 - Calibración opcional `dryRaw`/`wetRaw`, ambos enteros 0–4095 distintos. `soilMoisture=(raw-dryRaw)/(wetRaw-dryRaw)` es un índice relativo 0–1, no contenido volumétrico ni equivalente a GWETROOT. Sin calibración se guarda crudo e índice nulo; fuera del intervalo calibrado se rechaza sin recortar. Se conserva la versión de calibración por lectura.
 - Reintentos idempotentes por dispositivo y `readingId`: mismo contenido confirma sin duplicar; otro contenido devuelve 409. Fechas futuras o anteriores a `READINGS_MAX_AGE_HOURS` (168 por defecto) se rechazan. Se registra el motivo sin claves ni payload en logs.
 - Intervalo esperado 30–86400 s (300 por defecto). En línea si la última medición tiene antigüedad <= tres intervalos; recepción y medición se muestran separadas. Datos viejos reenviados no hacen aparecer fresco al sensor. Revocados nunca aparecen en línea.
@@ -17,16 +17,16 @@
 
 ## Integración del firmware — 2026-11-15
 
-Adaptación autorizada del programa funcional recibido, en una rama creada desde `origin/dev` conforme a la indicación corregida del usuario y a `AGENTS.md`. Se conserva DHT11 GPIO27, FC28 GPIO35, MQ2 GPIO33 y botón GPIO12. GPIO18 queda en LOW antes de habilitar su salida; no existe lógica de bomba, comandos ni eventos de riego. La polaridad del relé debe comprobarse antes de conectar una bomba.
+Adaptación autorizada del programa funcional recibido, en una rama creada desde `origin/dev` conforme a la indicación corregida del usuario y a `AGENTS.md`. Se conserva DHT11 GPIO27, FC28 GPIO35, MQ2 GPIO33 y botón GPIO12. GPIO18 arranca apagado según polaridad configurable. Solo ejecuta órdenes manuales vigentes. La polaridad del relé debe comprobarse antes de conectar una bomba.
 
 - La API y el ESP32 están en la misma red. El destino se configura con la IP LAN del equipo y puerto 3001, nunca `localhost`. HTTP se admite solo mediante autorización local explícita y destino IPv4 privado; para HTTPS se exige una CA, sin desactivar verificación TLS.
 - El firmware usa el contrato v1 existente: UUID v4, fecha UTC sincronizada por NTP, ADC crudo del FC28 y MQ2 y variables válidas de aire. Nunca convierte el ADC en porcentaje sin calibración ni envía NaN. Sin hora fiable sigue mostrando valores locales y espera para transmitir.
 - Lectura local cada dos segundos y envío cada 300 segundos por defecto, configurable entre 30 y 86400 segundos. El botón pausa la creación de muestras para enviar; los sensores y la página local continúan visibles. Se aplica antirrebote por flanco, sin alternar repetidamente al mantenerlo presionado.
 - La red se atiende en una tarea separada para no detener el botón ni la página local. Se conserva una muestra pendiente y hasta ocho en cola RAM; los reintentos mantienen exactamente ID, fecha y contenido. Cola llena: se omite la muestra nueva y se informa. Un reinicio pierde los pendientes; no se inventan ni reconstruyen muestras perdidas.
 - Errores de red, 408, 425, 429 y 5xx reintentan con espera creciente de 5 a 60 segundos. Otros errores HTTP se muestran sin exponer secretos y descartan la muestra rechazada; 401/403 suspenden el envío hasta corregir configuración y reiniciar. Solo HTTP 200 confirma recepción; no se interpreta como orden de riego.
-- Configuración privada en `config.h` ignorado por Git y plantilla pública sin credenciales. Se reutilizan las bibliotecas del programa recibido (Arduino-ESP32 y DHT), sin añadir un parser JSON ni dependencias al backend o front.
+- Configuración privada en `config.h` ignorado por Git y plantilla pública sin credenciales. Se reutilizan las bibliotecas del programa recibido (Arduino-ESP32 y DHT), sin añadir bibliotecas de JSON ni dependencias al backend o front. El parser de órdenes es acotado y se prueba en C++.
 
-La compilación y pruebas de software se registran por separado de la prueba física. La bomba y su alimentación siguen pendientes. Montaje, profundidad, calibración y verificación extremo a extremo con el nodo real se realizan en campo; no se declaran completados por compilar el firmware.
+La compilación y pruebas de software se registran por separado de la prueba física. El montaje de la bomba y su alimentación siguen pendientes. Montaje, profundidad, calibración y verificación extremo a extremo con el nodo real se realizan en campo; no se declaran completados por compilar el firmware.
 
 La comparación y avisos siguientes describen la fase posterior. Siete días de campo no tienen una contraparte diaria en el servicio NASA mensual actual.
 
@@ -68,8 +68,12 @@ Agricultor (ve lecturas, comparación y avisos de sus zonas), Administrador (da 
 - RF-13: EL SISTEMA expone en cada dato la **fecha del dato** y su **antigüedad**: para campo, minutos o horas desde la última lectura; para satélite, la fecha del último valor y la frecuencia propia de la fuente.
 - RF-14: CUANDO una recomendación de la spec 005 se calcula para una zona con sensor activo, EL SISTEMA añade a su confianza el resultado de la comparación: concordancia alta con datos frescos la **mantiene o sube**; falta de concordancia la **baja** y lo explica («tu sensor y el satélite no coinciden»). Sin sensor, la recomendación declara «basada solo en datos satelitales».
 
-### Avisos, no acciones
-- RF-15: EL SISTEMA **nunca** envía comandos a un dispositivo ni acciona riego u otro actuador. Las respuestas a `POST /readings` solo confirman recepción.
+### Riego manual y avisos
+- RF-15: Solo una persona dueña de la zona o administradora puede solicitar riego manual con confirmación desde Sensores. Las lecturas solo confirman recepción. El riego automático sigue prohibido, incluso por umbrales, recomendaciones u horarios.
+- RF-20: La API valida duración entera de 1 a 30 segundos, dispositivo activo en línea, una orden a la vez por zona y dispositivo y enfriamiento mínimo de cinco minutos desde el final. Registra solicitante, zona, dispositivo, fechas y segundos reales. La orden vence a los dos minutos.
+- RF-21: El dispositivo consulta cada cinco segundos con su clave. La entrega es atómica y no se repite. Solo ese dispositivo puede reportar DONE o FAILED. La cancelación solo admite órdenes PENDING. El historial requiere dueño o administrador.
+- RF-22: El firmware impone máximo duro de 30 segundos, cinco minutos de enfriamiento desde apagado y un solo riego. Apaga al perder WiFi, vencer la orden o reiniciar. Arranca apagado, con polaridad configurable. Rechaza órdenes creadas antes del arranque y no recupera órdenes entregadas. Tras reiniciar espera cinco minutos antes de aceptar otra orden. No se permite aumentar los límites desde la configuración.
+- RF-23: El simulador solo ejecuta dispositivos SIMULATED y conserva esa marca en historial. La web muestra duración, confirmación, estado, solicitante y aviso permanente: «Versión beta. El riego es manual, el sistema nunca riega solo.» Sin dispositivo en línea explica por qué no permite regar.
 - RF-16: CUANDO una lectura de campo cruza un umbral relevante para el cultivo de la zona (p. ej. humedad de raíz por debajo del nivel útil) o la comparación revela una discrepancia fuerte, EL SISTEMA genera un **aviso** con el dato medido, su frescura y las **medidas sugeridas** en lenguaje de campo, aclarando que es una sugerencia de una versión beta y que la decisión es del agricultor.
 - RF-17: EL SISTEMA evita avisos repetidos: no genera otro aviso igual para la misma zona mientras el anterior siga vigente.
 - RF-18: CUANDO el agricultor ve un aviso, PUEDE marcarlo como «lo apliqué» o «no lo apliqué»; EL SISTEMA lo registra para evaluar la herramienta. Es informativo y no cambia ninguna decisión del sistema.
@@ -93,7 +97,7 @@ Agricultor (ve lecturas, comparación y avisos de sus zonas), Administrador (da 
 - Satélite sin dato del periodo (p. ej. NDVI sin cobertura) → esa variable no se compara y se dice.
 
 ## Fuera de alcance
-- **Accionar riego u otros actuadores** y cualquier comando al dispositivo (la app es beta; solo avisa).
+- Riego automático, horarios y actuadores distintos de la bomba manual autorizada.
 - Visión artificial, imágenes de dron (RGB, multiespectrales, hiperespectrales) y lisímetro.
 - Cálculo de evapotranspiración (ETo, ETc, Kc de FAO-56): es tema de una spec aparte.
 - Aprovisionamiento automático de dispositivos, firmware OTA y calibración remota.
@@ -116,3 +120,6 @@ RF-1 a RF-19 con test en verde, más una demo con **un nodo real** (o lecturas d
 4. ¿Quién da de alta el dispositivo: solo el administrador, como en SmartRiego, o también el agricultor?
 5. Umbrales de concordancia y de aviso por cultivo: requieren revisión agronómica (H4).
 6. ¿Se reutiliza el firmware de SmartRiego (`firmware/smartriego-esp32`) cambiando el destino y quitando la parte de comandos?
+
+## Alcance del riego manual
+Fuera de alcance: riego automático, horarios, caudal y varias bombas. Si hay varios dispositivos, la API elige el primero activo en línea por ID. Las órdenes entregadas sin reporte se cierran como FAILED tras vencer, con enfriamiento conservador de cinco minutos. El historial devuelve las últimas 100 órdenes. La API permite diez solicitudes de creación por usuario por minuto y comparte el límite de 60 solicitudes por minuto del dispositivo. Los límites en memoria corresponden a una instancia de Compose.

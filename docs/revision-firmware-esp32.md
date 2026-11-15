@@ -2,7 +2,7 @@
 
 Fecha: 15 de noviembre de 2026. Complemento del [reporte de conformidad](reporte-revision-esp32.md).
 
-**Actualización de integración:** el usuario entregó otra copia funcional de sensores y confirmó conexión en la misma red. El [firmware adaptado a Ehécatl](../firmware/README.md) conserva los pines del montaje, utiliza el contrato v1 y deja la bomba pendiente. Los hallazgos siguientes corresponden a los programas originales de SmartRiego; la verificación del nuevo firmware se registra en `registro-cambios.md`. No se incorporan las credenciales recibidas.
+**Actualización de integración:** el usuario entregó otra copia funcional de sensores y confirmó conexión en la misma red. El [firmware adaptado a Ehécatl](../firmware/README.md) conserva los pines del montaje, utiliza el contrato v1 y agrega riego solo manual según la autorización actual. El montaje físico sigue pendiente. Los hallazgos siguientes corresponden a los programas originales de SmartRiego; la verificación del nuevo firmware se registra en `registro-cambios.md`. No se incorporan las credenciales recibidas.
 
 Se revisaron las dos versiones entregadas por el usuario como referencia de SmartRiego. Se excluyen los servos y sus funciones, como pidió el usuario. No se copiaron los programas originales al repositorio porque contienen credenciales. Esta es una revisión estática: no se compilaron ni se cargaron a una placa.
 
@@ -37,7 +37,7 @@ El programa sigue midiendo y enviando con `sistemaActivo=false`; la pausa solo e
 
 Para una primera entrega alineada con la spec 007: **FC28 + DHT11 → ESP32 → recepción y almacenamiento en Ehécatl → pantalla de su zona**. Acordar payload, calibración, fecha y confirmación; emitir una clave nueva; agregar validación y reintentos. MQ2 puede incorporarse después de definir sus campos y significado.
 
-La respuesta a una lectura debe confirmar recepción según la propuesta vigente. Mantener decisiones `REGAR`/`ESPERAR` y eventos de bomba requeriría ampliar el alcance: la spec 007 RF-15 sigue contemplando medir y avisar sin actuación. Esta revisión no cambia esa regla ni implementa firmware.
+La revisión histórica no autorizaba actuación. La spec 007 RF-15 y RF-20 a RF-23 ahora permiten exclusivamente órdenes manuales separadas de las lecturas. El riego automático sigue prohibido.
 
 Se volvió a ejecutar la suite del proyecto: revisión de código en verde con caché de Turbo y 125 pruebas correctas, con 15 omitidas por falta de conexiones configuradas. No son pruebas del ESP32. El destino remoto y las credenciales de SmartRiego no se utilizaron; su traslado a Ehécatl sigue pendiente de configuración y renovación de claves.
 
@@ -105,3 +105,11 @@ La spec 007 RF-15 prohíbe accionar riego. El firmware recibido ya contiene actu
 El archivo recibido contiene contraseña WiFi y tres claves de dispositivo en texto plano. Si siguen vigentes, cambiar la contraseña y revocar o regenerar esas claves antes de reutilizarlas. En una futura carpeta de firmware, versionar una configuración de ejemplo y mantener la configuración real ignorada por Git. No se han probado las claves, contactado el destino SmartRiego ni copiado sus valores a estos documentos.
 
 Las comprobaciones del proyecto siguen pasando: `pnpm lint` pasa con caché de Turbo y `pnpm test` ejecuta de nuevo 125 pruebas correctas, con 15 omitidas por falta de conexiones configuradas. **Estas pruebas no validan el firmware.** No se detectaron herramientas Arduino CLI/PlatformIO en el entorno; faltan placa, versiones de librerías y ensayo físico para confirmar compilación y comportamiento.
+
+## Cierre de software del punto de bomba: riego solo manual
+
+La constitución y la spec se actualizaron antes del código. Se retira la decisión automática por humedad del diseño de integración. El firmware consulta órdenes manuales con clave propia y aplica tope de 30 segundos, cinco minutos desde apagado y exclusión de riegos. La salida arranca apagada con polaridad configurable. Una tarea independiente de sensores y HTTP corta por WiFi, expiración o credencial rechazada. Reiniciar apaga y no recupera órdenes. También espera cinco minutos tras el arranque y rechaza órdenes anteriores a este.
+
+La prueba C++ usa la misma máquina de estados y parser que el sketch. Cubre tope, enfriamiento, WiFi, vencimiento, reinicio, exclusión, desbordamiento del contador y contrato sin bibliotecas nuevas. API con JWT por dueño o administrador, entrega atómica por clave, cancelación pendiente, auditoría e historial marcado. Verificación detallada y límites de lo observado en `registro-cambios.md`.
+
+El punto de software queda implementado. El punto de hardware permanece abierto: relé o MOSFET, alimentación separada, protección inductiva, polaridad y prueba supervisada sin agua. No se conectó ni se ejecutó nada contra hardware. La compilación de C++ no demuestra que el relé esté apagado físicamente. El riego automático está prohibido.
