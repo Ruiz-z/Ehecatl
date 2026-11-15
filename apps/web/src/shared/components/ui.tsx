@@ -1,11 +1,18 @@
 import { FlaskConical, Sprout } from 'lucide-react';
 import Link from 'next/link';
+export function BrandMark() {
+  return <svg width={28} height={28} viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
+    <path d="M16 28V16" />
+    <path d="M16 18C10 18 7 14 7 9c5 0 9 3 9 9Z" fill="var(--accent)" stroke="var(--accent)" />
+    <path d="M16 16h6a4 4 0 1 0-4-4" />
+  </svg>;
+}
 export function Brand({
   compact = false
 }: {
   compact?: boolean;
 }) {
-  return <Link href="/parcelas" className={`brand ${compact ? 'compact' : ''}`} aria-label="Ehécatl, mis parcelas"><Sprout size={28} strokeWidth={1.75} />{!compact && <span>ehécatl<span className="brand-dot">.</span></span>}</Link>;
+  return <Link href="/parcelas" className={`brand ${compact ? 'compact' : ''}`} aria-label="Ehécatl, mis parcelas"><BrandMark />{!compact && <span>ehécatl<span className="brand-dot">.</span></span>}</Link>;
 }
 export function DemoChip() {
   return <span className="chip demo-chip"><FlaskConical size={13} />Datos de ejemplo</span>;

@@ -44,7 +44,8 @@ input, select { min-width: 0; }
 .warning-text { color: var(--warning); }
 .good-text { color: var(--primary); }
 .error-text { color: var(--danger); }
-.brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 700; font-size: 28px; letter-spacing: -.05em; color: var(--primary); }
+.brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 650; font-size: 28px; letter-spacing: -.03em; color: var(--primary); }
+.brand > svg { flex-shrink: 0; }
 .brand-dot { color: var(--accent); }
 .chip { display: inline-flex; align-items: center; gap: 5px; border-radius: 5px; padding: 4px 7px; font-size: 13px; font-weight: 550; line-height: 1.35; white-space: nowrap; }
 .demo-chip { background: var(--warning-soft); color: var(--warning); }
@@ -427,7 +428,7 @@ small { font-size:13px; }
 .confidence .chip { font-weight:600; color:var(--foreground); }
 .sliders { grid-template-columns:1fr 1fr; margin-top:24px; }
 .priority-slider input { accent-color:var(--accent-text); }
-.login-page { min-height:100dvh; padding:120px 7vw 80px; display:grid; grid-template-columns:1fr 440px; gap:7vw; align-items:center; background-color:var(--foreground); background-image:url('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=-103.16,25.68,-102.96,25.86&bboxSR=4326&size=1800,1200&format=jpg&f=image'); background-size:cover; background-position:center; isolation:isolate; }
+.login-page { min-height:100dvh; padding:120px 7vw 80px; display:grid; grid-template-columns:1fr 440px; gap:7vw; align-items:center; background-color:var(--foreground); background-image:linear-gradient(to bottom,rgb(14 20 16 / .8),rgb(14 20 16 / 0) 160px),url('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=-103.16,25.68,-102.96,25.86&bboxSR=4326&size=1800,1200&format=jpg&f=image'); background-size:cover; background-position:center; isolation:isolate; }
 .login-intro { color:var(--card); background:linear-gradient(90deg,rgb(14 20 16 / .88),rgb(14 20 16 / .72)); padding:32px; margin-left:-32px; }
 .login-intro h1 { font-size:clamp(40px,5.5vw,80px); line-height:1.05; font-weight:650; letter-spacing:-.02em; }
 .login-intro p { margin-top:24px; font-size:18px; }
@@ -507,7 +508,7 @@ summary { min-height:44px; align-content:center; }
 .comparison-hint { font-size:13px; color:var(--muted-foreground); margin-bottom:12px; }
 .sequence-card:focus-visible { outline-offset:-6px; }
 .mobile-map-attribution { display:none; }
-.login-top .brand,.login-footer > span { background:var(--foreground); border-radius:14px; padding:8px 12px; }
+.login-footer > span { background:var(--foreground); border-radius:14px; padding:8px 12px; }
 .login-footer { justify-content:flex-start; }
 .collapsed { display:none; }
 .map-workspace:has(.collapsed) { grid-template-columns:0 100%; }

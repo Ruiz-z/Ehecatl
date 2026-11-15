@@ -1,5 +1,13 @@
 # Registro de cambios
 
+## 2026-11-15 · Logo propio de Ehécatl
+
+- **Archivos:** `apps/web/src/shared/components/ui.tsx`, `apps/web/src/app/{icon.svg,layout.tsx,globals.css}`, `docs/design.md`, `docs/registro-cambios.md`.
+- **Qué se cambió:** se agrega BrandMark con hoja lima, tallo y espiral de viento, también en el riel compacto. La palabra usa peso 650 y espaciado de -.03em. Se sustituye la placa del logo del login por un degradado superior de 160 px y se agrega el favicon mediante la convención de Next. Se documentan los usos de marca.
+- **Por qué:** distinguir la marca del icono de navegación, integrarla sobre la foto del login y dar identidad a la pestaña del navegador sin dependencias ni recursos externos nuevos.
+- **Verificación:** `pnpm --filter web lint`, `pnpm --filter web test` (54 aprobados) y `pnpm --filter web build` correctos. Se usó pnpm 10.34.9 existente en `/tmp` tras fallar el bloqueo de la instalación predeterminada por solo lectura; Node 26 advierte frente al 24 declarado. Playwright con Chromium: capturas del login a 1440 y 390 px, riel compacto y favicon a 16, 32 y 64 px en `/tmp/ehecatl-logo-*.png`, sin errores de página. Contraste revisado visualmente sobre la foto en ambas anchuras. Contenedor web reconstruido y recreado sin dependencias; enlace de favicon y SVG comprobados con respuesta 200 en localhost:3000.
+- **Decisiones:** se conserva el tallo en el favicon porque sigue legible a 16 px. Sin cambios fuera del plan. La pestaña nativa del navegador no se inspeccionó; se verificaron su enlace y recurso en Chromium.
+
 ## 2026-11-15 — Integración con la rama remota antes del push de sensores
 
 - **Archivos:** `apps/api/src/modules/crop-knowledge/data/crops.json`, `apps/api/test/catalog.spec.ts`, `apps/web/src/{app/globals.css,features/nasa/field-charts.tsx,features/nasa/field-status.tsx,features/rotation/recommendations.tsx,features/rotation/types.ts,shared/api/adapters.ts,shared/api/adapters.test.ts,shared/api/client.ts,shared/api/types.ts}`, `docs/fixtures/recommendations.json`, `docs/pendientes-equipo.md` y este registro.
