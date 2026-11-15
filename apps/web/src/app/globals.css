@@ -11,7 +11,7 @@
   --surface:var(--background); --ok:var(--accent); --ok-soft:var(--accent-soft);
   --earth:var(--control-border); --earth-text:var(--muted-foreground); --on-fill:var(--foreground);
   --warning:var(--risk-text); --danger:var(--risk-text); --sage:var(--background);
-  --data-rain:var(--foreground); --data-temperature:var(--foreground); --data-moisture:var(--foreground); --data-normal:#9AA39D;
+  --data-rain:#2F7FC1; --data-temperature:#D0410C; --data-moisture:var(--foreground); --data-normal:#9AA39D;
   --ndvi-low:#D73027; --ndvi-medium:#FEE08B; --ndvi-good:#A6D96A; --ndvi-high:#1A9850;
   --crop-grain:#E8A23B; --crop-legume:#3FA58A; --crop-other:#4B7BC8; --crop-cover:#B9C0BA;
 }
@@ -603,9 +603,6 @@ summary { min-height:44px; align-content:center; }
 .year-calendar button[aria-pressed="true"] { background: var(--accent-soft); border: 2px solid var(--foreground); }
 .year-calendar button:focus-visible, .year-calendar-scroll:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
 .calendar-tile { display: flex; align-items: center; justify-content: center; text-align: center; min-height: 58px; padding: 6px; border: 1px solid var(--control-border); border-radius: 6px; font-size: 13px; color: var(--foreground); }
-.calendar-zone-0 { background: var(--warning-soft); }
-.calendar-zone-1 { background: var(--background); }
-.calendar-zone-2 { background: var(--accent-soft); }
 .calendar-missing { background: repeating-linear-gradient(135deg, var(--card), var(--card) 6px, var(--border) 6px, var(--border) 7px); }
 .year-detail-strip { display: flex; gap: 8px; overflow-x: auto; padding: 12px 0; }
 .year-detail-strip > div { flex: 0 0 100px; display: grid; gap: 8px; text-align: center; font-size: 13px; }
@@ -619,8 +616,6 @@ summary { min-height:44px; align-content:center; }
 .indicator-heading .indicator-help { margin: 0; position: relative; }
 .indicator-help > span:not([hidden]) { position: absolute; z-index: 2; top: 100%; right: 0; width: 230px; background: var(--card); border: 1px solid var(--control-border); padding: 12px; font-size: 14px; font-weight: 400; }
 .chart-legend .normal-dot { width: 10px; height: 10px; border: 2px solid var(--foreground); border-radius: 50%; background: var(--card); }
-.year-calendar tr:nth-child(2) .calendar-zone-2 { background: var(--warning-soft); }
-.year-calendar tr:nth-child(2) .calendar-zone-0 { background: var(--accent-soft); }
 .year-calendar button { scroll-margin-block: 100px; }
 /* El año completo cabe sin desplazar en escritorio; el scroll queda solo para pantallas angostas. */
 .year-calendar { min-width: 660px; border-spacing: 2px; font-size: 12px; }
@@ -628,3 +623,20 @@ summary { min-height:44px; align-content:center; }
 .year-calendar button { padding: 8px 6px; font-size: 12px; line-height: 1.2; }
 .calendar-tile { min-height: 46px; padding: 2px; font-size: 11px; line-height: 1.15; }
 .year-detail-strip .calendar-tile { font-size: 12px; }
+/* Cada renglón del calendario usa su propia familia de color; la etiqueta de texto sigue diciendo lo mismo que el color. */
+.calendar-rainfall-0 { background: #F6E3BF; }
+.calendar-rainfall-1 { background: #D9EAF8; }
+.calendar-rainfall-2 { background: #8FC3EC; }
+.calendar-temperature-0 { background: #CFE3F5; }
+.calendar-temperature-1 { background: #EEF0EE; }
+.calendar-temperature-2 { background: #F9C4AE; }
+.calendar-moisture-0 { background: #F3E6D0; }
+.calendar-moisture-1 { background: #DDC29A; }
+.calendar-moisture-2 { background: #BE9566; }
+.calendar-ndvi-0 { background: #F5E7A3; }
+.calendar-ndvi-1 { background: #D5ECB8; }
+.calendar-ndvi-2 { background: #93CF6C; }
+.calendar-sowing-0 { background: #EEF0EE; }
+.calendar-sowing-2 { background: var(--accent-soft); }
+.chart-legend .current-bar { width: 10px; height: 10px; background: var(--data-rain); }
+.chart-legend .current-line { border-top: 2px solid var(--data-temperature); }

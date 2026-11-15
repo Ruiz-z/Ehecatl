@@ -32,7 +32,7 @@ function Charts({ indicators }: { indicators: Indicators }) {
       <table className="year-calendar">
         <caption className="sr-only">{calendarCopy.title}</caption>
         <thead><tr><th scope="col"><span className="sr-only">{calendarCopy.title}</span></th>{data.map(point => <th scope="col" key={point.date} title={monthName(point.date)}>{point.month}</th>)}</tr></thead>
-        <tbody>{rows.map(row => <tr key={row.key}><th scope="row"><button type="button" aria-pressed={selected === row.key} aria-controls="year-detail" onClick={() => setSelected(row.key)}>{row.title}</button></th>{row.cells.map(cell => <td key={cell.date}><CalendarTile cell={cell} /></td>)}</tr>)}</tbody>
+        <tbody>{rows.map(row => <tr key={row.key}><th scope="row"><button type="button" aria-pressed={selected === row.key} aria-controls="year-detail" onClick={() => setSelected(row.key)}>{row.title}</button></th>{row.cells.map(cell => <td key={cell.date}><CalendarTile cell={cell} kind={row.key} /></td>)}</tr>)}</tbody>
       </table>
     </div>
     {pending.map(point => <p key={point.date}>{calendarCopy.pending(monthName(point.date))}</p>)}
@@ -41,23 +41,23 @@ function Charts({ indicators }: { indicators: Indicators }) {
       {detail.total && <p>{detail.total}</p>}
       {detail.summary && <p>{detail.summary}</p>}
       {(selected === 'rainfall' || selected === 'temperature') ? <>
-        <div className="chart-legend"><span>{copy.charts.current}</span><span><i className={selected === 'rainfall' ? 'normal-dot' : 'normal-line'} />{copy.charts.normal}</span></div>
+        <div className="chart-legend"><span><i className={selected === 'rainfall' ? 'current-bar' : 'current-line'} />{copy.charts.current}</span><span><i className={selected === 'rainfall' ? 'normal-dot' : 'normal-line'} />{copy.charts.normal}</span></div>
         <div className="chart-frame">
           <ResponsiveContainer width="100%" height="100%">
             {selected === 'rainfall' ? <BarChart data={data} accessibilityLayer margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
               <CartesianGrid vertical={false} stroke="var(--border)" strokeDasharray="2 4" />
               <XAxis dataKey="month" tickLine={false} axisLine={false} /><YAxis width={76} tick={{ fontSize: 13 }} unit=" mm" tickLine={false} axisLine={false} />
-              <Tooltip /><Bar dataKey="rainfall" name={copy.charts.current} fill="var(--data-rain)" isAnimationActive={false} />
+              <Tooltip formatter={value => typeof value === 'number' ? `${Number(value.toFixed(1))} ${unit}` : value} /><Bar dataKey="rainfall" name={copy.charts.current} fill="var(--data-rain)" isAnimationActive={false} />
               {data.filter(point => point.rainfallNormal !== null).map(point => <ReferenceDot key={point.date} x={point.month} y={point.rainfallNormal!} ifOverflow="extendDomain" r={5} fill="var(--card)" stroke="var(--foreground)" strokeWidth={2} />)}
             </BarChart> : <LineChart data={data} accessibilityLayer margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
               <CartesianGrid vertical={false} stroke="var(--border)" strokeDasharray="2 4" />
-              <XAxis dataKey="month" tickLine={false} axisLine={false} /><YAxis width={76} tick={{ fontSize: 13 }} domain={['dataMin - 2', 'dataMax + 2']} unit=" °C" tickLine={false} axisLine={false} />
-              <Tooltip /><Line dataKey="temperature" name={copy.charts.current} stroke="var(--data-temperature)" strokeWidth={2} dot={{ r: 3 }} isAnimationActive={false} />
+              <XAxis dataKey="month" tickLine={false} axisLine={false} /><YAxis width={76} tick={{ fontSize: 13 }} domain={[(min: number) => Math.floor(min - 2), (max: number) => Math.ceil(max + 2)]} allowDecimals={false} unit=" °C" tickLine={false} axisLine={false} />
+              <Tooltip formatter={value => typeof value === 'number' ? `${Number(value.toFixed(1))} ${unit}` : value} /><Line dataKey="temperature" name={copy.charts.current} stroke="var(--data-temperature)" strokeWidth={2} dot={{ r: 3 }} isAnimationActive={false} />
               <Line dataKey="temperatureNormal" name={copy.charts.normal} stroke="var(--data-normal)" strokeDasharray="5 4" dot={false} isAnimationActive={false} />
             </LineChart>}
           </ResponsiveContainer>
         </div>
-      </> : <div className="year-detail-strip">{detail.cells.map(cell => <div key={cell.date}><span>{cell.month}</span><CalendarTile cell={cell} /><span>{selected === 'sowing' ? cell.label : formatValue(cell.value, unit)}</span></div>)}</div>}
+      </> : <div className="year-detail-strip">{detail.cells.map(cell => <div key={cell.date}><span>{cell.month}</span><CalendarTile cell={cell} kind={selected} /><span>{selected === 'sowing' ? cell.label : formatValue(cell.value, unit)}</span></div>)}</div>}
       <details className="chart-table"><summary>Ver valores en tabla</summary>
         <table><caption>{detail.title}{unit ? ` (${unit})` : ''}</caption><thead><tr><th scope="col">Mes</th><th scope="col">{copy.charts.current}</th>{selected !== 'sowing' && <th scope="col">{copy.charts.normal}</th>}</tr></thead>
           <tbody>{detail.cells.map(cell => <tr key={cell.date}><th scope="row">{cell.month}</th><td>{selected === 'sowing' ? cell.label : formatValue(cell.value, unit)}</td>{selected !== 'sowing' && <td>{formatValue(cell.normal, unit)}</td>}</tr>)}</tbody>
@@ -68,8 +68,8 @@ function Charts({ indicators }: { indicators: Indicators }) {
     <p className="chart-source">{calendarCopy.footer(formatDate(indicators.period.start), formatDate(indicators.period.end))}</p>
   </div>;
 }
-function CalendarTile({ cell }: { cell: CalendarCell }) {
-  return <span className={`calendar-tile ${cell.zone === null ? 'calendar-missing' : `calendar-zone-${cell.zone}`}`} title={cell.description} aria-label={cell.description}>{cell.label}</span>;
+function CalendarTile({ cell, kind }: { cell: CalendarCell; kind: CalendarKey }) {
+  return <span className={`calendar-tile ${cell.zone === null ? 'calendar-missing' : `calendar-${kind}-${cell.zone}`}`} title={cell.description} aria-label={cell.description}>{cell.label}</span>;
 }
 function formatValue(value: number | null, unit: string) {
   return value === null ? calendarCopy.missing : `${Number(value.toFixed(unit ? 1 : 3))}${unit ? ` ${unit}` : ''}`;

@@ -1,5 +1,12 @@
 # Registro de cambios
 
+## 2026-11-15 — Colores por renglón en el calendario del año
+
+- **Archivos:** `apps/web/src/features/nasa/field-charts.tsx`, `apps/web/src/app/globals.css`, `docs/design.md`, `docs/registro-cambios.md`.
+- **Qué se cambió:** cada renglón del calendario tiene su propia familia de color (lluvia en arena y azules, calor en azul, gris y naranja, tierra en cafés, plantas en amarillo y verdes, siembra en verde o gris). Las barras de lluvia pasan a azul y la línea de temperatura a naranja, con su muestra en la leyenda. El globo de la gráfica redondea a un decimal con unidad y el eje de temperatura usa grados enteros.
+- **Por qué:** todas las casillas compartían dos tonos y las gráficas eran negras, así que no se distinguía un renglón de otro. Además el globo mostraba «30.900000000000002» y el eje de calor números con decimales basura. El texto de cada casilla se conserva, así que el color no es la única señal.
+- **Verificación:** `pnpm --filter web lint`, tests (51) y build aprobados; capturas de Mendoza en Datos con lluvia y calor.
+
 ## 2026-11-15 — Calendario del año y un detalle a la vez
 
 - **Archivos:** `apps/web/package.json`, `apps/web/src/features/nasa/{calendar.ts,calendar.test.ts,copy.ts,types.ts,field-charts.tsx,field-status.tsx,fixtures/observations.ts}`, `apps/web/src/shared/api/{adapters.ts,adapters.test.ts,types.ts}`, `apps/web/src/app/globals.css`, `docs/specs/spec-006-web-ui.md`, `docs/design.md`, `docs/registro-cambios.md`.

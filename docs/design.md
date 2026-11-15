@@ -86,7 +86,7 @@ Familia de cultivo (chips y barras de la tira): gramínea `#E8A23B`, leguminosa 
 - Iconos: **lucide-react**, trazo 1.75, 20 px.
 
 ## 6. Gráficas
-- Calendario del año como pieza principal en Datos: tabla accesible de doce meses y cinco renglones (Lluvia, Calor, Tierra, Plantas, Se puede sembrar). Texto y color juntos; sin dato rayado. En móvil, scroll dentro del contenedor y primera columna fija.
+- Calendario del año como pieza principal en Datos: tabla accesible de doce meses y cinco renglones (Lluvia, Calor, Tierra, Plantas, Se puede sembrar). Texto y color juntos; sin dato rayado. Cada renglón usa su familia de color: lluvia en arena y azules, calor en azul, gris y naranja, tierra en cafés, plantas en amarillo y verdes, siembra en verde o gris. En móvil, scroll dentro del contenedor y primera columna fija.
 - Un solo detalle seleccionado con botones aria-pressed, Lluvia por defecto. Barras de lluvia con marcas de normal; línea de temperatura promedio sin suavizado y con eje ajustado al rango real, normal punteada. Tierra y Plantas usan tiras ampliadas con valores debajo, sin línea ni eje.
 - Tokens existentes para todos los colores, foco visible, tablas de valores con encabezados y ámbitos. Los textos aprobados y umbrales orientativos se centralizan en copy.ts (heurística pendiente de H4).
 - Resúmenes anuales sin extrapolar faltantes, nota de mes pendiente y pie «Datos de NASA. {inicio} a {fin}.». Se conserva la marca de datos de ejemplo.
