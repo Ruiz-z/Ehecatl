@@ -11,7 +11,7 @@
   --surface:var(--background); --ok:var(--accent); --ok-soft:var(--accent-soft);
   --earth:var(--control-border); --earth-text:var(--muted-foreground); --on-fill:var(--foreground);
   --warning:var(--risk-text); --danger:var(--risk-text); --sage:var(--background);
-  --data-rain:var(--foreground); --data-temperature:var(--foreground); --data-moisture:var(--foreground); --data-normal:#9AA39D;
+  --data-rain:#2F7FC1; --data-temperature:#D0410C; --data-moisture:var(--foreground); --data-normal:#9AA39D;
   --ndvi-low:#D73027; --ndvi-medium:#FEE08B; --ndvi-good:#A6D96A; --ndvi-high:#1A9850;
   --crop-grain:#E8A23B; --crop-legume:#3FA58A; --crop-other:#4B7BC8; --crop-cover:#B9C0BA;
 }
@@ -572,3 +572,71 @@ summary { min-height:44px; align-content:center; }
 .score-income { background: var(--earth); }
 .score-risk { background: var(--crop-other); }
 .cycle-water { margin-block: 8px; font-size: 13px; }
+
+/* La tarjeta de NDVI llena su celda: titular relativo al centro y el dato técnico abajo. */
+.ndvi-card { display:flex; flex-direction:column; justify-content:space-between; gap:16px; }
+.ndvi-card > strong.ndvi-headline { font-size:26px; line-height:1.2; font-weight:600; letter-spacing:-.02em; margin:0; color:var(--foreground); }
+.ndvi-card > small, .ndvi-card > details { margin-top:0; }
+
+.field-verdict { padding: 20px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--accent-soft); margin-bottom: 20px; }
+.field-verdict.warning { background: var(--warning-soft); }
+.field-verdict.neutral { background: var(--card); }
+.field-verdict h3 { font-size: 22px; margin: 0 0 12px; }
+.field-verdict p { margin: 0 0 12px; }
+.zone-bar { margin: 16px 0; font-size: 14px; }
+.zone-track { display: flex; gap: 4px; height: 14px; margin-bottom: 8px; }
+.zone-track span { flex: 1; border: 1px solid var(--control-border); }
+.zone-track .zone-0 { background: var(--warning-soft); }
+.zone-track .zone-1 { background: var(--border); }
+.zone-track .zone-2 { background: var(--accent-soft); }
+.zone-track .selected { outline: 2px solid var(--foreground); outline-offset: 2px; }
+.indicator-help { display: inline-flex; align-items: baseline; gap: 8px; margin: 8px 0; }
+.indicator-help button { border: 1px solid var(--control-border); background: var(--card); border-radius: 50%; min-width: 32px; min-height: 32px; cursor: pointer; }
+.indicator-help button:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+/* Calendario anual: texto además de color y scroll contenido. */
+.year-calendar-scroll { max-width: 100%; overflow-x: auto; margin-bottom: 24px; isolation: isolate; }
+.year-calendar { width: 100%; min-width: 1060px; border-collapse: separate; border-spacing: 4px; table-layout: fixed; font-size: 13px; }
+.year-calendar th:first-child { position: sticky; left: 0; z-index: 1; background: var(--card); width: 160px; text-align: left; }
+.year-calendar th, .year-calendar td { padding: 2px; }
+.year-calendar button { width: 100%; text-align: left; padding: 10px 8px; border: 1px solid var(--control-border); border-radius: 8px; background: var(--card); color: var(--foreground); cursor: pointer; }
+.year-calendar button[aria-pressed="true"] { background: var(--accent-soft); border: 2px solid var(--foreground); }
+.year-calendar button:focus-visible, .year-calendar-scroll:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.calendar-tile { display: flex; align-items: center; justify-content: center; text-align: center; min-height: 58px; padding: 6px; border: 1px solid var(--control-border); border-radius: 6px; font-size: 13px; color: var(--foreground); }
+.calendar-missing { background: repeating-linear-gradient(135deg, var(--card), var(--card) 6px, var(--border) 6px, var(--border) 7px); }
+.year-detail-strip { display: flex; gap: 8px; overflow-x: auto; padding: 12px 0; }
+.year-detail-strip > div { flex: 0 0 100px; display: grid; gap: 8px; text-align: center; font-size: 13px; }
+.year-detail-strip .calendar-tile { min-height: 88px; }
+.indicator-value { display: flex; flex-direction: column; align-items: flex-end; }
+.indicator-value strong { font-size: 40px; font-weight: 600; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+.indicator-value small { font-size: 13px; }
+.indicator-heading > span { flex-wrap: nowrap; }
+.indicator-title { display: inline-flex; align-items: center; gap: 8px; }
+.indicator-heading > span > svg { flex-shrink: 0; }
+.indicator-heading .indicator-help { margin: 0; position: relative; }
+.indicator-help > span:not([hidden]) { position: absolute; z-index: 2; top: 100%; right: 0; width: 230px; background: var(--card); border: 1px solid var(--control-border); padding: 12px; font-size: 14px; font-weight: 400; }
+.chart-legend .normal-dot { width: 10px; height: 10px; border: 2px solid var(--foreground); border-radius: 50%; background: var(--card); }
+.year-calendar button { scroll-margin-block: 100px; }
+/* El año completo cabe sin desplazar en escritorio; el scroll queda solo para pantallas angostas. */
+.year-calendar { min-width: 660px; border-spacing: 2px; font-size: 12px; }
+.year-calendar th:first-child { width: 112px; }
+.year-calendar button { padding: 8px 6px; font-size: 12px; line-height: 1.2; }
+.calendar-tile { min-height: 46px; padding: 2px; font-size: 11px; line-height: 1.15; }
+.year-detail-strip .calendar-tile { font-size: 12px; }
+/* Cada renglón del calendario usa su propia familia de color; la etiqueta de texto sigue diciendo lo mismo que el color. */
+.calendar-rainfall-0 { background: #F6E3BF; }
+.calendar-rainfall-1 { background: #D9EAF8; }
+.calendar-rainfall-2 { background: #8FC3EC; }
+.calendar-temperature-0 { background: #CFE3F5; }
+.calendar-temperature-1 { background: #EEF0EE; }
+.calendar-temperature-2 { background: #F9C4AE; }
+.calendar-moisture-0 { background: #F3E6D0; }
+.calendar-moisture-1 { background: #DDC29A; }
+.calendar-moisture-2 { background: #BE9566; }
+.calendar-ndvi-0 { background: #F5E7A3; }
+.calendar-ndvi-1 { background: #D5ECB8; }
+.calendar-ndvi-2 { background: #93CF6C; }
+.calendar-sowing-0 { background: #EEF0EE; }
+.calendar-sowing-2 { background: var(--accent-soft); }
+.chart-legend .current-bar { width: 10px; height: 10px; background: var(--data-rain); }
+.chart-legend .current-line { border-top: 2px solid var(--data-temperature); }

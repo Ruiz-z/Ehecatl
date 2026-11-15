@@ -58,3 +58,8 @@ RF-1 a RF-13 (incluido RF-1c) con test en verde + demo: tres usuarios con ubicac
 
 ## Dudas abiertas
 - Ninguna bloqueante.
+
+## Bloque A — Confianza y riesgos (2026-11-14)
+
+- RF-7b: Confianza `low` únicamente si POWER está ausente/incompleto o algún ciclo publicado usa demanda de catálogo. MODIS parcial/ausente, meses NDVI faltantes, normales con menos de diez muestras anuales, respaldo de ETo del horizonte o historial ausente reducen a `medium`, con aviso específico; sin limitaciones, `high`. Los avisos operativos por secuencia corta no degradan por sí solos la confianza.
+- RF-6c: Cada recomendación y referencia añade `riskGroups: [{type,text}]`, conservando `risks`. Agrupa por tipo; calor publica la máxima más adversa con la tolerancia de ese mismo ciclo y número de ciclos afectados sobre el total. Otros riesgos se condensan sin perder causas distintas ni incertidumbre. El resumen hídrico conserva el déficit total.

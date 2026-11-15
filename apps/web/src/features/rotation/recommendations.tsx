@@ -24,7 +24,7 @@ const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep
 function horizonMonths(horizonStart: string) {
   const [year, month] = horizonStart.split('-').map(Number) as [number, number];
   const start = month - 1;
-  return { year, months: [...monthNames.slice(start), ...monthNames.slice(0, start)], range: `${monthNames[start]} ${year} — ${monthNames[(start + 23) % 12]} ${year + Math.floor((start + 23) / 12)}` };
+  return { year, months: [...monthNames.slice(start), ...monthNames.slice(0, start)], range: `${monthNames[start]} ${year} / ${monthNames[(start + 23) % 12]} ${year + Math.floor((start + 23) / 12)}` };
 }
 function shortDate(value: string) {
   const [year, month] = value.split('-').map(Number);
@@ -93,19 +93,19 @@ function SequenceCard({
         {strategy.windows.map((window, i) => <div key={i} tabIndex={0} className={`crop-window family-${window.family} ${window.current ? 'current-crop' : ''}`} style={
           window.start && window.end ? timelinePosition(window.start, window.end, horizonStart) :
           { left: `${window.startMonth/24*100}%`, width: `${Math.min(window.months,24-window.startMonth)/24*100}%` }
-        } title={`${window.crop}: ${window.start ?? window.months} – ${window.end ?? 'meses'}${window.current ? ', cultivo actual' : ''}`}>
+        } title={`${window.crop}: ${window.start ?? window.months} / ${window.end ?? 'meses'}${window.current ? ', cultivo actual' : ''}`}>
           <span>{window.crop}</span>
         </div>)}
         {strategy.rests?.map(rest => <div key={rest.start} tabIndex={0} className="crop-window rest-window"
           style={timelinePosition(rest.start, rest.end, horizonStart)}
-          title={`Descanso: ${rest.reason}. ${rest.suggestion}`} aria-label={`Descanso: ${shortDate(rest.start)} – ${shortDate(rest.end)}. ${rest.reason}. ${rest.suggestion}`}>
+          title={`Descanso: ${rest.reason}. ${rest.suggestion}`} aria-label={`Descanso: ${shortDate(rest.start)} / ${shortDate(rest.end)}. ${rest.reason}. ${rest.suggestion}`}>
           <span>Descanso</span>
         </div>)}
       </div>
       <p className="timeline-note"><span className="hatched-swatch" />Cultivo actual · Descanso rayado: meses sin siembra</p>
     </div>
     {!!strategy.rests?.length && (() => { const summary = summarizeRests(strategy.rests); return <div className="rest-list"><h4>Meses sin siembra</h4><ul>{summary.items.map(rest => <li key={rest.start}>
-      {shortDate(rest.start)} – {shortDate(rest.end)} · {rest.reason}
+      {shortDate(rest.start)} / {shortDate(rest.end)} · {rest.reason}
     </li>)}</ul>{summary.suggestion && <p>Mientras tanto: {summary.suggestion}.</p>}</div>; })()}
     <div className="change-date">
       <CalendarDays size={17} />
@@ -144,7 +144,7 @@ function SequenceCard({
       <h4>Por qué</h4>
       {strategy.steps?.some(step => step.reasons !== undefined) ? strategy.steps.map((step, i) => <section className="step-reasons" key={`${step.start}-${i}`}>
         <h4>{i + 1} · {step.previousCropName ?? (i ? strategy.steps![i-1]!.cropName : 'Cultivo actual')} → {step.cropName}</h4>
-        <p className="muted">{formatDate(step.start)} – {formatDate(step.end)}</p>
+        <p className="muted">{formatDate(step.start)} / {formatDate(step.end)}</p>
         <ul>{step.reasons?.map((reason, j) => {
           const Icon = reason.effect === 'favor' ? Check : reason.effect === 'contra' ? TriangleAlert : Minus;
           const label = reason.effect === 'favor' ? 'A favor' : reason.effect === 'contra' ? 'En contra' : 'Neutral';
@@ -161,7 +161,11 @@ function SequenceCard({
     </div>}
     <div className="confidence">
       <span className="chip neutral-chip"><ShieldCheck size={13} />Confianza {strategy.confidence.toLowerCase()}</span>
-      <p>{strategy.confidenceReason}</p>
+      <div><h4>Qué sabemos</h4>
+        <ul>{(strategy.known?.length ? strategy.known : ['Sin detalle del estado de las fuentes en esta respuesta.']).map(text => <li key={text}>{text}</li>)}</ul>
+        <h4>Qué falta</h4>
+        {strategy.missing?.length ? <ul>{strategy.missing.map(text => <li key={text}>{text}</li>)}</ul> : <p>{strategy.confidenceReason}</p>}
+      </div>
     </div>
     <Notice variant="info" label="INFO · VALIDACIÓN LOCAL" title="Valida antes de sembrar"><p>{validation}</p></Notice>
   </article>;

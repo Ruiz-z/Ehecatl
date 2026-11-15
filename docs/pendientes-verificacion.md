@@ -1,5 +1,7 @@
 # Verificación del traspaso — 2026-11-14
 
+> Nota Bloque A (2026-11-14): los perfiles ahora apuntan a San Pedro (25.76, −102.98), Fallon (39.47, −118.78) y San Martín (−33.08, −68.47). La evidencia siguiente corresponde a los puntos anteriores y a las reglas de confianza de entonces; no acredita los nuevos puntos. Quedan pendientes seed, mapa, pico NDVI ≥0.4 y opciones reales, a verificar por el usuario.
+
 Evidencia técnica del trabajo en `fix/pendientes-equipo`, desde `origin/dev`.
 No sustituye las aprobaciones humanas H2, H3, H4 ni el ensayo H8.
 

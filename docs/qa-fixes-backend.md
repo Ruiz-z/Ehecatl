@@ -1,5 +1,7 @@
 # Correcciones de la auditoría backend — 2026-11-14
 
+> Nota Bloque A (2026-11-14): los perfiles ahora apuntan a San Pedro (25.76, −102.98), Fallon (39.47, −118.78) y San Martín (−33.08, −68.47). La evidencia siguiente corresponde a los puntos anteriores y a las reglas de confianza de entonces; no acredita los nuevos puntos. Quedan pendientes seed, mapa, pico NDVI ≥0.4 y opciones reales, a verificar por el usuario.
+
 Se corrigieron los bugs de código de los puntos 1–7 de `qa-audit-backend.md`.
 La dependencia externa MODIS continúa sin responder desde este entorno.
 Las decisiones de comportamiento se documentaron en la spec 005 y en el

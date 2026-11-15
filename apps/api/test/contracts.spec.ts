@@ -25,9 +25,13 @@ describe('B1 fixtures de contratos entre apps', () => {
       expect(data.baseline.components).toBeNull();
       expect(data.baseline.explanation.length).toBeGreaterThan(0);
     }
+    const calculated = recommend({currentCropId:data.inputs.currentCropId,history:[],priorities:data.priorities,indicators:data.inputs.indicators});
+    expect(data.recommendations.map((r: {riskGroups: unknown}) => r.riskGroups)).toEqual(calculated.recommendations.map(r => r.riskGroups));
+    expect(data.baseline.riskGroups).toEqual(calculated.baseline.riskGroups);
     for (const item of data.recommendations) {
       expect(item.score).toBeGreaterThanOrEqual(0); expect(item.score).toBeLessThanOrEqual(100);
       expect(item.rests).toBeInstanceOf(Array);
+      expect(item.riskGroups.every((group: {type: string; text: string}) => group.type && group.text)).toBe(true);
       for (const step of item.sequence) {
         expect(step.reasons.every((r: {effect: string}) => ['favor','contra','neutral'].includes(r.effect))).toBe(true);
         expect(['catalog','radiation']).toContain(step.water.method);
