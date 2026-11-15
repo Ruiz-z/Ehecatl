@@ -657,3 +657,34 @@ summary { min-height:44px; align-content:center; }
 .sensor-table th, .sensor-table td { padding: .7rem; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }
 .sensor-table small { display: block; color: var(--muted-foreground); margin-top: .25rem; }
 .sensor-panel .chart-frame { height: 240px; }
+
+/* Sensores: resumen de campo y controles manuales. */
+.sensor-live { padding: 20px 0; }
+.sensor-history { padding: 20px; }
+.sensor-connection { display: flex; align-items: baseline; gap: 10px; font-size: 18px; }
+.sensor-dot { display: inline-block; flex: 0 0 10px; width: 10px; height: 10px; border-radius: 50%; background: var(--muted-foreground); }
+.sensor-dot.online { background: var(--accent-text); }
+.sensor-metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.sensor-metrics article { padding: 18px; border: 1px solid var(--border); border-radius: 12px; }
+.sensor-number { font-size: 28px; font-variant-numeric: tabular-nums; margin: 12px 0; }
+.sensor-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+.sensor-chips [aria-pressed="true"] { background: var(--accent-soft); border-color: var(--foreground); }
+.sensor-reading { border-top: 1px solid var(--border); padding: 12px 0; }
+.sensor-panel summary { cursor: pointer; padding: 12px 0; }
+.sensor-panel button { min-height: 44px; }
+.sensor-calibration { padding: 16px 0; }
+@media (max-width: 600px) {
+  .sensor-metrics { grid-template-columns: 1fr; }
+  .sensor-panel { min-width: 0; }
+  .sensor-key code { overflow-wrap: anywhere; }
+}
+
+/* La llegada de una lectura cambia la clave del grupo de tarjetas. */
+.sensor-live-status { display: inline-flex; align-items: center; gap: .5rem; font-size: 13px; }
+@media (prefers-reduced-motion: no-preference) {
+  .sensor-arrival { animation: sensor-reading-arrival 600ms ease-out; }
+}
+@keyframes sensor-reading-arrival {
+  from { background-color: var(--accent-soft); }
+  to { background-color: transparent; }
+}

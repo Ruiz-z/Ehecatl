@@ -125,3 +125,15 @@ Usar los textos aprobados de `features/nasa/copy.ts` sin reescribirlos. Resumen 
 El símbolo propio une un tallo y una hoja a la izquierda con una espiral de viento a la derecha: viento que hace brotar. La hoja usa `--accent` (`#6FC20B`); el tallo y el viento heredan el color del texto, blanco sobre oscuro y `#0E1410` sobre claro. Tamaño mínimo: 16 px; cabecera y riel: 28 px. No usar el brote de lucide como logo; se conserva como ilustración de estados vacíos y como icono de navegación.
 
 La palabra «ehécatl.» conserva minúsculas y punto lima, con peso 650 y espaciado de letras de `-.03em`. El riel compacto muestra solo el símbolo. En el login, el logo blanco se apoya en un degradado oscuro superior de 160 px, sin placa; el pie conserva su placa. El favicon usa el símbolo sobre un fondo redondeado `#0E1410`.
+
+## 12. Sensores para el agricultor (RF-14)
+
+Resumen de conexión con punto y texto, seguido de tres tarjetas: Tierra, Temperatura y Humedad del aire. Se elige el dispositivo activo con recepción más reciente; los otros quedan en administración. Las mediciones antiguas se identifican por su fecha y el aviso de señal. Tierra: Seca bajo 30 %, Bien de 30 a menos de 70 %, Húmeda desde 70 %; heurística pendiente de H4. Sin calibración se explica que la debe realizar el administrador.
+
+Riego manual antes del historial, duración con botones de 10, 20 y 30 s, confirmación dentro de la tarjeta y una nota beta corta. Último riego en una línea; historial completo colapsado. Historial de mediciones con botones de periodo y variable, sin gráfica vacía. «Ver todas las lecturas» muestra fechas relativas; los detalles técnicos se anidan en «Ver todos los datos». «Administrar sensores», cerrado y exclusivo de administrador, conserva registro, claves, zona e intervalo. La calibración captura seco y húmedo desde lecturas recientes distintas y guarda ambos puntos con el PATCH existente. Diseño en una columna en móvil, controles con foco y selección textual, ejemplos siempre marcados.
+
+### Sensores en vivo (RF-15)
+
+Junto a Sensores, punto y texto «En vivo», «Pausado» o «Sin conexión, reintentando». Actualizar queda como acción secundaria. Sondeo de 5 s solo con pestaña visible y foco; retorno inmediato, cancelación y retroceso hasta 60 s sin encimar peticiones. Reloj independiente de 10 s. Tarjetas con destello suave de 600 ms solo ante lecturas nuevas y sin animación si se solicita movimiento reducido. Historial conserva lecturas cargadas y selección. Riego manual consulta cada segundo mientras espera o riega y muestra segundos restantes; al terminar vuelve a 5 s. Se conservan permisos, confirmación y marca «de ejemplo».
+
+La sincronización de sesión no desmonta la pantalla por consultas redundantes de parcelas: conserva el usuario cuando su contenido no cambia. Esto permite mantener las lecturas a la vista y recuperar el sondeo tras una caída temporal.
