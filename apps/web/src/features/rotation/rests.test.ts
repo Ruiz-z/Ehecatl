@@ -9,7 +9,7 @@ test('la sugerencia se dice una sola vez si todos los descansos coinciden', () =
   ]);
   assert.equal(result.suggestion, 'mantener cobertura');
   assert.equal(result.items[0]?.reason, 'fuera de temporada: frío o falta de agua');
-  assert.equal(result.items[1]?.reason, 'el periodo es demasiado corto para completar un ciclo');
+  assert.equal(result.items[1]?.reason, 'ningún cultivo completa su ciclo en este tramo');
 });
 test('si las sugerencias difieren, cada descanso conserva la suya', () => {
   const result = summarizeRests([
@@ -19,3 +19,10 @@ test('si las sugerencias difieren, cada descanso conserva la suya', () => {
   assert.equal(result.suggestion, null);
   assert.equal(result.items[1]?.reason, 'otro motivo · barbecho');
 });
+
+for (const reason of ['Hace demasiado calor para los cultivos del catálogo en este tramo', 'Hace demasiado frío para los cultivos del catálogo en este tramo', 'Falta lluvia y no hay riego declarado en este tramo', 'Falta lluvia NASA en este tramo']) {
+  test(`conserva la causa: ${reason}`, () => {
+    const result = summarizeRests([{...base, reason, suggestion:'Mantener cobertura'}]);
+    assert.equal(result.items[0]?.reason, reason.charAt(0).toLowerCase()+reason.slice(1));
+  });
+}

@@ -1,5 +1,59 @@
 # Registro de cambios
 
+## 2026-11-15 · Mejor fecha de siembra por años buenos
+
+- Archivos: `apps/api/src/modules/rotation-engine/engine/schedule.ts`, `apps/api/src/modules/rotation-engine/engine/sequences.ts`, `apps/api/test/contracts.spec.ts`, `apps/api/test/engine.spec.ts`, `apps/geo/THRESHOLDS.md`, `apps/web/src/features/rotation/rests.test.ts`, `apps/web/src/features/rotation/rests.ts`, `docs/como-se-calcula-el-puntaje.md`, `docs/contracts.md`, `docs/fixtures/recommendations.json`, `docs/specs/spec-005-rotation-engine.md`, `docs/registro-cambios.md`, `docs/verification/mejor-fecha-siembra-coahuila.png`, `docs/verification/mejor-fecha-siembra-avena.png`.
+- Qué se cambió: primero se agregaron RF-14 y RF-14b a spec 005. El calendario compara todos los arranques mensuales viables por clima normal, elige la mayor proporción de años buenos y desempata por la fecha más temprana. Con cinco años completos exige `minHistoricalSuccess = 0.7`; si no alcanza, el rechazo entra a las razones públicas. Con cuatro años conserva la primera fecha y toda la salida anterior. Se reutiliza la simulación histórica sin cambiar su fórmula. La memoización dura una petición, por cultivo, fecha inicial, fecha final y riego; la comparten calendario, ejes, referencia, alternativas y descansos. La web conserva la razón del descanso y solo baja la primera letra. Se actualizaron contratos, explicación y umbral pendiente de H4. Se regeneró el fixture desde el motor conservando sus entradas sintéticas marcadas; el test de contrato compara ahora las alternativas y la referencia completas.
+- Por qué: la primera fecha aceptaba avena en agosto con solo 4 de 10 años buenos. El descanso decía que faltaba tiempo aunque la causa climática dominante era calor. Las fechas nuevas usan la historia que ya existe, sin alterar pesos, ejes, catálogo, perfiles, coordenadas ni el contrato del API.
+- Verificación: `pnpm lint` pasa en los tres paquetes. `pnpm test` pasa: 143 API y 4 simulador, 63 web, 39 Geo. Hay 18 pruebas API y 5 Geo omitidas por integraciones no configuradas; no se habilitaron ni se sustituyeron con datos de demo. `python -m pytest` dentro de `apps/geo` pasa: 39 correctas y 5 omitidas. Los nuevos casos cubren noviembre frente a agosto, empate temprano, rechazo por debajo del mínimo, aceptación exacta de 7/10, respaldo con cuatro años, historia invertida, causas de descanso, empates, riego, frío histórico sin helada, razones públicas y aislamiento entre peticiones. API y web reconstruidas y ejecutadas con Docker; Geo conserva su imagen. Login real de los tres usuarios `@demo.ehecatl`, con la contraseña leída de `.env`; POWER y MODIS disponibles, origen cache, sin mocks ni respaldo histórico en pasos publicados. Siete respuestas por perfil son idénticas. Chrome aislado contra Docker: login, tarjetas, años y calor visibles, sin errores JavaScript. Capturas de la primera alternativa y de la opción con avena revisadas. `git diff --check` pasa.
+
+Incidencias de ejecución: el primer `pnpm lint` falló porque uv intentó escribir en una caché de solo lectura. Se usaron `UV_CACHE_DIR` y `XDG_CACHE_HOME` en `/tmp` y pasó. Una invocación inicial de pytest desde la raíz falló al importar `app`; se corrigió el directorio y se ejecutó el comando solicitado dentro de `apps/geo`. Sin dependencias nuevas. Se usaron Node 24 y el entorno virtual Python ya instalado.
+
+Decisión adicional al plan, documentada en la spec antes del código: cuando empatan los cultivos afectados por una causa, se compara la cantidad de pares cultivo y mes afectados. Solo si persiste el empate se usa el texto de respaldo. En febrero a julio de Coahuila empatan dos cultivos con calor y dos con frío, pero el calor aparece en cuatro pares cultivo y mes y el frío en dos. Sin ese desempate se conservaba una razón genérica. Se incluyen las causas normales y las históricas que rebasan el margen permitido. Los descansos fuera de ventana conservan su texto anterior. `schedule` recibe historia y riego desde los objetos existentes `indicators.history` y `window.irrigated`, sin duplicar parámetros. No se cambió el mínimo ni se ajustaron tolerancias para mejorar el resultado.
+
+Rendimiento de `GET /zones/:id/recommendations`: milisegundos de extremo a extremo, mediana de siete peticiones después de una petición de calentamiento, misma base y caché NASA. Las mediciones finales se hicieron sin compilación, navegador ni pruebas en paralelo. La primera implementación superó 2 veces el tiempo inicial en los tres perfiles, por lo que se memoizó `simulateCycle`. No se guarda nada entre peticiones.
+
+| Perfil | Antes, ms | Sin memoización, ms | Final, ms | Final / antes | Rango final, ms |
+|---|---:|---:|---:|---:|---|
+| Coahuila | 231.79 | 1723.62 | 412.21 | 1.78 | 349.01 a 514.59 |
+| Nevada | 48.88 | 121.11 | 84.94 | 1.74 | 67.45 a 100.19 |
+| Mendoza | 107.66 | 405.61 | 216.08 | 2.01 | 168.36 a 242.49 |
+
+Mendoza queda en 2.01 veces el tiempo inicial aun con memoización, con variación entre peticiones. Los tres perfiles quedan por debajo de 2 segundos. Los números son una muestra local, no un benchmark de carga. Mediciones crudas y respuestas locales en `/tmp/ehecatl-fechas/{antes,despues-sin-memo,despues-final}.json`; resúmenes en `/tmp/ehecatl-fechas/scratchpad/top3-{antes,despues-final}.txt`. No contienen tokens ni contraseñas.
+
+Comparación de las tres estrategias publicadas: referencia y hasta dos alternativas. Nevada conserva su referencia inviable; no se inventa una tercera alternativa. Cada paso muestra fechas inclusivas y años buenos sobre años completos.
+
+| Perfil | Momento | Opción | Puntaje | Pasos: cultivo, fechas, años buenos |
+|---|---|---|---:|---|
+| Coahuila | Antes | Referencia | 58.48 | Maíz, 2027-02-01 a 2027-05-31, 8/10 → Maíz, 2027-06-01 a 2027-09-28, 10/10 → Maíz, 2028-02-01 a 2028-05-30, 8/10 |
+| Coahuila | Antes | Alternativa 1 | 82.91 | Lenteja, 2026-11-15 a 2027-02-22, 9/9 → Avena, 2027-08-01 a 2027-11-28, 4/10 → Mostaza de cobertura, 2027-11-29 a 2028-02-06, 9/9 |
+| Coahuila | Antes | Alternativa 2 | 82.68 | Garbanzo, 2026-11-15 a 2027-03-04, 9/9 → Avena, 2027-08-01 a 2027-11-28, 4/10 → Mostaza de cobertura, 2027-11-29 a 2028-02-06, 9/9 |
+| Coahuila | Después | Referencia | 58.43 | Maíz, 2027-03-01 a 2027-06-28, 10/10 → Maíz, 2027-06-29 a 2027-10-26, 10/10 → Maíz, 2028-03-01 a 2028-06-28, 10/10 |
+| Coahuila | Después | Alternativa 1 | 85.13 | Lenteja, 2026-11-15 a 2027-02-22, 9/9 → Cebada, 2027-08-01 a 2027-11-18, 10/10 → Mostaza de cobertura, 2027-11-19 a 2028-01-27, 9/9 |
+| Coahuila | Después | Alternativa 2 | 84.93 | Lenteja, 2026-11-15 a 2027-02-22, 9/9 → Avena, 2027-10-01 a 2028-01-28, 9/9 → Mostaza de cobertura, 2028-01-29 a 2028-04-07, 10/10 |
+| Nevada | Antes | Referencia | Inviable | Sin pasos; se conservan las razones de inviabilidad |
+| Nevada | Antes | Alternativa 1 | 92.53 | Mostaza de cobertura, 2027-05-01 a 2027-07-09, 10/10 → Garbanzo, 2027-07-10 a 2027-10-27, 10/10 → Mostaza de cobertura, 2028-05-01 a 2028-07-09, 10/10 |
+| Nevada | Antes | Alternativa 2 | 92.50 | Mostaza de cobertura, 2027-05-01 a 2027-07-09, 10/10 → Lenteja, 2027-07-10 a 2027-10-17, 10/10 → Mostaza de cobertura, 2028-05-01 a 2028-07-09, 10/10 |
+| Nevada | Después | Referencia | Inviable | Sin pasos; se conservan las razones de inviabilidad |
+| Nevada | Después | Alternativa 1 | 92.53 | Mostaza de cobertura, 2027-05-01 a 2027-07-09, 10/10 → Garbanzo, 2027-07-10 a 2027-10-27, 10/10 → Mostaza de cobertura, 2028-05-01 a 2028-07-09, 10/10 |
+| Nevada | Después | Alternativa 2 | 92.50 | Mostaza de cobertura, 2027-05-01 a 2027-07-09, 10/10 → Lenteja, 2027-07-10 a 2027-10-17, 10/10 → Mostaza de cobertura, 2028-05-01 a 2028-07-09, 10/10 |
+| Mendoza | Antes | Referencia | 59.97 | Trigo, 2026-11-15 a 2027-04-13, 9/9 → Trigo, 2027-08-01 a 2027-12-28, 10/10 → Trigo, 2027-12-29 a 2028-05-26, 9/9 |
+| Mendoza | Antes | Alternativa 1 | 90.99 | Caupí, 2026-11-15 a 2027-02-12, 9/9 → Mostaza de cobertura, 2027-02-13 a 2027-04-23, 10/10 → Caupí, 2027-10-01 a 2027-12-29, 10/10 |
+| Mendoza | Antes | Alternativa 2 | 90.85 | Caupí, 2026-11-15 a 2027-02-12, 9/9 → Trigo sarraceno, 2027-02-13 a 2027-04-23, 10/10 → Caupí, 2027-10-01 a 2027-12-29, 10/10 |
+| Mendoza | Después | Referencia | 59.97 | Trigo, 2026-11-15 a 2027-04-13, 9/9 → Trigo, 2027-08-01 a 2027-12-28, 10/10 → Trigo, 2027-12-29 a 2028-05-26, 9/9 |
+| Mendoza | Después | Alternativa 1 | 90.99 | Caupí, 2026-11-15 a 2027-02-12, 9/9 → Mostaza de cobertura, 2027-02-13 a 2027-04-23, 10/10 → Caupí, 2027-10-01 a 2027-12-29, 10/10 |
+| Mendoza | Después | Alternativa 2 | 90.85 | Caupí, 2026-11-15 a 2027-02-12, 9/9 → Trigo sarraceno, 2027-02-13 a 2027-04-23, 10/10 → Caupí, 2027-10-01 a 2027-12-29, 10/10 |
+
+Revisión del resultado: todas las alternativas conservan tres pasos. Cada paso publicado, incluida la referencia viable, tiene 9/9 o 10/10 años buenos. En Coahuila la opción Lenteja → Avena → Mostaza pasa de 82.91 a 84.93 y la avena se mueve del 1 de agosto al 1 de octubre de 2027, con cosecha el 28 de enero de 2028 y 9/9 años buenos. Lenteja → Cebada → Mostaza queda primera con 85.13; la cebada en agosto conserva 10/10, sin imponer calendarios regionales. El descanso de febrero a julio de la primera alternativa, y febrero a septiembre en la de avena, muestra calor. Nevada y Mendoza mantienen sus alternativas. No aparecieron secuencias vacías ni fue necesario bajar el mínimo. Sigue pendiente validar con H4 el umbral y el peso práctico de cultivos de cobertura; con riego Cosecha sigue dando 100 por el supuesto existente.
+
+Cobertura de spec 005: RF-14 y RF-14b tienen las regresiones nuevas; RF-12 y RF-12b conservan fórmulas, años completos y respaldo. RF-1, RF-1b y RF-1c conservan tres pasos, no solapamiento, ventanas y referencia; RF-2, RF-3 y RF-4 mantienen reglas y avisos. RF-5 y RF-9 conservan Cosecha y pesos; RF-6, RF-6b/c, RF-7, RF-7b y RF-8 conservan explicaciones, riesgos, confianza y faltantes. RF-10, RF-11 y RF-13 conservan demanda, déficit y agua. Los tests existentes pasan y la comparación completa del fixture cubre el contrato. No se tocaron sensores, Geo salvo `THRESHOLDS.md`, coordenadas ni perfiles. Rama `feat/mejor-fecha-siembra`, sin commits ni push.
+
+## 2026-11-15 — Guía del cálculo del puntaje
+
+- **Archivos:** `docs/como-se-calcula-el-puntaje.md`, `docs/registro-cambios.md`.
+- **Qué se cambió:** se documenta de dónde salen los cultivos y cada porcentaje del puntaje, qué es dato y qué es regla, la confiabilidad, el margen de error y qué decir en la demo.
+- **Por qué:** dejar por escrito la explicación del motor tras pasar a ejes con datos, para el pitch y para la revisión agronómica (H4).
+
 ## 2026-11-15 — Firmware ESP32 para la misma red local
 
 - **Base y autorización:** rama `feat/integracion-esp32` basada en `origin/dev` actualizado (`5296b62`), conforme a la corrección del usuario y a `AGENTS.md`. Se adapta el código recibido para DHT11, FC28 de dos puntas y MQ2; el usuario confirma que la API y el ESP32 comparten red. Bomba pendiente y servos excluidos.

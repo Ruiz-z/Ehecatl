@@ -6,8 +6,8 @@ import { transition, type TransitionReason } from './transitions.js';
 import { currentRisk } from './viability.js';
 import { weightedScore, riskScore, estimatedRiskScore } from './score.js';
 import { simulateCycle, type HistoricalRisk } from './historical.js';
-import { horizonEto } from './evapotranspiration.js';
-import { schedule } from './schedule.js';
+import { cycleDemand, cycleMonths, horizonEto } from './evapotranspiration.js';
+import { minHistoricalSuccess, schedule } from './schedule.js';
 
 interface Step {
   cropId: string; cropName: string; windowId: string; start: string; end: string;
@@ -28,6 +28,13 @@ export function recommend(input: Input, catalog: Crop[] = crops) {
   const current = findCrop(input.currentCropId);
   if (!current) throw new Error('Current crop not in catalog');
   const { indicators, history } = input;
+  const simulations = new Map<string, ReturnType<typeof simulateCycle>>();
+  const simulate: typeof simulateCycle = (crop, start, end, history, irrigated) => {
+    const key = `${crop.id}:${start}:${end}:${irrigated}`;
+    let result = simulations.get(key);
+    if (!result) { result = simulateCycle(crop, start, end, history, irrigated); simulations.set(key, result); }
+    return result;
+  };
   const priorities = normalizeWeights(input.priorities);
   const windows = indicators.windows.slice().sort((a, b) => a.start.localeCompare(b.start)).slice(0, 3);
   const warnings = [...indicators.warnings];
@@ -57,14 +64,14 @@ export function recommend(input: Input, catalog: Crop[] = crops) {
   if (etoMm === null) {
     warnings.push('ETo del horizonte no disponible: se usa la suma de demandas de la secuencia');
   }
-  const generated = generate(input, catalog, etoMm);
-  const currentResult = generate(input, [current], etoMm);
+  const generated = generate(input, catalog, etoMm, simulate);
+  const currentResult = generate(input, [current], etoMm, simulate);
   const complete = ({ cycleRisks, ...candidate }: Candidate) => ({ ...candidate,
     riskGroups: groupRisks(cycleRisks, candidate.risks, candidate.irrigationNeedMm, indicators.windows.some(w => w.irrigated)),
     irrigationNeedMm: Math.round(candidate.irrigationNeedMm),
     sequence: candidate.sequence.map(step => ({...step, water: {...step.water,
       coveragePct: step.water.coveragePct === null ? null : Number(step.water.coveragePct.toFixed(1))}})),
-    rests: rests(candidate.sequence, indicators.windows, horizon),
+    rests: rests(candidate.sequence, indicators.windows, horizon, indicators, catalog, simulate),
     risks: [...new Set([...candidate.risks, `Agua faltante en 24 meses: ~${Math.round(candidate.irrigationNeedMm)} mm${indicators.windows.some(w => w.irrigated) ? '; con riego depende de su disponibilidad efectiva' : ': la lluvia no cubre la demanda'}`])],
     explanation: [...candidate.explanation, `Pesos agua=${priorities.water}, suelo=${priorities.soil}, cosecha=${priorities.income}, riesgo=${priorities.risk}; ${candidate.sequence.some(step => step.yield === null) ? 'cosecha usa el indicador previo del catálogo en ciclos sin historia suficiente' : 'cosecha es rendimiento relativo frente al potencial'}`] });
   const currentPlan = currentResult.candidates[0] ? complete(currentResult.candidates[0]) : undefined;
@@ -73,7 +80,7 @@ export function recommend(input: Input, catalog: Crop[] = crops) {
   const baseline = currentPlan
     ? { ...currentPlan, id: 'baseline', viable: true as const }
     : { id: 'baseline', irrigationNeedMm: 0, viable: false as const, score: null, components: null, sequence: [] as Step[],
-      explanation: baselineReasons, riskGroups: [] as RiskGroup[], risks: [] as string[], rests: rests([], indicators.windows, horizon) };
+      explanation: baselineReasons, riskGroups: [] as RiskGroup[], risks: [] as string[], rests: rests([], indicators.windows, horizon, indicators, catalog, simulate) };
   const recommendations = generated.candidates.filter(candidate => candidate.sequence.some(step => step.cropId !== current.id)).slice(0, 2)
     .map(candidate => ({ ...complete(candidate), delta: baseline.score === null ? null : Number((candidate.score-baseline.score).toFixed(2)) }));
   if (![...recommendations, ...(currentPlan ? [currentPlan] : [])].some(c => c.sequence.length >= 2)) warnings.push('Menos de dos ciclos viables en 24 meses: secuencia reducida; considerar cobertura o barbecho');
@@ -97,14 +104,13 @@ export function recommend(input: Input, catalog: Crop[] = crops) {
 }
 
 // La referencia y las alternativas pasan por la misma búsqueda y puntuación.
-function generate(input: Input, catalog: Crop[], etoMm: number | null) {
+function generate(input: Input, catalog: Crop[], etoMm: number | null, simulate: typeof simulateCycle) {
   const current = findCrop(input.currentCropId)!;
   const { indicators, history } = input;
   const decisionDay = day(indicators.fetchedAt.slice(0, 10));
   const priorities = normalizeWeights(input.priorities);
   const windows = indicators.windows.slice().sort((a, b) => a.start.localeCompare(b.start)).slice(0, 3);
   const failures = new Set<string>();
-  const simulations = new Map<string, ReturnType<typeof simulateCycle>>();
   const schedules = new Map<string, ReturnType<typeof schedule>>();
   let beam: Candidate[] = [{ cycleRisks: [], irrigationNeedMm: 0, id: '', score: 0, sequence: [], components: { water: 0, soil: 0, income: 0, risk: 0 }, explanation: [], risks: [] }];
   for (let cycle = 0; cycle < 3; cycle++) {
@@ -121,17 +127,12 @@ function generate(input: Input, catalog: Crop[], etoMm: number | null) {
         for (const crop of catalog) {
           const key = `${crop.id}:${window.id}:${start}`;
           let plan = schedules.get(key);
-          if (!plan) { plan = schedule(crop, window, indicators, start); schedules.set(key, plan); }
+          if (!plan) { plan = schedule(crop, window, indicators, start, simulate); schedules.set(key, plan); }
           if (!plan.scheduled) { failures.add(`${crop.name}: ${plan.reasons.join('; ')}`); continue; }
           const { result, effective, water, start: planted, end, occupiedWindowIds } = plan.scheduled;
           const tr = transition(previous, crop, [...history, ...partial.sequence.map(s => ({ cropId: s.cropId, plantedAt: s.start, harvestedAt: s.end }))]);
           const coverage = (water.coveragePct ?? 0)/100;
-          const simulationKey = `${crop.id}:${planted}:${end}:${effective.irrigated}`;
-          let simulation = simulations.get(simulationKey);
-          if (!simulation) {
-            simulation = simulateCycle(crop, iso(planted), iso(end), indicators.history, effective.irrigated);
-            simulations.set(simulationKey, simulation);
-          }
+          const simulation = simulate(crop, iso(planted), iso(end), indicators.history, effective.irrigated);
           const measured = simulation.totalYears >= 5;
           const components: Weights = {
             water: 0,
@@ -182,7 +183,7 @@ function compare(a: Candidate, b: Candidate): number {
 export interface Rest { start: string; end: string; months: number; reason: string; suggestion: string }
 
 // Fechas inclusivas: se usan límites exclusivos internamente para no perder días.
-export function rests(sequence: { start: string; end: string }[], windows: { start: string; end: string }[], horizon: { start: string; end: string }): Rest[] {
+export function rests(sequence: { start: string; end: string }[], windows: { start: string; end: string }[], horizon: { start: string; end: string }, indicators?: Indicators, catalog: Crop[] = crops, simulate: typeof simulateCycle = simulateCycle): Rest[] {
   const start = day(horizon.start), end = day(horizon.end) + dayMs;
   const boundaries = new Set([start, end]);
   for (const interval of [...sequence, ...windows]) {
@@ -212,7 +213,53 @@ export function rests(sequence: { start: string; end: string }[], windows: { sta
     const a = new Date(segment.start), b = new Date(segment.end-dayMs);
     return { start: iso(segment.start), end: iso(segment.end-dayMs),
       months: (b.getUTCFullYear()-a.getUTCFullYear())*12+b.getUTCMonth()-a.getUTCMonth()+1,
-      reason: segment.inWindow ? 'Ningún cultivo completa su ciclo en este tramo' : 'Fuera de temporada: frío o falta de agua',
+      reason: segment.inWindow ? restReason(segment.start, segment.end-dayMs, indicators, catalog, simulate) : 'Fuera de temporada: frío o falta de agua',
       suggestion: 'Mantener cobertura o rastrojo para proteger el suelo' };
   });
+}
+
+function restReason(start: number, end: number, indicators: Indicators | undefined, catalog: Crop[], simulate: typeof simulateCycle): string {
+  const fallback = 'Ningún cultivo completa su ciclo en este tramo';
+  if (!indicators) return fallback;
+  const counts = { heat: 0, cold: 0, water: 0 };
+  const affectedMonths = { heat: 0, cold: 0, water: 0 };
+  for (const crop of catalog) {
+    let heatMonths = 0, coldMonths = 0, waterMonths = 0;
+    let cursor = start;
+    for (const {month, count, daysInMonth} of cycleMonths(start, end)) {
+      const normal = (variable: string) => indicators.climatology.find(row => row.month === month && row.variable === variable)?.value;
+      const temperature = normal('T2M'), minimum = normal('T2M_MIN'), rain = normal('PRECTOTCORR');
+      let heat = temperature !== undefined && temperature > crop.tempMax;
+      let cold = (temperature !== undefined && temperature < crop.tempMin) || (crop.frostSensitive && minimum !== undefined && minimum <= 0);
+      const date = new Date(cursor);
+      const monthStart = Date.UTC(date.getUTCFullYear(), month-1, 1);
+      const irrigated = indicators.windows.some(window => window.irrigated && day(window.start) <= end && day(window.end) >= start);
+      const demand = cycleDemand(crop, monthStart, monthStart+(daysInMonth-1)*dayMs, indicators.climatology);
+      let water = !irrigated && rain !== undefined && rain*count/daysInMonth < .65*demand.demandMm*count/daysInMonth;
+      const simulation = simulate(crop, iso(monthStart), iso(monthStart+(daysInMonth-1)*dayMs), indicators.history, irrigated);
+      if (simulation.totalYears >= 5) {
+        heat ||= (simulation.totalYears-simulation.failures.heat)/simulation.totalYears < minHistoricalSuccess;
+        cold ||= (simulation.totalYears-simulation.failures.frost)/simulation.totalYears < minHistoricalSuccess ||
+          (simulation.totalYears-simulation.failures.temperature+simulation.failures.heat)/simulation.totalYears < minHistoricalSuccess;
+        water ||= (simulation.totalYears-simulation.failures.water)/simulation.totalYears < minHistoricalSuccess;
+      }
+      cursor += count*dayMs;
+      if (heat) heatMonths++;
+      if (cold) coldMonths++;
+      if (water) waterMonths++;
+    }
+    if (heatMonths) counts.heat++;
+    if (coldMonths) counts.cold++;
+    if (waterMonths) counts.water++;
+    affectedMonths.heat += heatMonths;
+    affectedMonths.cold += coldMonths;
+    affectedMonths.water += waterMonths;
+  }
+  const ranked = (Object.keys(counts) as (keyof typeof counts)[]).sort((a,b)=>counts[b]-counts[a] || affectedMonths[b]-affectedMonths[a]);
+  if (!counts[ranked[0]] || (counts[ranked[0]] === counts[ranked[1]] && affectedMonths[ranked[0]] === affectedMonths[ranked[1]])) return fallback;
+  return {
+    heat: 'Hace demasiado calor para los cultivos del catálogo en este tramo',
+    cold: 'Hace demasiado frío para los cultivos del catálogo en este tramo',
+    water: 'Falta lluvia y no hay riego declarado en este tramo',
+  }[ranked[0]];
 }

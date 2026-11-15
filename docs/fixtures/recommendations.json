@@ -5200,7 +5200,7 @@
           "start": "2026-11-02",
           "end": "2026-12-31",
           "months": 2,
-          "reason": "Ningún cultivo completa su ciclo en este tramo",
+          "reason": "Falta lluvia y no hay riego declarado en este tramo",
           "suggestion": "Mantener cobertura o rastrojo para proteger el suelo"
         }
       ],
@@ -5405,7 +5405,7 @@
         "start": "2025-12-27",
         "end": "2026-12-31",
         "months": 13,
-        "reason": "Ningún cultivo completa su ciclo en este tramo",
+        "reason": "Falta lluvia y no hay riego declarado en este tramo",
         "suggestion": "Mantener cobertura o rastrojo para proteger el suelo"
       }
     ],
