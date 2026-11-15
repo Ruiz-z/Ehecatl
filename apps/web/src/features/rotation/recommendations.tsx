@@ -5,7 +5,7 @@ import { Droplets, Sprout, TrendingUp, ShieldCheck, CalendarDays, ChevronDown, C
 import type { Parcel, Priorities } from '@/features/parcels/types';
 import { useDemo } from '@/features/identity/demo-provider';
 import { apiClient, useMocks } from '@/shared/api/client';
-import { formatDate } from '@/shared/api/adapters';
+import { formatDate, formatMonth } from '@/shared/api/adapters';
 import { waitingNote } from '@/shared/api/messages';
 import Link from 'next/link';
 import { parcelUrl } from '@/features/parcels/parcel-tabs';
@@ -13,7 +13,8 @@ import { useAsync } from '@/shared/api/use-async';
 import { EmptyState, LoadingState, Notice } from '@/shared/components/ui';
 import { axes, normalizedWeights, rankStrategies, scoreContributions, scoreLevel } from './ranking';
 import { summarizeRests } from './rests';
-import type { RankedStrategy, RecommendationResult, CycleWater } from './types';
+import { summarizeStep, waterSentence } from './step-summary';
+import type { RankedStrategy, RecommendationResult, CycleWater, Reason } from './types';
 const icons = {
   water: Droplets,
   soil: Sprout,
@@ -49,6 +50,14 @@ function cycleWaterText(water: CycleWater | undefined, irrigated: boolean): stri
   if (water.coveragePct === null) consequence = 'falta lluvia para calcular el déficit';
   else if (water.coveragePct < 100) consequence = irrigated ? 'el resto depende del riego' : 'déficit de lluvia; sin riego declarado';
   return `Necesita ~${Math.round(water.demandMm)} mm (${method}) · ${rain} (${coverage}) · ${consequence}`;
+}
+function ReasonList({ reasons }: { reasons: Reason[] }) {
+  if (!reasons.length) return null;
+  return <ul>{reasons.map((reason, j) => {
+    const Icon = reason.effect === 'favor' ? Check : reason.effect === 'contra' ? TriangleAlert : Minus;
+    const label = reason.effect === 'favor' ? 'A favor' : reason.effect === 'contra' ? 'En contra' : 'Neutral';
+    return <li className={`step-reason effect-${reason.effect ?? 'neutral'}`} key={j}><Icon size={16} aria-hidden="true" /><span><span className="sr-only">{label}: </span>{reason.text}</span></li>;
+  })}</ul>;
 }
 function SequenceCard({
   strategy,
@@ -142,17 +151,20 @@ function SequenceCard({
     <button className="reasons-toggle" aria-expanded={open} onClick={() => setExpanded(!open)}>Por qué y qué riesgos tiene<ChevronDown size={16} className={open ? 'rotate' : ''} /></button>
     {open && <div className="reasons-content">
       <h4>Por qué</h4>
-      {strategy.steps?.some(step => step.reasons !== undefined) ? strategy.steps.map((step, i) => <section className="step-reasons" key={`${step.start}-${i}`}>
+      {strategy.steps?.some(step => step.reasons !== undefined) ? strategy.steps.map((step, i) => {
+        const { shown, hidden } = summarizeStep(step.reasons);
+        return <section className="step-reasons" key={`${step.start}-${i}`}>
         <h4>{i + 1} · {step.previousCropName ?? (i ? strategy.steps![i-1]!.cropName : 'Cultivo actual')} → {step.cropName}</h4>
-        <p className="muted">{formatDate(step.start)} / {formatDate(step.end)}</p>
-        <ul>{step.reasons?.map((reason, j) => {
-          const Icon = reason.effect === 'favor' ? Check : reason.effect === 'contra' ? TriangleAlert : Minus;
-          const label = reason.effect === 'favor' ? 'A favor' : reason.effect === 'contra' ? 'En contra' : 'Neutral';
-          return <li className={`step-reason effect-${reason.effect ?? 'neutral'}`} key={j}><Icon size={16} aria-hidden="true" /><span><strong>{label}: </strong>{reason.text}</span></li>;
-        })}</ul>
-        <p className="cycle-water">{cycleWaterText(step.water, irrigated)}</p>
-        <p className="cycle-climate">Clima del ciclo: {step.climate?.meanTemperature == null ? 'temperatura sin dato' : `${step.climate.meanTemperature.toFixed(1)} °C`} · {step.climate?.rainMm == null ? 'lluvia sin dato' : `${Math.round(step.climate.rainMm)} mm de lluvia`} · {step.climate?.cycleDays == null ? 'duración sin dato' : `${Math.round(step.climate.cycleDays)} días`}</p>
-      </section>) : <ul>{strategy.reasons.filter(reason => !reason.text.startsWith('Pesos ')).map((reason, i) => <li key={i}>{reason.text}</li>)}</ul>}
+        <p className="muted">{formatMonth(step.start)} a {formatMonth(step.end)}</p>
+        <ReasonList reasons={shown} />
+        <p className="cycle-water"><Droplets size={16} aria-hidden="true" />{waterSentence(step.water, irrigated)}</p>
+        <details className="step-more"><summary>Ver más detalle</summary>
+          <ReasonList reasons={hidden} />
+          <p className="cycle-climate">{cycleWaterText(step.water, irrigated)}</p>
+          <p className="cycle-climate">Clima del ciclo: {step.climate?.meanTemperature == null ? 'temperatura sin dato' : `${step.climate.meanTemperature.toFixed(1)} °C`} · {step.climate?.rainMm == null ? 'lluvia sin dato' : `${Math.round(step.climate.rainMm)} mm de lluvia`} · {step.climate?.cycleDays == null ? 'duración sin dato' : `${Math.round(step.climate.cycleDays)} días`}</p>
+          <p className="cycle-climate">Del {formatDate(step.start)} al {formatDate(step.end)}</p>
+        </details>
+      </section>; }) : <ul>{strategy.reasons.filter(reason => !reason.text.startsWith('Pesos ')).map((reason, i) => <li key={i}>{reason.text}</li>)}</ul>}
       <p className="weights-note">Calculado con tus prioridades: {axes.map(axis => `${axis.label.toLowerCase()} ${Math.round(weights[axis.key]*100)} %`).join(' · ')}. Ingreso es una heurística, no un precio.</p>
       <h4>Antes de decidir</h4>
       <ul>
