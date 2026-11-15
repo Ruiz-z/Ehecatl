@@ -1,5 +1,11 @@
 # Registro de cambios
 
+## 2026-11-15 — Guía del cálculo del puntaje
+
+- **Archivos:** `docs/como-se-calcula-el-puntaje.md`, `docs/registro-cambios.md`.
+- **Qué se cambió:** se documenta de dónde salen los cultivos y cada porcentaje del puntaje, qué es dato y qué es regla, la confiabilidad, el margen de error y qué decir en la demo.
+- **Por qué:** dejar por escrito la explicación del motor tras pasar a ejes con datos, para el pitch y para la revisión agronómica (H4).
+
 ## 2026-11-15 · Riesgo histórico y eje Cosecha con datos
 
 - Archivos: `apps/api/src/modules/crop-knowledge/crop-catalog.ts`, `apps/api/src/modules/crop-knowledge/data/crops.json`, `apps/api/src/modules/nasa-data/contracts.ts`, `apps/api/src/modules/nasa-data/nasa.service.ts`, `apps/api/src/modules/rotation-engine/engine/historical.ts`, `apps/api/src/modules/rotation-engine/engine/score.ts`, `apps/api/src/modules/rotation-engine/engine/sequences.ts`, `apps/api/test/access.spec.ts`, `apps/api/test/catalog.spec.ts`, `apps/api/test/engine.spec.ts`, `apps/api/test/nasa.spec.ts`, `apps/geo/THRESHOLDS.md`, `apps/geo/app/routes/indicators.py`, `apps/geo/tests/test_nasa.py`, `apps/web/src/features/rotation/fixtures/strategies.ts`, `apps/web/src/features/rotation/ranking.ts`, `apps/web/src/features/rotation/recommendations.tsx`, `apps/web/src/features/rotation/step-summary.test.ts`, `apps/web/src/features/rotation/step-summary.ts`, `apps/web/src/features/rotation/types.ts`, `apps/web/src/shared/api/adapters.test.ts`, `apps/web/src/shared/api/adapters.ts`, `docs/contracts.md`, `docs/fixtures/recommendations.json`, `docs/fuentes-agronomicas.md`, `docs/registro-cambios.md`, `docs/specs/spec-003-nasa-data.md`, `docs/specs/spec-005-rotation-engine.md`, `docs/specs/spec-006-web-ui.md`.
