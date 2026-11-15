@@ -1,5 +1,29 @@
 # Registro de cambios
 
+## 2026-11-14 — Motor ETc, puntaje contextual y presentación
+
+- **Archivos:** `apps/api/src/modules/rotation-engine/engine/{evapotranspiration,schedule,viability,sequences,score}.ts`, `apps/api/test/{catalog,engine,schedule,contracts}.spec.ts`, `apps/api/BACKEND.md`, `apps/web/src/features/rotation/{types,ranking,recommendations,fixtures/strategies,ranking.test}.ts(x)`, `apps/web/src/shared/api/{adapters,adapters.test}.ts`, `apps/web/src/app/globals.css`, `docs/fixtures/recommendations.json`, `docs/fuentes-agronomicas.md`, `docs/pendientes-equipo.md`, `docs/registro-cambios.md`.
+- **Qué se cambió:** ETo por radiación y días del calendario compartidos con schedule, ETc con Kc ponderado; demanda contextual para viabilidad, cobertura hídrica y seguridad por márgenes medidos. Water aditivo, fallback explícito, confianza reducida sin insumos, tarjetas con demanda/lluvia, desglose ponderado y nivel. Fixture de contrato regenerado por el motor; mocks web declaran respaldo sin lluvia. Se documenta la fila de los 18 Kc y se cierra el balance en pendientes.
+- **Por qué:** el puntaje anterior calificaba al cultivo sin balance de agua de su parcela y contaba textos de riesgo. Siguen pendientes H4, riego en niveles, Penman-Monteith y Kc por etapas reales.
+- **Verificación final:** `pnpm lint` pasó (API/web; geo desde caché); `pnpm test` pasó: API 94 aprobados y 6 omitidos, web 24 aprobados, geo 38 aprobados y 5 omitidos. PostgreSQL real en `ehecatl_eto_test_20261114` de localhost:5432, con migración aplicada exclusivamente ahí; no se tocó la base `ehecatl`. `pnpm --filter web build` y build de API pasaron. Los omitidos requieren `QA_API_URL`/`QA_GEO_URL`. `git diff --check` limpio.
+- **Entorno de verificación:** pnpm 10.34.9 local vía PATH temporal y `UV_CACHE_DIR=/tmp/ehecatl-uv-cache` para resolver locks de solo lectura; ejecución con Node 26.13.1, advertencia porque el proyecto pide Node 24. Sin dependencias nuevas. No se ejecutó Docker Compose ni navegador.
+- **Cobertura de RF:** catálogo RF-1b/RF-5 en catalog.spec; motor RF-1 a RF-9 preservados por engine/contracts/qa-e2e y access/database; RF-10 cálculo, meses parciales, bisiesto y respaldo completo en schedule.spec; RF-11 viabilidad ETc y agua con/sin riego en schedule/engine; RF-12 márgenes, topes, tendencias y familia en engine; RF-13 contrato aditivo, conservación de pasos/descansos, adaptador, contribuciones y niveles en contracts/adapters/ranking. La demo viva y aprobación agronómica H4 siguen pendientes.
+- **Puntajes:** fixture sintético regenerado: alfalfa>canola 87.59 y alfalfa>sunflower 86.96; baseline inviable (null). No son puntajes de Coahuila real; no se recalculó ese ranking con NASA vivo. Referencia térmica real suministrada: ETo junio 5.63484924 mm/día.
+- **Git:** rama `feat/motor-eto-etc` conservada; commits bloqueados porque `.git` es de solo lectura en el sandbox. Sin push.
+
+
+## 2026-11-14 — Catálogo Kc trazable
+
+- **Archivos:** crop-knowledge/data/crops.json y crop-catalog.ts.
+- **Qué se cambió:** 18 ternas Kc FAO-56 Tabla 12, fila y extremos elegidos; mostaza/canola y sarraceno/cereales marcados como analogías. Validador exige Kc 0.1–1.4 y fuente.
+- **Por qué:** calcular demanda ETc sin coeficientes inventados.
+
+## 2026-11-14 — Balance hídrico y puntaje contextual: especificación
+
+- **Archivos:** specs 004/005, contratos, fixture recommendations y fuentes agronómicas.
+- **Qué se cambió:** contrato water aditivo, Kc obligatorio y fórmulas de agua, riesgo y nivel.
+- **Por qué:** evaluar el cultivo en su parcela; heurísticas sujetas a H4.
+
 ## 2026-11-14 — Descansos agrupados en «Meses sin siembra»
 
 - **Archivos:** `apps/web/src/features/rotation/{rests.ts,rests.test.ts,recommendations.tsx}`, `apps/web/package.json` (el script de test incluye la prueba nueva), `apps/web/src/app/globals.css`, `docs/registro-cambios.md`.
