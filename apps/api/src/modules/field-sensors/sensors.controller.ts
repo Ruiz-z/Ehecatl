@@ -1,11 +1,15 @@
-import { Body, Controller, Get, Headers, HttpCode, Module, Param, ParseUUIDPipe, Patch, Post, Query, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Headers, HttpCode, Module, Param, ParseUUIDPipe, Patch, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthGuard, IdentityModule, Roles, type AuthRequest } from '../identity/identity.js';
 import { FarmModule } from '../farm-context/farm.controller.js';
+import { IrrigationService } from './irrigation.service.js';
 import { SensorsService } from './sensors.service.js';
 
 @Controller() @UseGuards(AuthGuard)
 class SensorsController {
-  constructor(private readonly sensors: SensorsService) {}
+  constructor(private readonly sensors: SensorsService, private readonly irrigation: IrrigationService) {}
+  @Post('zones/:id/irrigation-commands') water(@Param('id', ParseUUIDPipe) id: string, @Body() body: unknown, @Req() req: AuthRequest) { return this.irrigation.create(id, body, req.user); }
+  @Get('zones/:id/irrigation-commands') irrigationHistory(@Param('id', ParseUUIDPipe) id: string, @Req() req: AuthRequest) { return this.irrigation.history(id, req.user); }
+  @Delete('irrigation-commands/:id') cancel(@Param('id', ParseUUIDPipe) id: string, @Req() req: AuthRequest) { return this.irrigation.cancel(id, req.user); }
   @Post('devices') @Roles('ADMIN') create(@Body() body: unknown, @Req() req: AuthRequest) { return this.sensors.create(body, req.user); }
   @Get('zones/:id/devices') devices(@Param('id', ParseUUIDPipe) id: string, @Req() req: AuthRequest) { return this.sensors.list(id, req.user); }
   @Patch('devices/:id') @Roles('ADMIN') update(@Param('id', ParseUUIDPipe) id: string, @Body() body: unknown, @Req() req: AuthRequest) { return this.sensors.update(id, body, req.user); }
@@ -17,11 +21,17 @@ class SensorsController {
 
 @Controller()
 class DeviceIngestController {
-  constructor(private readonly sensors: SensorsService) {}
+  constructor(private readonly sensors: SensorsService, private readonly irrigation: IrrigationService) {}
+  @Get('device/commands/next') async next(@Headers('x-device-key') key: unknown, @Res({ passthrough: true }) res: { status(code: number): unknown }) {
+    const command = await this.irrigation.next(key);
+    if (!command) { res.status(204); return; }
+    return command;
+  }
+  @Post('device/commands/:id/result') @HttpCode(200) result(@Param('id', ParseUUIDPipe) id: string, @Headers('x-device-key') key: unknown, @Body() body: unknown) { return this.irrigation.result(id, key, body); }
   @Get('device') self(@Headers('x-device-key') key: unknown) { return this.sensors.self(key); }
   @Post('readings') @HttpCode(200) reading(@Headers('x-device-key') key: unknown, @Body() body: unknown,
     @Req() req: { rawBody?: Buffer }) { return this.sensors.ingest(key, body, req.rawBody?.length); }
 }
 
-@Module({ imports: [IdentityModule, FarmModule], controllers: [SensorsController, DeviceIngestController], providers: [SensorsService] })
+@Module({ imports: [IdentityModule, FarmModule], controllers: [SensorsController, DeviceIngestController], providers: [SensorsService, IrrigationService] })
 export class SensorsModule {}
