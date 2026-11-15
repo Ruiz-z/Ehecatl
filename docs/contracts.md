@@ -133,3 +133,22 @@ Una perenne debe caber en el horizonte y ocupar ventanas consecutivas.
 
 H2 (contratos), H3 (perfiles demo) y H4 (agronomía) siguen siendo humanos.
 Los perfiles de seed son propuestas editables, no decisiones aprobadas.
+
+## Explicación por pasos y descansos (ampliación aditiva v1)
+
+Se conservan `explanation` y `risks`. Cada paso de `sequence` añade
+`reasons: [{text,effect}]`, con `effect: favor|contra|neutral`, y
+`climate: {meanTemperature,rainMm,cycleDays}`: temperatura en °C a un
+decimal, lluvia en mm y duración en días enteros; desconocidos `null`.
+Los pesos aparecen una sola vez en la explicación plana; los riesgos no se repiten.
+
+Cada recomendación y `baseline` (incluso inviable) añade
+`rests: [{start,end,months,reason,suggestion}]`. Fechas inclusivas dentro
+del horizonte de 24 meses (mes siguiente a `inputs.indicators.period.end`).
+Son huecos de al menos un mes de fecha a fecha o un mes calendario completo,
+separados por los límites de las ventanas originales (sin recorte a tres).
+`months` cuenta los meses calendario tocados por el tramo.
+Fuera de ventana: «Fuera de temporada: frío o falta de agua»; dentro:
+«Ningún cultivo completa su ciclo en este tramo». Sin ventanas se usa el
+primer motivo. Sugerencia: «Mantener cobertura o rastrojo para proteger el suelo».
+El front acepta respuestas antiguas sin estos campos y conserva su explicación.

@@ -1211,7 +1211,30 @@
           "end": "2025-04-20",
           "occupiedWindowIds": [
             "window-1"
-          ]
+          ],
+          "reasons": [
+            {
+              "text": "Alternar leguminosas favorece el balance de nitrógeno y rompe hospederos",
+              "effect": "favor"
+            },
+            {
+              "text": "La leguminosa aporta fijación biológica de nitrógeno",
+              "effect": "favor"
+            },
+            {
+              "text": "Cambio de familia: ruptura de hospederos de plagas",
+              "effect": "favor"
+            },
+            {
+              "text": "Cobertura estimada 55/100 para reducir erosión",
+              "effect": "neutral"
+            }
+          ],
+          "climate": {
+            "meanTemperature": 24,
+            "rainMm": 330,
+            "cycleDays": 110
+          }
         },
         {
           "cropId": "tomato",
@@ -1221,7 +1244,26 @@
           "end": "2026-06-10",
           "occupiedWindowIds": [
             "window-1"
-          ]
+          ],
+          "reasons": [
+            {
+              "text": "Alternar leguminosas favorece el balance de nitrógeno y rompe hospederos",
+              "effect": "favor"
+            },
+            {
+              "text": "Cambio de familia: ruptura de hospederos de plagas",
+              "effect": "favor"
+            },
+            {
+              "text": "Cobertura estimada 55/100 para reducir erosión",
+              "effect": "neutral"
+            }
+          ],
+          "climate": {
+            "meanTemperature": 24,
+            "rainMm": 390,
+            "cycleDays": 130
+          }
         },
         {
           "cropId": "chickpea",
@@ -1231,7 +1273,34 @@
           "end": "2026-09-28",
           "occupiedWindowIds": [
             "window-1"
-          ]
+          ],
+          "reasons": [
+            {
+              "text": "Alternar leguminosas favorece el balance de nitrógeno y rompe hospederos",
+              "effect": "favor"
+            },
+            {
+              "text": "La leguminosa aporta fijación biológica de nitrógeno",
+              "effect": "favor"
+            },
+            {
+              "text": "Cambio de familia: ruptura de hospederos de plagas",
+              "effect": "favor"
+            },
+            {
+              "text": "Familia presente en el historial reciente: penalización por retorno",
+              "effect": "contra"
+            },
+            {
+              "text": "Cobertura estimada 55/100 para reducir erosión",
+              "effect": "neutral"
+            }
+          ],
+          "climate": {
+            "meanTemperature": 24,
+            "rainMm": 324,
+            "cycleDays": 110
+          }
         }
       ],
       "components": {
@@ -1246,23 +1315,37 @@
         "Maíz → Garbanzo: La leguminosa aporta fijación biológica de nitrógeno",
         "Maíz → Garbanzo: Cambio de familia: ruptura de hospederos de plagas",
         "Maíz → Garbanzo: Cobertura estimada 55/100 para reducir erosión",
-        "Garbanzo: NASA T2M=24 C; lluvia=330 mm/ciclo; ciclo=110 días",
-        "Pesos agua=25, suelo=25, ingreso=25, riesgo=25; ingreso es una heurística, no precio",
+        "Garbanzo: NASA T2M=24.0 C; lluvia=330 mm/ciclo; ciclo=110 días",
         "Garbanzo → Tomate: Alternar leguminosas favorece el balance de nitrógeno y rompe hospederos",
         "Garbanzo → Tomate: Cambio de familia: ruptura de hospederos de plagas",
         "Garbanzo → Tomate: Cobertura estimada 55/100 para reducir erosión",
-        "Tomate: NASA T2M=24 C; lluvia=390 mm/ciclo; ciclo=130 días",
-        "Pesos agua=25, suelo=25, ingreso=25, riesgo=25; ingreso es una heurística, no precio",
+        "Tomate: NASA T2M=24.0 C; lluvia=390 mm/ciclo; ciclo=130 días",
         "Tomate → Garbanzo: Alternar leguminosas favorece el balance de nitrógeno y rompe hospederos",
         "Tomate → Garbanzo: La leguminosa aporta fijación biológica de nitrógeno",
         "Tomate → Garbanzo: Cambio de familia: ruptura de hospederos de plagas",
         "Tomate → Garbanzo: Familia presente en el historial reciente: penalización por retorno",
         "Tomate → Garbanzo: Cobertura estimada 55/100 para reducir erosión",
-        "Garbanzo: NASA T2M=24 C; lluvia=324 mm/ciclo; ciclo=110 días",
+        "Garbanzo: NASA T2M=24.0 C; lluvia=324 mm/ciclo; ciclo=110 días",
         "Pesos agua=25, suelo=25, ingreso=25, riesgo=25; ingreso es una heurística, no precio"
       ],
       "risks": [
         "Déficit hídrico potencial: 390/600 mm"
+      ],
+      "rests": [
+        {
+          "start": "2025-04-21",
+          "end": "2026-01-31",
+          "months": 10,
+          "reason": "Ningún cultivo completa su ciclo en este tramo",
+          "suggestion": "Mantener cobertura o rastrojo para proteger el suelo"
+        },
+        {
+          "start": "2026-09-29",
+          "end": "2026-12-31",
+          "months": 4,
+          "reason": "Ningún cultivo completa su ciclo en este tramo",
+          "suggestion": "Mantener cobertura o rastrojo para proteger el suelo"
+        }
       ],
       "delta": null
     },
@@ -1277,7 +1360,30 @@
           "end": "2025-04-20",
           "occupiedWindowIds": [
             "window-1"
-          ]
+          ],
+          "reasons": [
+            {
+              "text": "Alternar leguminosas favorece el balance de nitrógeno y rompe hospederos",
+              "effect": "favor"
+            },
+            {
+              "text": "La leguminosa aporta fijación biológica de nitrógeno",
+              "effect": "favor"
+            },
+            {
+              "text": "Cambio de familia: ruptura de hospederos de plagas",
+              "effect": "favor"
+            },
+            {
+              "text": "Cobertura estimada 55/100 para reducir erosión",
+              "effect": "neutral"
+            }
+          ],
+          "climate": {
+            "meanTemperature": 24,
+            "rainMm": 330,
+            "cycleDays": 110
+          }
         },
         {
           "cropId": "sunflower",
@@ -1287,7 +1393,26 @@
           "end": "2025-08-08",
           "occupiedWindowIds": [
             "window-1"
-          ]
+          ],
+          "reasons": [
+            {
+              "text": "Alternar leguminosas favorece el balance de nitrógeno y rompe hospederos",
+              "effect": "favor"
+            },
+            {
+              "text": "Cambio de familia: ruptura de hospederos de plagas",
+              "effect": "favor"
+            },
+            {
+              "text": "Cobertura estimada 65/100 para reducir erosión",
+              "effect": "neutral"
+            }
+          ],
+          "climate": {
+            "meanTemperature": 24,
+            "rainMm": 323,
+            "cycleDays": 110
+          }
         },
         {
           "cropId": "chickpea",
@@ -1297,7 +1422,34 @@
           "end": "2025-11-26",
           "occupiedWindowIds": [
             "window-1"
-          ]
+          ],
+          "reasons": [
+            {
+              "text": "Alternar leguminosas favorece el balance de nitrógeno y rompe hospederos",
+              "effect": "favor"
+            },
+            {
+              "text": "La leguminosa aporta fijación biológica de nitrógeno",
+              "effect": "favor"
+            },
+            {
+              "text": "Cambio de familia: ruptura de hospederos de plagas",
+              "effect": "favor"
+            },
+            {
+              "text": "Familia presente en el historial reciente: penalización por retorno",
+              "effect": "contra"
+            },
+            {
+              "text": "Cobertura estimada 55/100 para reducir erosión",
+              "effect": "neutral"
+            }
+          ],
+          "climate": {
+            "meanTemperature": 24,
+            "rainMm": 325,
+            "cycleDays": 110
+          }
         }
       ],
       "components": {
@@ -1312,23 +1464,30 @@
         "Maíz → Garbanzo: La leguminosa aporta fijación biológica de nitrógeno",
         "Maíz → Garbanzo: Cambio de familia: ruptura de hospederos de plagas",
         "Maíz → Garbanzo: Cobertura estimada 55/100 para reducir erosión",
-        "Garbanzo: NASA T2M=24 C; lluvia=330 mm/ciclo; ciclo=110 días",
-        "Pesos agua=25, suelo=25, ingreso=25, riesgo=25; ingreso es una heurística, no precio",
+        "Garbanzo: NASA T2M=24.0 C; lluvia=330 mm/ciclo; ciclo=110 días",
         "Garbanzo → Girasol: Alternar leguminosas favorece el balance de nitrógeno y rompe hospederos",
         "Garbanzo → Girasol: Cambio de familia: ruptura de hospederos de plagas",
         "Garbanzo → Girasol: Cobertura estimada 65/100 para reducir erosión",
-        "Girasol: NASA T2M=24 C; lluvia=323 mm/ciclo; ciclo=110 días",
-        "Pesos agua=25, suelo=25, ingreso=25, riesgo=25; ingreso es una heurística, no precio",
+        "Girasol: NASA T2M=24.0 C; lluvia=323 mm/ciclo; ciclo=110 días",
         "Girasol → Garbanzo: Alternar leguminosas favorece el balance de nitrógeno y rompe hospederos",
         "Girasol → Garbanzo: La leguminosa aporta fijación biológica de nitrógeno",
         "Girasol → Garbanzo: Cambio de familia: ruptura de hospederos de plagas",
         "Girasol → Garbanzo: Familia presente en el historial reciente: penalización por retorno",
         "Girasol → Garbanzo: Cobertura estimada 55/100 para reducir erosión",
-        "Garbanzo: NASA T2M=24 C; lluvia=325 mm/ciclo; ciclo=110 días",
+        "Garbanzo: NASA T2M=24.0 C; lluvia=325 mm/ciclo; ciclo=110 días",
         "Pesos agua=25, suelo=25, ingreso=25, riesgo=25; ingreso es una heurística, no precio"
       ],
       "risks": [
         "Déficit hídrico potencial: 323/400 mm"
+      ],
+      "rests": [
+        {
+          "start": "2025-11-27",
+          "end": "2026-12-31",
+          "months": 14,
+          "reason": "Ningún cultivo completa su ciclo en este tramo",
+          "suggestion": "Mantener cobertura o rastrojo para proteger el suelo"
+        }
       ],
       "delta": null
     }
@@ -1342,6 +1501,15 @@
     "explanation": [
       "Maíz: Agua insuficiente para la demanda del ciclo; Ciclo de 120 días excede el horizonte o ventana disponible; Mejor lluvia disponible 360 mm frente a demanda de 600 mm/ciclo"
     ],
-    "risks": []
+    "risks": [],
+    "rests": [
+      {
+        "start": "2025-01-01",
+        "end": "2026-12-31",
+        "months": 24,
+        "reason": "Ningún cultivo completa su ciclo en este tramo",
+        "suggestion": "Mantener cobertura o rastrojo para proteger el suelo"
+      }
+    ]
   }
 }
