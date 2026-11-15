@@ -1,0 +1,24 @@
+import { request } from '@/shared/api/client';
+
+export interface Device {
+  id: string; zoneId: string; name: string; origin: 'REAL' | 'SIMULATED'; status: 'ACTIVE' | 'REVOKED';
+  connection: 'online' | 'offline' | 'revoked'; ageSeconds: number | null;
+  dryRaw: number | null; wetRaw: number | null; depthCm: number | null; calibrationVersion: number;
+  expectedIntervalSeconds: number; lastMeasuredAt: string | null; lastReceivedAt: string | null;
+}
+export interface Reading {
+  id: string; deviceId: string; zoneId: string; readingId: string; measuredAt: string; receivedAt: string;
+  origin: 'REAL' | 'SIMULATED'; soilMoistureRaw: number | null; soilMoisture: number | null;
+  airTemperature: number | null; airHumidity: number | null; mq2Raw: number | null; calibrationVersion: number;
+}
+export interface ReadingPage { items: Reading[]; nextCursor: string | null; from: string; to: string }
+export interface DeviceConfig { name: string; expectedIntervalSeconds: number; dryRaw: number | null; wetRaw: number | null; depthCm: number | null }
+export interface IssuedKey { device: Device; apiKey: string }
+export const sensorsApi = {
+  devices: (zoneId: string) => request<Device[]>(`/zones/${encodeURIComponent(zoneId)}/devices`),
+  readings: (zoneId: string, query: { from?: string; to?: string; cursor?: string } = {}) => request<ReadingPage>(`/zones/${encodeURIComponent(zoneId)}/readings?${new URLSearchParams(query)}`),
+  create: (zoneId: string, input: DeviceConfig & { origin: Device['origin'] }) => request<IssuedKey>('/devices', 'POST', { ...input, zoneId }),
+  update: (id: string, input: DeviceConfig & { zoneId: string }) => request<Device>(`/devices/${encodeURIComponent(id)}`, 'PATCH', input),
+  rotate: (id: string) => request<IssuedKey>(`/devices/${encodeURIComponent(id)}/rotate-key`, 'POST'),
+  revoke: (id: string) => request<Device>(`/devices/${encodeURIComponent(id)}/revoke`, 'POST'),
+};

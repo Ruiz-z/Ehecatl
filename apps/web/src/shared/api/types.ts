@@ -14,7 +14,9 @@ export interface Indicators {
   windows?: SowingWindow[];
   period: { start: string; end: string };
   summaries: Partial<Record<MetricKey, MetricSummary>>;
-  ndvi: { value: number | null; label: string; source?: string; date?: string; zone?: number };
+  ndvi: { value: number | null; label: string; source?: string; date?: string; zone?: number; resolution?: string; observedAt?: string };
+  metadata?: Partial<Record<MetricKey, { sources: string[]; resolutions: string[]; date: string }>>;
+  fetchedAt?: string;
   lastObservation: string;
   lastDataMonth?: string;
   periodLabel: string;
@@ -27,7 +29,8 @@ export interface ApiClient {
   listParcels(): Promise<Parcel[]>;
   createParcel(input: NewParcelInput): Promise<Parcel>;
   getIndicators(parcel: Parcel): Promise<Indicators>;
-  getRecommendations(parcel: Parcel): Promise<RecommendationResult>;
+  getRecommendations(parcel: Parcel, priorities?: Priorities): Promise<RecommendationResult>;
+  createZone(parcel: Parcel, input: { name: string; currentCropId: string; irrigated: boolean }): Promise<Parcel>;
   savePriorities(weights: Priorities): Promise<Priorities>;
 }
 export interface AuthClient {

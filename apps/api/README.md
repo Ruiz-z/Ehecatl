@@ -1,5 +1,7 @@
 # API
 
+Preparación ESP32: [guía de dispositivos, simulador y calibración](../../docs/preparacion-sensores.md). Aplicar `pnpm --filter api exec prisma migrate deploy` en desarrollo antes de usar sensores. `pnpm --filter api sensors:simulate` requiere una clave local de dispositivo `SIMULATED`. Ninguna respuesta ordena riego.
+
 Desde la raíz: `pnpm install`. Copiar `apps/api/.env.example` a `apps/api/.env` y levantar PostgreSQL con `docker compose up -d postgres`.
 
 - Desarrollo: `pnpm --filter api dev` (puerto 3001).

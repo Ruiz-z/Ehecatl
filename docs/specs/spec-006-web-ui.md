@@ -38,6 +38,8 @@ App móvil, modo offline, reportes PDF, notificaciones.
 RF-1 a RF-7 + demo manual del flujo: login → crear/abrir parcela → ver datos NASA → ver recomendaciones → cambiar prioridades.
 
 ## Decisiones
+- Preparación ESP32 (2026-11-15): seleccionar y crear zonas, conservándolas entre pestañas; panel «Sensores» con administración para admin y lecturas por dueño/admin, calibración opcional y origen simulado visible. Comparación pendiente, sin comandos.
+- Prioridades consultan nuevamente el motor tras una pausa breve. Puntajes y explicaciones corresponden a pesos del servidor; la previsualización no cambia preferencias guardadas. Se conservan fuente, resolución y fecha por indicador; no se confunde ausencia de cultivos con ausencia de ventanas.
 - Mapa con Leaflet + OpenStreetMap (sin API key).
 - Las tarjetas de recomendación se muestran por zona.
 - Compose construye el front con `NEXT_PUBLIC_USE_MOCKS=false` por defecto, para que el login y los datos correspondan a los usuarios y la caché reales del seed. El modo de ejemplo puede habilitarse explícitamente y conserva su marca visible; la selección se inyecta durante el build de Next.js.

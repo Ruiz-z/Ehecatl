@@ -13,6 +13,9 @@ import { EmptyState, LoadingState, Notice } from '@/shared/components/ui';
 import { FieldStatus } from '@/features/nasa/field-status';
 import { FieldCharts } from '@/features/nasa/field-charts';
 import { Recommendations } from '@/features/rotation/recommendations';
+import { Sensors } from '@/features/sensors/sensors';
+import { selectZone } from './zones';
+import { ZonePicker } from './zone-picker';
 export function ParcelDetail({
   id
 }: {
@@ -32,7 +35,8 @@ function Detail({
   const search = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [expanded, setExpanded] = useState(false);
-  const parcel = parcels.find(item => item.id === id);
+  const baseParcel = parcels.find(item => item.id === id);
+  const parcel = baseParcel ? selectZone(baseParcel, search.get('zone')) : null;
   const tab = resolveParcelTab(search.get('tab'));
   if (!parcel) return <main id="main" className="not-found">
     <EmptyState title="No encontramos esta parcela"><p>Elige una parcela de tu perfil para continuar.</p><Link className="button primary" href="/parcelas">Volver a mis parcelas</Link></EmptyState>
@@ -50,7 +54,7 @@ function Detail({
   }
   const wide = tab === 'datos' || tab === 'sembrar';
   return <main id="main" className={`map-workspace detail-workspace ${wide ? 'wide-workspace' : ''}`}>
-    <FieldMap parcels={parcels} selectedId={parcel.id} ndvi={useMocks && tab === 'estado' && parcel.dataState !== 'empty'} />
+    <FieldMap parcels={parcels.map(item => item.id === parcel.id ? parcel : item)} selectedId={parcel.id} ndvi={useMocks && tab === 'estado' && parcel.dataState !== 'empty'} />
     <section className={`detail-panel ${wide ? 'wide-panel' : ''} ${expanded ? 'sheet-expanded' : ''}`}>
       <SheetHandle expanded={expanded} onChange={setExpanded} />
       <header className="detail-heading">
@@ -69,11 +73,12 @@ function Detail({
           <div><dt>Coordenadas</dt><dd>{parcel.latitude.toFixed(3)}, {parcel.longitude.toFixed(3)}</dd></div>
         </dl>
       </header>
+      <ZonePicker key={parcel.zoneId ?? parcel.id} parcel={parcel} tab={tab} onUpdate={updateParcel} />
       <nav className="tabs" aria-label="Secciones de la parcela">
-        {parcelTabs.map(item => <Link key={item.key} aria-current={tab === item.key ? 'page' : undefined} href={parcelUrl(id, item.key)} className={tab === item.key ? 'selected' : ''}>{item.label}</Link>)}
+        {parcelTabs.map(item => <Link key={item.key} aria-current={tab === item.key ? 'page' : undefined} href={parcelUrl(id, item.key, parcel.zoneId)} className={tab === item.key ? 'selected' : ''}>{item.label}</Link>)}
       </nav>
       <div className="detail-scroll">
-        {loading ? <LoadingState /> : parcel.dataState === 'empty' ? <EmptyState title="Conozcamos este campo"><p>Aún no hay datos NASA para esta parcela. Carga un escenario de ejemplo para explorar sus indicadores y opciones.</p><button className="button primary" onClick={loadData}><Download size={17} />Cargar datos de ejemplo</button><small>No se consultará la API de NASA en esta demo.</small></EmptyState> : <>{parcel.dataState === 'error' && <Notice variant="warning" label="AVISO · SUELO" title="Falta la humedad del suelo" error><p><strong>1 indicador no disponible.</strong> La fuente no respondió en este escenario. Puedes consultar el resto; la confianza es baja.</p><button className="text-button" onClick={loadData}><RefreshCw size={14} />Reintentar con datos de ejemplo</button></Notice>}{tab === 'datos' ? <FieldCharts parcel={parcel} /> : tab === 'sembrar' ? <Recommendations parcel={parcel} /> : <FieldStatus parcel={parcel} />}</>}
+        {tab === 'sensores' ? <Sensors key={parcel.zoneId ?? parcel.id} parcel={parcel} /> : loading ? <LoadingState /> : parcel.dataState === 'empty' ? <EmptyState title="Conozcamos este campo"><p>Aún no hay datos NASA para esta parcela. Carga un escenario de ejemplo para explorar sus indicadores y opciones.</p><button className="button primary" onClick={loadData}><Download size={17} />Cargar datos de ejemplo</button><small>No se consultará la API de NASA en esta demo.</small></EmptyState> : <>{parcel.dataState === 'error' && <Notice variant="warning" label="AVISO · SUELO" title="Falta la humedad del suelo" error><p><strong>1 indicador no disponible.</strong> La fuente no respondió en este escenario. Puedes consultar el resto; la confianza es baja.</p><button className="text-button" onClick={loadData}><RefreshCw size={14} />Reintentar con datos de ejemplo</button></Notice>}{tab === 'datos' ? <FieldCharts key={parcel.zoneId ?? parcel.id} parcel={parcel} /> : tab === 'sembrar' ? <Recommendations key={parcel.zoneId ?? parcel.id} parcel={parcel} /> : <FieldStatus key={parcel.zoneId ?? parcel.id} parcel={parcel} />}</>}
       </div>
     </section>
     <div className="map-context">

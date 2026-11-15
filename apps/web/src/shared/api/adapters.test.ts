@@ -1,6 +1,7 @@
 import { strict as assert } from 'node:assert';
 import { test } from 'node:test';
 import { formatDate, formatMonth, initials, mapIndicators, mapParcel, mapRecommendations, mapSession, type ApiIndicators, type ApiRecommendations } from './adapters.ts';
+import { selectZone } from '../../features/parcels/zones.ts';
 const crops = [{ id: 'maize', name: 'Maíz', family: 'Poaceae' }, { id: 'soybean', name: 'Soya', family: 'Fabaceae' }, { id: 'potato', name: 'Papa', family: 'Solanaceae' }];
 const priorities = { water: 60, soil: 20, income: 10, risk: 10 };
 
@@ -57,6 +58,32 @@ test('sin opciones viables no inventa estrategias', () => {
   const result = mapRecommendations({ ...recommendations, status: 'no_viable_options', recommendations: [] }, crops);
   assert.equal(result.status, 'no_viable_options');
   assert.deepEqual(result.strategies, []);
+});
+
+test('cada zona conserva cultivo, punto y riego y no se sustituye una zona inválida', () => {
+  const parcel = mapParcel({ id: 'p1', ownerId: 'u1', name: 'Dos zonas', lat: 25, lon: -101, zones: [
+    { id: 'z1', name: 'Principal', currentCropId: 'maize', irrigated: true, lat: null, lon: null },
+    { id: 'z2', name: 'Sur', currentCropId: 'soybean', irrigated: false, lat: -33, lon: -68 }
+  ] }, crops)!;
+  const south = selectZone(parcel, 'z2')!;
+  assert.equal(south.zoneId, 'z2'); assert.equal(south.crop, 'Soya'); assert.equal(south.latitude, -33); assert.equal(south.irrigation, false);
+  assert.equal(parcel.zoneId, 'z1'); assert.equal(selectZone(parcel, 'ajena'), null);
+});
+
+test('se conservan el puntaje y los pesos calculados por el servidor', () => {
+  const result = mapRecommendations({ ...recommendations, priorities }, crops);
+  assert.equal(result.strategies[0]?.score, 77.87);
+  assert.deepEqual(result.priorities, priorities);
+});
+
+test('NDVI conserva proveedor, producto, fecha y resolución reales', () => {
+  const result = mapIndicators({ ...indicators, fetchedAt: '2026-11-15T10:00:00Z', monthly: [...indicators.monthly,
+    { variable: 'NDVI', value: 0.4, unit: 'index', date: '2026-09-01', source: 'MODIS MYD13Q1 / Microsoft Planetary Computer', resolution: '250 m' }
+  ] });
+  assert.equal(result.ndvi.observedAt, '2026-09-01'); assert.equal(result.ndvi.date, 'septiembre de 2026');
+  assert.equal(result.ndvi.resolution, '250 m');
+  assert.match(result.ndvi.source!, /MYD13Q1/); assert.equal(result.fetchedAt, '2026-11-15T10:00:00Z');
+  assert.deepEqual(result.metadata?.ndvi?.sources, ['MODIS MYD13Q1 / Microsoft Planetary Computer']);
 });
 
 test('la referencia viable se muestra como mantener lo actual con sus valores reales', () => {

@@ -49,6 +49,7 @@ Modelos de rendimiento entrenados, optimización económica con precios de merca
 RF-1 a RF-13 (incluido RF-1c) con test en verde + demo: tres usuarios con ubicaciones y prioridades distintas reciben recomendaciones distintas y explicadas, siempre comparadas contra mantener lo actual.
 
 ## Decisiones
+- Preparación ESP32 (2026-11-15): lecturas sin efecto en viabilidad o confianza hasta contar con comparación validada. `POST /zones/:id/recommendations` permite pesos temporales sin guardarlos; guardar preferencias sigue siendo una operación separada.
 - La recomendación se calcula **por zona** (spec 002).
 - "Ciclo" = duración real de un cultivo en días dentro de las **ventanas climatológicas calculadas por zona** (spec 003 RF-3b), no una temporada de calendario ni un año. Una ventana larga puede alojar varios ciclos sin solapamientos; los perennes (p. ej. alfalfa) pueden ocupar varias ventanas seguidas. Geo conserva los meses aptos consecutivos como una sola ventana (`windows.py` no se divide artificialmente). Las etiquetas locales (PV/OI en México) son solo de visualización.
 - Corrección QA 2026-11-14: Coahuila se propone como parcela demo con riego declarado para mostrar recomendaciones viables con prioridades de ahorro de agua. Solo cambia el fixture, sin reglas por región ni datos NASA simulados; la aprobación del perfil por H3 sigue pendiente. El riego es una condición declarada que requiere disponibilidad efectiva, no una garantía agronómica (H4).

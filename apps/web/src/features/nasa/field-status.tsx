@@ -18,7 +18,7 @@ export function FieldStatus({
 }: {
   parcel: Parcel;
 }) {
-  const state = useAsync(() => apiClient.getIndicators(parcel), parcel.id);
+  const state = useAsync(() => apiClient.getIndicators(parcel), parcel.zoneId ?? parcel.id);
   if (state.status === 'loading') return <LoadingState note={useMocks ? undefined : waitingNote} />;
   if (state.status === 'error') return <EmptyState title="No pudimos cargar los datos NASA"><p>{state.message}</p><button className="button primary" onClick={state.retry}>Reintentar</button></EmptyState>;
   return <Status parcel={parcel} data={state.data} />;
@@ -45,7 +45,7 @@ function Status({
     <section className={`field-verdict ${verdict.tone}`}>
       <h3>{verdict.title}</h3><p>{verdict.text}</p>
       {verdict.note && <p>{verdict.note}</p>}
-      {verdict.showButton && <Link className="button primary" href={parcelUrl(parcel.id)}>{copy.verdict.button}</Link>}
+      {verdict.showButton && <Link className="button primary" href={parcelUrl(parcel.id, 'sembrar', parcel.zoneId)}>{copy.verdict.button}</Link>}
     </section>
     <div className="field-visuals">
       <div className="ndvi-card">
@@ -60,6 +60,7 @@ function Status({
           <summary>{copy.exact.title}</summary>
           <p>{copy.exact.value(String(data.ndvi.value), data.ndvi.date ?? data.lastObservation)}</p>
           <p className="muted">{copy.exact.technical} NDVI</p>
+          <p>{data.ndvi.source ?? 'Fuente no informada'} · {data.ndvi.resolution ?? 'Escala no informada'} · origen: {data.origin}</p>
         </details>}
       </div>
       <div className="satellite-card" role="img" aria-label={`Vista satelital de la ubicación de ${parcel.name}`} style={{
@@ -84,18 +85,18 @@ function Status({
         <p>{observation.consequence}</p>
         <details>
           <summary>{copy.exact.title}</summary>
-          <dl><div><dt>Valor</dt><dd>{observation.rawValue ?? observation.value}</dd></div><div><dt>Fuente</dt><dd>{observation.source}</dd></div><div><dt>Fecha</dt><dd>{observation.date}</dd></div></dl>
+          <dl><div><dt>Valor</dt><dd>{observation.rawValue ?? observation.value}</dd></div><div><dt>Fuente</dt><dd>{observation.source}</dd></div><div><dt>Fecha</dt><dd>{observation.date}</dd></div><div><dt>Resolución</dt><dd>{observation.resolution ?? 'No informada'}</dd></div><div><dt>Origen</dt><dd>{data.origin}</dd></div></dl>
           <p className="muted">{copy.exact.technical} {observation.variable}</p>
         </details>
       </article>;
       })}
     </div>
-    <Link className="next-decision" href={parcelUrl(parcel.id)}><div>
+    <Link className="next-decision" href={parcelUrl(parcel.id, 'sembrar', parcel.zoneId)}><div>
         <Sprout size={22} />
         <span><strong>Prepara el siguiente ciclo</strong><small>Compara qué sembrar y cuándo cambiar.</small></span>
       </div><ArrowUpRight size={22} /></Link>
     {data.warnings.length > 0 && <p className="status-source">{data.warnings.join(' · ')}</p>}
-    <p className="status-source">{mock ? <>Datos de ejemplo basados en escenarios ilustrativos.<br /></> : null}NASA POWER · MODIS / ORNL DAAC</p>
+    <p className="status-source">{mock ? <>Datos de ejemplo basados en escenarios ilustrativos.<br /></> : null}POWER representa contexto regional; el FC28 mide un punto de suelo. La fecha de consulta no es la fecha de la observación.{data.fetchedAt && <> Consulta de fuentes: {new Date(data.fetchedAt).toLocaleString('es-MX')}.</>}</p>
   </div>;
 }
 function MapCross() {

@@ -7,14 +7,15 @@ import type { Observation, TimePoint, SowingWindow } from '@/features/nasa/types
 import type { Crop, Indicators, MetricKey, MetricSummary, Session } from './types';
 
 export interface ApiCrop { id: string; name: string; family: string }
-export interface ApiZone { id: string; currentCropId: string; irrigated: boolean; lat: number | null; lon: number | null }
+export interface ApiZone { id: string; name?: string; currentCropId: string; irrigated: boolean; lat: number | null; lon: number | null }
 export interface ApiParcel { id: string; ownerId: string; name: string; lat: number; lon: number; zones: ApiZone[] }
 export interface ApiLogin { accessToken: string; expiresIn: number; user: { id: string; email: string; name: string; role: string } }
-export interface ApiMonthly { variable: string; date: string; value: number | null; unit: string; source: string }
+export interface ApiMonthly { variable: string; date: string; value: number | null; unit: string; source: string; resolution?: string }
 export interface ApiIndicators {
   windows?: SowingWindow[];
   period: { start: string; end: string };
   origin: 'live' | 'cache' | 'mock';
+  fetchedAt?: string;
   monthly: ApiMonthly[];
   climatology: { variable: string; month: number; value: number; samples?: number }[];
   trends: { type: 'drought' | 'heat' | 'vegetation_stress' | 'erratic_rain'; active: boolean; evidence: string[] }[];
@@ -25,6 +26,7 @@ export interface ApiIndicators {
 export interface ApiRecommendation {
   riskGroups?: { type: string; text: string }[];
   irrigationNeedMm?: number;
+  delta?: number | null;
   id: string; score: number;
   sequence: (RotationStep & { cropId: string })[];
   rests?: Rest[];
@@ -37,6 +39,7 @@ export interface ApiBaseline {
   sequence: ApiRecommendation['sequence']; rests?: Rest[]; explanation: string[]; risks: string[];
 }
 export interface ApiRecommendations {
+  priorities?: Priorities;
   status: 'ok' | 'no_viable_options'; origin: 'live' | 'cache' | 'mock'; confidence: 'high' | 'medium' | 'low';
   warnings: string[]; currentCropRisk: { level: 'low' | 'high'; reasons: string[]; changeAt: string | null };
   inputs: { currentCropId?: string; indicators: { period: { end: string }; sources?: ApiIndicators['sources'] } }; recommendations: ApiRecommendation[];
@@ -68,7 +71,7 @@ export function mapSession(login: ApiLogin, priorities: Priorities, now = Date.n
 export function mapCrops(crops: ApiCrop[]): Crop[] {
   return crops.map(({ id, name, family }) => ({ id, name, family }));
 }
-// Una parcela del front equivale a la primera zona de la parcela del API (spec 002 RF-5b).
+// La lista abre la primera zona; el detalle conserva y selecciona todas las zonas.
 export function mapParcel(parcel: ApiParcel, crops: Crop[]): Parcel | null {
   const zone = parcel.zones[0];
   if (!zone) return null;
@@ -76,6 +79,9 @@ export function mapParcel(parcel: ApiParcel, crops: Crop[]): Parcel | null {
   const longitude = zone.lon ?? parcel.lon;
   return {
     id: parcel.id, ownerId: parcel.ownerId, zoneId: zone.id, cropId: zone.currentCropId,
+    zones: parcel.zones.map(item => ({ id: item.id, name: item.name ?? 'Zona principal',
+      latitude: item.lat ?? parcel.lat, longitude: item.lon ?? parcel.lon, cropId: item.currentCropId,
+      crop: crops.find(crop => crop.id === item.currentCropId)?.name ?? item.currentCropId, irrigation: item.irrigated })),
     name: parcel.name, place: `${latitude.toFixed(3)}, ${longitude.toFixed(3)}`, latitude, longitude,
     crop: crops.find(crop => crop.id === zone.currentCropId)?.name ?? zone.currentCropId,
     irrigation: zone.irrigated, area: null, risk: 'unknown', dataState: 'ready'
@@ -95,6 +101,8 @@ export function mapRecommendations(response: ApiRecommendations, crops: Crop[]):
     ...(reference?.viable && reference.components && reference.score !== null ? [{ ...reference, components: reference.components, score: reference.score, baseline: true }] : [])];
   const strategies: Strategy[] = candidates.map(item => ({
     id: item.id, baseline: item.baseline, irrigationNeedMm: item.irrigationNeedMm,
+    score: item.score, delta: item.baseline ? 0 : reference?.viable && reference.score !== null
+      ? Number((item.score - reference.score).toFixed(2)) : null,
     name: item.baseline ? 'Mantener lo actual' : item.sequence.map(step => step.cropName).join(' → '),
     axes: item.components,
     steps: item.sequence.map((step, index) => ({ ...step, water: step.water, previousCropName: index ? item.sequence[index-1]!.cropName : crops.find(crop => crop.id === response.inputs.currentCropId)?.name })),
@@ -115,7 +123,7 @@ export function mapRecommendations(response: ApiRecommendations, crops: Crop[]):
     confidenceReason: response.warnings.join(' · ') || 'Sin advertencias de datos.'
   }));
   return {
-    status: response.status, origin: response.origin, confidence: confidenceLabel[response.confidence],
+    status: response.status, origin: response.origin, confidence: confidenceLabel[response.confidence], priorities: response.priorities,
     warnings: response.warnings, risk: { level: response.currentCropRisk.level, reasons: response.currentCropRisk.reasons },
     horizonStart, strategies,
     baselineUnavailableReasons: reference && !reference.viable ? reference.explanation : undefined
@@ -191,7 +199,7 @@ export function mapObservations(response: ApiIndicators): Observation[] {
       : trend?.active ? copy.heat.advice : '';
     out.push({ label: root ? copy.moisture.title : rain ? copy.rain.title(month) : copy.heat.title(month), variable,
       value: root ? `${Math.round(row.value!*100)} %` : rain ? `${Math.round(row.value!)} mm` : `${row.value!.toFixed(1)} °C`,
-      rawValue: `${row.value} ${row.unit}`, status, consequence, source: row.source, date: formatMonth(row.date), origin: response.origin,
+      rawValue: `${row.value} ${row.unit}`, status, consequence, source: row.source, resolution: row.resolution, date: formatMonth(row.date), origin: response.origin,
       zone, alertActive: root ? undefined : trend?.active,
       tone: root ? 'neutral' : trend?.active || rain && trendOf(response, 'erratic_rain')?.active ? 'warning' : !trend || !comparable ? 'neutral' : 'good' });
   }
@@ -227,8 +235,13 @@ export function mapIndicators(response: ApiIndicators): Indicators {
   }
   return {
     observations: mapObservations(response), series, summaries,
+    metadata: Object.fromEntries([['rainfall', 'PRECTOTCORR'], ['temperature', 'T2M'], ['moisture', 'GWETROOT'], ['ndvi', 'NDVI']].map(([key, variable]) => {
+      const rows = response.monthly.filter(row => row.variable === variable && row.value !== null);
+      return [key, { sources: [...new Set(rows.map(row => row.source))], resolutions: [...new Set(rows.flatMap(row => row.resolution ? [row.resolution] : []))], date: rows.map(row => row.date).sort().at(-1) ?? '' }];
+    })),
+    fetchedAt: response.fetchedAt,
     ndvi: { value: ndvi?.value ?? null,
-      source: ndvi?.source, date: ndvi ? formatMonth(ndvi.date) : undefined,
+      source: ndvi?.source, resolution: ndvi?.resolution, observedAt: ndvi?.date, date: ndvi ? formatMonth(ndvi.date) : undefined,
       zone: ndvi?.value != null && anomalyOf(response, ndvi)?.percent != null ? vegetationZone(anomalyOf(response, ndvi)!.percent!) : undefined,
       label: ndvi?.value != null ? ndviLabel(response, ndvi) : copy.vegetation.missing },
     windows: response.windows, period: response.period,

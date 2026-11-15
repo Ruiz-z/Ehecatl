@@ -33,6 +33,7 @@ Variedades/cultivares, rendimientos por híbrido, precios de mercado en tiempo r
 RF-1 a RF-5 con test en verde + revisión de que cada cultivo cita fuente.
 
 ## Decisiones
+- Corrección de ingreso (2026-11-15): categorías estimadas `bajo`/`medio`/`alto` se convierten a 25/60/90 puntos. Se registra explícitamente `marketValueSource: "estimado; pendiente de H4"`; no se atribuyen estos valores a fuentes climáticas. La validación exige categoría, fuente y consistencia del puntaje derivado.
 - No hay cultivos prioritarios fijos: dependen de cada zona. La viabilidad se calcula contra los indicadores NASA del punto.
 - Cada cultivo se describe por requisitos físicos (rango de temperatura, demanda hídrica, duración del ciclo en días, sensibilidad a heladas), no por fechas ni temporadas de un país. Encaja en una ventana de la zona si sus requisitos caben en ella.
 

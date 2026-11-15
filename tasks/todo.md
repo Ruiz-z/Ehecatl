@@ -247,6 +247,17 @@ Cada tarea técnica: < 30 min, tests primero, deja el sistema funcionando. Forma
 - [ ] Criterios de "listo para demo" de la constitución cumplidos, incluido un punto nuevo elegido en vivo (H7, H8).
 
 ## Stretch (solo si sobra tiempo)
+
+### Preparación ESP32 autorizada — 2026-11-15
+
+- [x] Selección/creación de zonas y recálculo de prioridades en el motor.
+- [x] Registro de dispositivos, claves, calibración opcional, revocación y reasignación.
+- [x] Lecturas validadas e idempotentes, permisos e historial paginado.
+- [x] Pantalla de sensores y simulador marcado, sin actuación.
+- [ ] Montaje, profundidad y calibración real del FC28.
+- [ ] Comparación NASA/campo con periodos equivalentes y validación H4; avisos y confianza posteriores.
+
+Guía: [preparacion-sensores.md](../docs/preparacion-sensores.md). La preparación deja de ser stretch; I-S1 conserva pendiente el nodo físico.
 - [ ] **B-S1:** SMAP / IMERG con cuenta de Earthdata (requiere que un humano cree la cuenta).
 - [ ] **B-S2:** Adaptador EE. UU. (SSURGO, CDL, NASS) cuando el punto está en EE. UU.
 - [ ] **I-S1:** Nodo ESP32 de humedad como verdad de terreno de la zona.

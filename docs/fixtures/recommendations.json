@@ -1288,10 +1288,10 @@
       "components": {
         "water": 95.69198751300728,
         "soil": 94,
-        "income": 70,
+        "income": 75,
         "risk": 93.7741935483871
       },
-      "score": 88.37,
+      "score": 89.62,
       "explanation": [
         "Maíz → Alfalfa: Alternar leguminosas favorece el balance de nitrógeno y rompe hospederos",
         "Maíz → Alfalfa: La leguminosa aporta fijación biológica de nitrógeno",
@@ -1327,15 +1327,52 @@
       "delta": null
     },
     {
-      "irrigationNeedMm": 75,
-      "id": "alfalfa>sunflower",
+      "irrigationNeedMm": 61,
+      "id": "canola>alfalfa",
       "sequence": [
+        {
+          "cropId": "canola",
+          "cropName": "Canola",
+          "windowId": "window-1",
+          "start": "2025-01-01",
+          "end": "2025-05-10",
+          "occupiedWindowIds": [
+            "window-1"
+          ],
+          "water": {
+            "etoMm": null,
+            "kc": 0.8099999999999999,
+            "demandMm": 450,
+            "rainMm": 389.0322580645161,
+            "coveragePct": 86.5,
+            "method": "catalog"
+          },
+          "reasons": [
+            {
+              "text": "Alternar familias diversifica hospederos; validar plagas compartidas localmente",
+              "effect": "neutral"
+            },
+            {
+              "text": "Cambio de familia: ruptura de hospederos de plagas",
+              "effect": "favor"
+            },
+            {
+              "text": "Cobertura estimada 80/100 para reducir erosión",
+              "effect": "neutral"
+            }
+          ],
+          "climate": {
+            "meanTemperature": 24,
+            "rainMm": 389,
+            "cycleDays": 130
+          }
+        },
         {
           "cropId": "alfalfa",
           "cropName": "Alfalfa",
           "windowId": "window-1",
-          "start": "2025-01-01",
-          "end": "2026-08-23",
+          "start": "2025-05-11",
+          "end": "2026-12-31",
           "occupiedWindowIds": [
             "window-1"
           ],
@@ -1343,7 +1380,7 @@
             "etoMm": null,
             "kc": 0.7662500000000001,
             "demandMm": 1100,
-            "rainMm": 1776.774193548387,
+            "rainMm": 1770.967741935484,
             "coveragePct": 100,
             "method": "catalog"
           },
@@ -1367,71 +1404,34 @@
           ],
           "climate": {
             "meanTemperature": 24,
-            "rainMm": 1777,
+            "rainMm": 1771,
             "cycleDays": 600
-          }
-        },
-        {
-          "cropId": "sunflower",
-          "cropName": "Girasol",
-          "windowId": "window-1",
-          "start": "2026-08-24",
-          "end": "2026-12-11",
-          "occupiedWindowIds": [
-            "window-1"
-          ],
-          "water": {
-            "etoMm": null,
-            "kc": 0.8099999999999999,
-            "demandMm": 400,
-            "rainMm": 325.16129032258067,
-            "coveragePct": 81.3,
-            "method": "catalog"
-          },
-          "reasons": [
-            {
-              "text": "Alternar leguminosas favorece el balance de nitrógeno y rompe hospederos",
-              "effect": "favor"
-            },
-            {
-              "text": "Cambio de familia: ruptura de hospederos de plagas",
-              "effect": "favor"
-            },
-            {
-              "text": "Cobertura estimada 65/100 para reducir erosión",
-              "effect": "neutral"
-            }
-          ],
-          "climate": {
-            "meanTemperature": 24,
-            "rainMm": 325,
-            "cycleDays": 110
           }
         }
       ],
       "components": {
-        "water": 95.01075268817203,
-        "soil": 92.5,
-        "income": 67.5,
-        "risk": 97.19354838709677
+        "water": 96.06659729448491,
+        "soil": 84,
+        "income": 75,
+        "risk": 93.96774193548387
       },
-      "score": 88.05,
+      "score": 87.26,
       "explanation": [
-        "Maíz → Alfalfa: Alternar leguminosas favorece el balance de nitrógeno y rompe hospederos",
-        "Maíz → Alfalfa: La leguminosa aporta fijación biológica de nitrógeno",
-        "Maíz → Alfalfa: Cambio de familia: ruptura de hospederos de plagas",
-        "Maíz → Alfalfa: Cobertura estimada 100/100 para reducir erosión",
-        "Alfalfa: NASA T2M=24.0 C; lluvia=1777 mm/ciclo; ciclo=600 días",
-        "Alfalfa → Girasol: Alternar leguminosas favorece el balance de nitrógeno y rompe hospederos",
-        "Alfalfa → Girasol: Cambio de familia: ruptura de hospederos de plagas",
-        "Alfalfa → Girasol: Cobertura estimada 65/100 para reducir erosión",
-        "Girasol: NASA T2M=24.0 C; lluvia=325 mm/ciclo; ciclo=110 días",
+        "Maíz → Canola: Alternar familias diversifica hospederos; validar plagas compartidas localmente",
+        "Maíz → Canola: Cambio de familia: ruptura de hospederos de plagas",
+        "Maíz → Canola: Cobertura estimada 80/100 para reducir erosión",
+        "Canola: NASA T2M=24.0 C; lluvia=389 mm/ciclo; ciclo=130 días",
+        "Canola → Alfalfa: Alternar leguminosas favorece el balance de nitrógeno y rompe hospederos",
+        "Canola → Alfalfa: La leguminosa aporta fijación biológica de nitrógeno",
+        "Canola → Alfalfa: Cambio de familia: ruptura de hospederos de plagas",
+        "Canola → Alfalfa: Cobertura estimada 100/100 para reducir erosión",
+        "Alfalfa: NASA T2M=24.0 C; lluvia=1771 mm/ciclo; ciclo=600 días",
         "Pesos agua=25, suelo=25, ingreso=25, riesgo=25; ingreso es una heurística, no precio"
       ],
       "risks": [
+        "Máxima mensual 32.0 C supera tolerancia 30 C",
         "Demanda estimada del catálogo: falta temperatura o radiación mensual válida para ETo",
-        "Sin continuación viable en window-1; considerar barbecho",
-        "Agua faltante en 24 meses: ~75 mm: la lluvia no cubre la demanda"
+        "Agua faltante en 24 meses: ~61 mm: la lluvia no cubre la demanda"
       ],
       "riskGroups": [
         {
@@ -1439,12 +1439,12 @@
           "text": "Demanda estimada del catálogo: falta temperatura o radiación mensual válida para ETo"
         },
         {
-          "type": "schedule",
-          "text": "Sin continuación viable en window-1; considerar barbecho"
+          "type": "heat",
+          "text": "Calor: hasta 32.0 °C, tolerancia 30 °C, en 1 de 2 ciclos"
         },
         {
           "type": "water",
-          "text": "Agua faltante en 24 meses: ~75 mm: la lluvia no cubre la demanda"
+          "text": "Agua faltante en 24 meses: ~61 mm: la lluvia no cubre la demanda"
         }
       ],
       "rests": [],

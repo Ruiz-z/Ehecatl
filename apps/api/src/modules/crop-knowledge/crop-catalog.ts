@@ -8,7 +8,9 @@ export interface Crop {
   frostSensitive: boolean; nitrogenBalance: 'fix' | 'neutral' | 'consume';
   soilCover: number; droughtTolerance: number; perennial: boolean;
   plantingClimate: string; incomeOpportunity: number; sources: string[];
+  marketValueTier: 'bajo' | 'medio' | 'alto'; marketValueSource: string;
 }
+export const incomeByTier = { bajo: 25, medio: 60, alto: 90 } as const;
 export interface FamilyRule { from: string; to: string; compatibility: 'good' | 'neutral' | 'avoid'; reason: string; sources: string[] }
 export const sources: Record<string, string> = {
   ecocrop: 'https://gaez.fao.org/pages/ecocrop',
@@ -35,6 +37,9 @@ export function validateCatalog(input: unknown): Crop[] {
       if (typeof crop[field] !== 'number' || !Number.isFinite(crop[field])) fail(field);
     }
     const c = crop as unknown as Crop;
+    if (!['bajo', 'medio', 'alto'].includes(c.marketValueTier)) fail('marketValueTier');
+    if (typeof c.marketValueSource !== 'string' || !c.marketValueSource.trim()) fail('marketValueSource');
+    if (c.incomeOpportunity !== incomeByTier[c.marketValueTier]) fail('incomeOpportunity (inconsistent with marketValueTier)');
     if (!(c.tempMin <= c.tempOptMin && c.tempOptMin <= c.tempOptMax && c.tempOptMax <= c.tempMax)) fail('temperature range');
     if (!c.kc || typeof c.kc !== 'object') fail('kc');
     for (const stage of ['ini', 'mid', 'end'] as const) {

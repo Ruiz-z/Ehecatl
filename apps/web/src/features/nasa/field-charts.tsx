@@ -13,7 +13,7 @@ import type { Indicators } from '@/shared/api/types';
 import { EmptyState, LoadingState } from '@/shared/components/ui';
 
 export function FieldCharts({ parcel }: { parcel: Parcel }) {
-  const state = useAsync(() => apiClient.getIndicators(parcel), parcel.id);
+  const state = useAsync(() => apiClient.getIndicators(parcel), parcel.zoneId ?? parcel.id);
   if (state.status === 'loading') return <LoadingState note={useMocks ? undefined : waitingNote} />;
   if (state.status === 'error') return <EmptyState title="No pudimos cargar el historial"><p>{state.message}</p><button className="button primary" onClick={state.retry}>Reintentar</button></EmptyState>;
   return <Charts indicators={state.data} />;
@@ -64,6 +64,7 @@ function Charts({ indicators }: { indicators: Indicators }) {
         </table>
       </details>
     </section>
+    {selected !== 'sowing' && <p className="chart-source">{indicators.metadata?.[selected]?.sources.join(' · ') || 'Fuente no informada'} · {indicators.metadata?.[selected]?.resolutions.join(' · ') || 'Resolución no informada'} · origen: {indicators.origin}</p>}
     {indicators.origin === 'mock' && <p>Datos de ejemplo</p>}
     <p className="chart-source">{calendarCopy.footer(formatDate(indicators.period.start), formatDate(indicators.period.end))}</p>
   </div>;

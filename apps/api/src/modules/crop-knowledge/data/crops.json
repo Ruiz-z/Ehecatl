@@ -16,7 +16,7 @@
     "droughtTolerance": 35,
     "perennial": false,
     "plantingClimate": "18–30 C; ajustar al cultivar y humedad local",
-    "incomeOpportunity": 80,
+    "incomeOpportunity": 90,
     "sources": [
       "ecocrop",
       "fao-water",
@@ -31,7 +31,9 @@
       "end": 0.35
     },
     "kcSource": "FAO-56 Tabla 12: Maize, Field (grain); cosecha seca, nota 11",
-    "kcEstimated": false
+    "kcEstimated": false,
+    "marketValueTier": "alto",
+    "marketValueSource": "estimado; pendiente de H4"
   },
   {
     "id": "sorghum",
@@ -65,7 +67,9 @@
       "end": 0.55
     },
     "kcSource": "FAO-56 Tabla 12: Sorghum - grain; extremo superior de mid",
-    "kcEstimated": false
+    "kcEstimated": false,
+    "marketValueTier": "medio",
+    "marketValueSource": "estimado; pendiente de H4"
   },
   {
     "id": "wheat",
@@ -84,7 +88,7 @@
     "droughtTolerance": 50,
     "perennial": false,
     "plantingClimate": "12–24 C; ajustar al cultivar y humedad local",
-    "incomeOpportunity": 65,
+    "incomeOpportunity": 60,
     "sources": [
       "ecocrop",
       "fao-water",
@@ -99,7 +103,9 @@
       "end": 0.25
     },
     "kcSource": "FAO-56 Tabla 12: Spring Wheat; extremo inferior de end",
-    "kcEstimated": false
+    "kcEstimated": false,
+    "marketValueTier": "medio",
+    "marketValueSource": "estimado; pendiente de H4"
   },
   {
     "id": "barley",
@@ -118,7 +124,7 @@
     "droughtTolerance": 75,
     "perennial": false,
     "plantingClimate": "12–24 C; ajustar al cultivar y humedad local",
-    "incomeOpportunity": 55,
+    "incomeOpportunity": 60,
     "sources": [
       "ecocrop",
       "fao-water",
@@ -133,7 +139,9 @@
       "end": 0.25
     },
     "kcSource": "FAO-56 Tabla 12: Barley",
-    "kcEstimated": false
+    "kcEstimated": false,
+    "marketValueTier": "medio",
+    "marketValueSource": "estimado; pendiente de H4"
   },
   {
     "id": "oats",
@@ -152,7 +160,7 @@
     "droughtTolerance": 45,
     "perennial": false,
     "plantingClimate": "12–22 C; ajustar al cultivar y humedad local",
-    "incomeOpportunity": 50,
+    "incomeOpportunity": 60,
     "sources": [
       "ecocrop",
       "fao-water",
@@ -167,7 +175,9 @@
       "end": 0.25
     },
     "kcSource": "FAO-56 Tabla 12: Oats",
-    "kcEstimated": false
+    "kcEstimated": false,
+    "marketValueTier": "medio",
+    "marketValueSource": "estimado; pendiente de H4"
   },
   {
     "id": "rice",
@@ -186,7 +196,7 @@
     "droughtTolerance": 10,
     "perennial": false,
     "plantingClimate": "24–32 C; ajustar al cultivar y humedad local",
-    "incomeOpportunity": 80,
+    "incomeOpportunity": 90,
     "sources": [
       "ecocrop",
       "fao-water",
@@ -201,7 +211,9 @@
       "end": 0.6
     },
     "kcSource": "FAO-56 Tabla 12: Rice; extremo inferior de end",
-    "kcEstimated": false
+    "kcEstimated": false,
+    "marketValueTier": "alto",
+    "marketValueSource": "estimado; pendiente de H4"
   },
   {
     "id": "soybean",
@@ -220,7 +232,7 @@
     "droughtTolerance": 50,
     "perennial": false,
     "plantingClimate": "20–30 C; ajustar al cultivar y humedad local",
-    "incomeOpportunity": 80,
+    "incomeOpportunity": 90,
     "sources": [
       "ecocrop",
       "fao-water",
@@ -235,7 +247,9 @@
       "end": 0.5
     },
     "kcSource": "FAO-56 Tabla 12: Soybeans",
-    "kcEstimated": false
+    "kcEstimated": false,
+    "marketValueTier": "alto",
+    "marketValueSource": "estimado; pendiente de H4"
   },
   {
     "id": "common-bean",
@@ -254,7 +268,7 @@
     "droughtTolerance": 45,
     "perennial": false,
     "plantingClimate": "18–26 C; ajustar al cultivar y humedad local",
-    "incomeOpportunity": 70,
+    "incomeOpportunity": 60,
     "sources": [
       "ecocrop",
       "fao-water",
@@ -269,7 +283,9 @@
       "end": 0.35
     },
     "kcSource": "FAO-56 Tabla 12: Beans, dry and Pulses",
-    "kcEstimated": false
+    "kcEstimated": false,
+    "marketValueTier": "medio",
+    "marketValueSource": "estimado; pendiente de H4"
   },
   {
     "id": "cowpea",
@@ -288,7 +304,7 @@
     "droughtTolerance": 95,
     "perennial": false,
     "plantingClimate": "22–32 C; ajustar al cultivar y humedad local",
-    "incomeOpportunity": 45,
+    "incomeOpportunity": 60,
     "sources": [
       "ecocrop",
       "fao-water",
@@ -303,7 +319,9 @@
       "end": 0.35
     },
     "kcSource": "FAO-56 Tabla 12: Green Gram and Cowpeas; cosecha seca, nota 6",
-    "kcEstimated": false
+    "kcEstimated": false,
+    "marketValueTier": "medio",
+    "marketValueSource": "estimado; pendiente de H4"
   },
   {
     "id": "chickpea",
@@ -322,7 +340,7 @@
     "droughtTolerance": 85,
     "perennial": false,
     "plantingClimate": "15–25 C; ajustar al cultivar y humedad local",
-    "incomeOpportunity": 65,
+    "incomeOpportunity": 60,
     "sources": [
       "ecocrop",
       "fao-water",
@@ -337,7 +355,9 @@
       "end": 0.35
     },
     "kcSource": "FAO-56 Tabla 12: Chick pea",
-    "kcEstimated": false
+    "kcEstimated": false,
+    "marketValueTier": "medio",
+    "marketValueSource": "estimado; pendiente de H4"
   },
   {
     "id": "lentil",
@@ -371,7 +391,9 @@
       "end": 0.3
     },
     "kcSource": "FAO-56 Tabla 12: Lentil",
-    "kcEstimated": false
+    "kcEstimated": false,
+    "marketValueTier": "medio",
+    "marketValueSource": "estimado; pendiente de H4"
   },
   {
     "id": "alfalfa",
@@ -390,7 +412,7 @@
     "droughtTolerance": 60,
     "perennial": true,
     "plantingClimate": "18–28 C; ajustar al cultivar y humedad local",
-    "incomeOpportunity": 65,
+    "incomeOpportunity": 60,
     "sources": [
       "ecocrop",
       "fao-water",
@@ -405,7 +427,9 @@
       "end": 0.9
     },
     "kcSource": "FAO-56 Tabla 12: Alfalfa Hay - averaged cutting effects",
-    "kcEstimated": false
+    "kcEstimated": false,
+    "marketValueTier": "medio",
+    "marketValueSource": "estimado; pendiente de H4"
   },
   {
     "id": "sunflower",
@@ -424,7 +448,7 @@
     "droughtTolerance": 80,
     "perennial": false,
     "plantingClimate": "20–30 C; ajustar al cultivar y humedad local",
-    "incomeOpportunity": 70,
+    "incomeOpportunity": 60,
     "sources": [
       "ecocrop",
       "fao-water",
@@ -439,7 +463,9 @@
       "end": 0.35
     },
     "kcSource": "FAO-56 Tabla 12: Sunflower; extremo superior de mid",
-    "kcEstimated": false
+    "kcEstimated": false,
+    "marketValueTier": "medio",
+    "marketValueSource": "estimado; pendiente de H4"
   },
   {
     "id": "canola",
@@ -458,7 +484,7 @@
     "droughtTolerance": 45,
     "perennial": false,
     "plantingClimate": "12–24 C; ajustar al cultivar y humedad local",
-    "incomeOpportunity": 75,
+    "incomeOpportunity": 90,
     "sources": [
       "ecocrop",
       "fao-water",
@@ -473,7 +499,9 @@
       "end": 0.35
     },
     "kcSource": "FAO-56 Tabla 12: Rapeseed, Canola; extremo superior de mid",
-    "kcEstimated": false
+    "kcEstimated": false,
+    "marketValueTier": "alto",
+    "marketValueSource": "estimado; pendiente de H4"
   },
   {
     "id": "mustard",
@@ -492,7 +520,7 @@
     "droughtTolerance": 65,
     "perennial": false,
     "plantingClimate": "12–24 C; ajustar al cultivar y humedad local",
-    "incomeOpportunity": 20,
+    "incomeOpportunity": 25,
     "sources": [
       "ecocrop",
       "fao-water",
@@ -507,7 +535,9 @@
       "end": 0.35
     },
     "kcSource": "FAO-56 Tabla 12: Rapeseed, Canola; analogía Brassicaceae, extremo superior de mid",
-    "kcEstimated": true
+    "kcEstimated": true,
+    "marketValueTier": "bajo",
+    "marketValueSource": "estimado; pendiente de H4"
   },
   {
     "id": "potato",
@@ -526,7 +556,7 @@
     "droughtTolerance": 25,
     "perennial": false,
     "plantingClimate": "15–22 C; ajustar al cultivar y humedad local",
-    "incomeOpportunity": 95,
+    "incomeOpportunity": 90,
     "sources": [
       "ecocrop",
       "fao-water",
@@ -541,7 +571,9 @@
       "end": 0.75
     },
     "kcSource": "FAO-56 Tabla 12: Potato",
-    "kcEstimated": false
+    "kcEstimated": false,
+    "marketValueTier": "alto",
+    "marketValueSource": "estimado; pendiente de H4"
   },
   {
     "id": "tomato",
@@ -560,7 +592,7 @@
     "droughtTolerance": 25,
     "perennial": false,
     "plantingClimate": "20–28 C; ajustar al cultivar y humedad local",
-    "incomeOpportunity": 100,
+    "incomeOpportunity": 90,
     "sources": [
       "ecocrop",
       "fao-water",
@@ -575,7 +607,9 @@
       "end": 0.7
     },
     "kcSource": "FAO-56 Tabla 12: Tomato; extremo inferior de end",
-    "kcEstimated": false
+    "kcEstimated": false,
+    "marketValueTier": "alto",
+    "marketValueSource": "estimado; pendiente de H4"
   },
   {
     "id": "buckwheat",
@@ -594,7 +628,7 @@
     "droughtTolerance": 65,
     "perennial": false,
     "plantingClimate": "16–25 C; ajustar al cultivar y humedad local",
-    "incomeOpportunity": 40,
+    "incomeOpportunity": 25,
     "sources": [
       "ecocrop",
       "fao-water",
@@ -609,6 +643,8 @@
       "end": 0.4
     },
     "kcSource": "FAO-56 Tabla 12: Cereals (categoría); analogía de grano anual",
-    "kcEstimated": true
+    "kcEstimated": true,
+    "marketValueTier": "bajo",
+    "marketValueSource": "estimado; pendiente de H4"
   }
 ]

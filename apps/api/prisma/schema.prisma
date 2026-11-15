@@ -67,6 +67,8 @@ model Zone {
   updatedAt     DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
   parcel        Parcel        @relation(fields: [parcelId], references: [id], onDelete: Cascade)
   history       CropHistory[]
+  devices       FieldDevice[]
+  readings      FieldReading[]
   @@index([parcelId])
   @@map("zones")
 }
@@ -96,4 +98,61 @@ model NasaCache {
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
   @@index([expiresAt])
   @@map("nasa_caches")
+}
+
+enum DeviceStatus {
+  ACTIVE
+  REVOKED
+}
+
+enum ReadingOrigin {
+  REAL
+  SIMULATED
+}
+
+model FieldDevice {
+  id                      String        @id @default(uuid()) @db.Uuid
+  zoneId                  String        @map("zone_id") @db.Uuid
+  name                    String
+  keyHash                 String        @unique @map("key_hash")
+  status                  DeviceStatus  @default(ACTIVE)
+  origin                  ReadingOrigin
+  expectedIntervalSeconds Int           @default(300) @map("expected_interval_seconds")
+  dryRaw                  Int?          @map("dry_raw")
+  wetRaw                  Int?          @map("wet_raw")
+  depthCm                 Float?        @map("depth_cm")
+  calibrationVersion      Int           @default(1) @map("calibration_version")
+  lastMeasuredAt          DateTime?     @map("last_measured_at") @db.Timestamptz(3)
+  lastReceivedAt          DateTime?     @map("last_received_at") @db.Timestamptz(3)
+  createdAt               DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt               DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
+  zone                    Zone          @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+  readings                FieldReading[]
+  @@index([zoneId])
+  @@map("field_devices")
+}
+
+model FieldReading {
+  id                 String        @id @default(uuid()) @db.Uuid
+  deviceId           String        @map("device_id") @db.Uuid
+  zoneId             String        @map("zone_id") @db.Uuid
+  readingId          String        @map("reading_id") @db.Uuid
+  payloadHash        String        @map("payload_hash")
+  origin             ReadingOrigin
+  measuredAt         DateTime      @map("measured_at") @db.Timestamptz(3)
+  receivedAt         DateTime      @default(now()) @map("received_at") @db.Timestamptz(3)
+  soilMoistureRaw    Int?          @map("soil_moisture_raw")
+  soilMoisture       Float?        @map("soil_moisture")
+  airTemperature     Float?        @map("air_temperature")
+  airHumidity        Float?        @map("air_humidity")
+  mq2Raw             Int?          @map("mq2_raw")
+  calibrationVersion Int           @map("calibration_version")
+  createdAt          DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt          DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
+  device             FieldDevice   @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  zone               Zone          @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+  @@unique([deviceId, readingId])
+  @@index([zoneId, measuredAt, id])
+  @@index([measuredAt])
+  @@map("field_readings")
 }

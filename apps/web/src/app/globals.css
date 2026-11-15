@@ -640,8 +640,19 @@ summary { min-height:44px; align-content:center; }
 .calendar-sowing-2 { background: var(--accent-soft); }
 .chart-legend .current-bar { width: 10px; height: 10px; background: var(--data-rain); }
 .chart-legend .current-line { border-top: 2px solid var(--data-temperature); }
-/* El paso muestra lo esencial; el resto queda en «Ver más detalle». */
-.cycle-water { display:flex; align-items:flex-start; gap:8px; margin-block:10px; }
-.cycle-water svg { flex-shrink:0; margin-top:3px; color:var(--data-rain); }
-.step-more { font-size:13px; margin-top:8px; }
-.step-more summary { cursor:pointer; color:var(--muted-foreground); min-height:32px; }
+/* Preparación de sensores por zona. */
+.zone-picker { padding: 0 1.5rem 1rem; }
+.zone-picker label, .sensor-panel label { display: grid; gap: .4rem; margin: .75rem 0; }
+.zone-picker form, .sensor-panel form { display: grid; gap: .6rem; margin-top: .75rem; }
+.zone-picker summary, .sensor-panel summary { cursor: pointer; font-weight: 600; padding: .5rem 0; }
+.sensor-panel { display: grid; gap: 1rem; }
+.sensor-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: .75rem; }
+.sensor-device, .sensor-key, .sensor-history { padding: 1rem; border: 1px solid var(--border); border-radius: .75rem; background: var(--card); }
+.sensor-key { border: 2px solid var(--foreground); }
+.sensor-key code { display: block; overflow-wrap: anywhere; margin: .75rem 0; user-select: all; }
+.sensor-actions { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .75rem; }
+.sensor-table { overflow-x: auto; }
+.sensor-table table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+.sensor-table th, .sensor-table td { padding: .7rem; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }
+.sensor-table small { display: block; color: var(--muted-foreground); margin-top: .25rem; }
+.sensor-panel .chart-frame { height: 240px; }

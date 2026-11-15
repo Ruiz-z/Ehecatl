@@ -2,6 +2,8 @@
 
 Fecha: 15 de noviembre de 2026. Código revisado: `897bedc`.
 
+Este reporte conserva el diagnóstico previo. La implementación posterior autorizada se describe en [preparacion-sensores.md](preparacion-sensores.md); consultar allí el estado vigente de zonas, prioridades y recepción de sensores.
+
 Actualización tras recibir los dos programas del ESP32: [revisión del firmware, sin servos](revision-firmware-esp32.md). La sección actual analiza la versión de un punto de suelo; la primera se conserva como historial. Incluye campos enviados, duración de riego incorrecta, permiso de bomba sin caducidad y cambios para conectarlo con Ehécatl. El usuario confirmó FC28 de dos puntas; las etiquetas de «capacitivo» del segundo archivo no corresponden al hardware elegido. Los programas confirman DHT11 y WiFi; la conectividad efectiva en campo sigue por comprobar.
 
 ## Resultado general

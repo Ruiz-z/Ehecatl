@@ -58,6 +58,7 @@ docker compose config -q
 `pnpm test` ejecuta Jest en API y pytest vía uv en Geo; la página web mínima no contiene lógica que requiera tests unitarios. `pnpm lint` ejecuta tipos estrictos en API, compilación sintáctica en Python y ESLint más tipos estrictos en web. Los detalles están en el README de cada app.
 
 ## Documentación
+- [`docs/preparacion-sensores.md`](docs/preparacion-sensores.md) — zonas, dispositivos y simulador sin ESP32; sin control de riego.
 - [`docs/constitution.md`](docs/constitution.md) — reglas y alcance del proyecto
 - [`docs/specs/`](docs/specs) — specs por módulo (borradores)
 - [`docs/fuentes-agronomicas.md`](docs/fuentes-agronomicas.md) — fuentes del catálogo de cultivos y reglas de rotación
