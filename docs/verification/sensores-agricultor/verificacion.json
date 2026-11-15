@@ -1,0 +1,68 @@
+{
+  "states": [
+    {
+      "state": "sin-sensor",
+      "width": 1440,
+      "noJargon": true,
+      "noAdmin": true,
+      "noOverflow": true
+    },
+    {
+      "state": "sin-sensor",
+      "width": 390,
+      "noJargon": true,
+      "noAdmin": true,
+      "noOverflow": true
+    },
+    {
+      "state": "en-linea-sin-calibrar",
+      "width": 1440,
+      "noJargon": true,
+      "noAdmin": true,
+      "noOverflow": true
+    },
+    {
+      "state": "en-linea-sin-calibrar",
+      "width": 390,
+      "noJargon": true,
+      "noAdmin": true,
+      "noOverflow": true
+    },
+    {
+      "state": "calibrado",
+      "width": 1440,
+      "noJargon": true,
+      "noAdmin": true,
+      "noOverflow": true
+    },
+    {
+      "state": "calibrado",
+      "width": 390,
+      "noJargon": true,
+      "noAdmin": true,
+      "noOverflow": true
+    },
+    {
+      "state": "sin-senal",
+      "width": 1440,
+      "noJargon": true,
+      "noAdmin": true,
+      "noOverflow": true
+    },
+    {
+      "state": "sin-senal",
+      "width": 390,
+      "noJargon": true,
+      "noAdmin": true,
+      "noOverflow": true
+    }
+  ],
+  "checks": [
+    "Calibración guiada: seco 3000, húmedo 1000 con PATCH real y última lectura",
+    "Botones de variables y periodos; sin gráfica de tierra antes de calibrar",
+    "Riego desde UI: confirmación, Orden enviada, Regando…, Terminó: 10 s y DONE en API",
+    "Administrador registra sensor auxiliar, ve clave, rota clave y revoca desde UI con endpoints reales",
+    "Detalle técnico oculto hasta Ver todos los datos; permisos visuales admin/agricultor; datos de ejemplo visibles"
+  ],
+  "errors": []
+}
