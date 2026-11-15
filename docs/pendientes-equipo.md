@@ -49,3 +49,13 @@ con riego declarado devuelven opciones. MODIS: 10/12 meses en Coahuila (faltan m
 
 ## Reglas recordatorio
 Registrar cada cambio en `docs/registro-cambios.md`; commits sin `Co-Authored-By`; ramas desde `origin/dev`; nada de push sin autorización.
+
+## Replanteo del motor (siguiente fase)
+
+- Agua como balance de oferta y demanda, con base para ETc = Kc × ETo; distinguir lluvia, reserva del suelo y aporte de riego sin inventar mediciones.
+- Riego en niveles de disponibilidad efectiva, en lugar de una condición binaria.
+- Alternativas que difieran en el primer cultivo y ayuden a decidir el siguiente paso.
+- Confianza que no sea siempre baja: revisar cobertura, procedencia e incertidumbre de los insumos.
+- Puntaje en niveles comprensibles y explicables para el agricultor.
+
+Estas propuestas requieren especificación y validación agronómica antes de implementarse.

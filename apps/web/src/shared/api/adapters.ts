@@ -1,7 +1,7 @@
 // Traducción pura de las respuestas de apps/api (contrato en docs/contracts.md)
 // a los modelos de vista del front. Sin acceso a red ni a localStorage.
 import type { DemoUser, Parcel, Priorities } from '@/features/parcels/types';
-import type { CropFamily, RecommendationResult, Strategy } from '@/features/rotation/types';
+import type { CropFamily, RecommendationResult, Strategy, RotationStep, Rest } from '@/features/rotation/types';
 import type { Observation, TimePoint } from '@/features/nasa/types';
 import type { Crop, Indicators, MetricKey, MetricSummary, Session } from './types';
 
@@ -20,17 +20,18 @@ export interface ApiIndicators {
 }
 export interface ApiRecommendation {
   id: string; score: number;
-  sequence: { cropId: string; cropName: string; start: string; end: string }[];
+  sequence: (RotationStep & { cropId: string })[];
+  rests?: Rest[];
   components: Priorities; explanation: string[]; risks: string[];
 }
 export interface ApiBaseline {
   id: string; viable: boolean; score: number | null; components: Priorities | null;
-  sequence: ApiRecommendation['sequence']; explanation: string[]; risks: string[];
+  sequence: ApiRecommendation['sequence']; rests?: Rest[]; explanation: string[]; risks: string[];
 }
 export interface ApiRecommendations {
   status: 'ok' | 'no_viable_options'; origin: 'live' | 'cache' | 'mock'; confidence: 'high' | 'medium' | 'low';
   warnings: string[]; currentCropRisk: { level: 'low' | 'high'; reasons: string[]; changeAt: string | null };
-  inputs: { indicators: { period: { end: string } } }; recommendations: ApiRecommendation[];
+  inputs: { currentCropId?: string; indicators: { period: { end: string } } }; recommendations: ApiRecommendation[];
   baseline?: ApiBaseline;
 }
 
@@ -88,16 +89,18 @@ export function mapRecommendations(response: ApiRecommendations, crops: Crop[]):
     id: item.id, baseline: item.baseline,
     name: item.baseline ? 'Mantener lo actual' : item.sequence.map(step => step.cropName).join(' → '),
     axes: item.components,
+    steps: item.sequence.map((step, index) => ({ ...step, previousCropName: index ? item.sequence[index-1]!.cropName : crops.find(crop => crop.id === response.inputs.currentCropId)?.name })),
+    rests: item.rests ?? [],
     windows: item.sequence.map(step => {
       const startMonth = Math.max(0, monthIndex(step.start) - horizon);
       return {
-        crop: step.cropName, family: familyOf(crops.find(crop => crop.id === step.cropId)?.family ?? ''), current: item.baseline,
+        start: step.start, end: step.end, crop: step.cropName, family: familyOf(crops.find(crop => crop.id === step.cropId)?.family ?? ''), current: item.baseline,
         startMonth, months: Math.max(1, monthIndex(step.end) - monthIndex(step.start) + 1)
       };
     }),
     changeAt: item.baseline ? 'Se conserva el cultivo actual' : item.sequence[0] ? formatDate(item.sequence[0].start) : 'Sin fecha',
     reasons: item.explanation.map(text => ({ text })),
-    risks: item.risks,
+    risks: [...new Set(item.risks)],
     confidence: confidenceLabel[response.confidence],
     confidenceReason: response.warnings.filter(text => text.length < 120).slice(0, 2).join(' · ') || 'Sin advertencias de datos.'
   }));

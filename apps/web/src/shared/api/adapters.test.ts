@@ -116,3 +116,24 @@ test('los faltantes quedan nulos y NDVI sin cobertura no se inventa', () => {
   assert.equal(result.summaries.ndvi, undefined);
   assert.equal(result.summaries.rainfall?.text, '50 % menos que lo normal');
 });
+
+test('mapea pasos con efectos, clima y descansos sin duplicar riesgos', () => {
+  const response = structuredClone(recommendations);
+  const item = response.recommendations[0]!;
+  item.sequence[0]!.reasons = [{ text: 'Cambio de familia', effect: 'favor' }];
+  item.sequence[0]!.climate = { meanTemperature: 20.5, rainMm: 65, cycleDays: 90 };
+  item.rests = [{ start: '2026-11-01', end: '2027-02-28', months: 4, reason: 'Fuera de temporada: frío o falta de agua', suggestion: 'Mantener cobertura o rastrojo para proteger el suelo' }];
+  item.risks = ['Validar semilla', 'Validar semilla'];
+  const strategy = mapRecommendations(response, crops).strategies[0]!;
+  assert.equal(strategy.steps?.[0]?.reasons?.[0]?.effect, 'favor');
+  assert.deepEqual(strategy.steps?.[0]?.climate, item.sequence[0]!.climate);
+  assert.deepEqual(strategy.rests, item.rests);
+  assert.deepEqual(strategy.risks, ['Validar semilla']);
+  assert.equal(strategy.windows[0]?.start, '2027-06-01');
+});
+test('el fallback conserva la explicación plana y no inventa clima ni descansos', () => {
+  const strategy = mapRecommendations(recommendations, crops).strategies[0]!;
+  assert.deepEqual(strategy.reasons, recommendations.recommendations[0]!.explanation.map(text => ({text})));
+  assert.equal(strategy.steps?.[0]?.climate, undefined);
+  assert.deepEqual(strategy.rests, []);
+});

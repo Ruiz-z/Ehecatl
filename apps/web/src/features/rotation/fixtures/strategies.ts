@@ -25,7 +25,7 @@ export function strategiesFor(parcel: Parcel): Strategy[] {
     confidence: parcel.dataState === 'error' ? 'Baja' as const : 'Media' as const,
     confidenceReason: parcel.dataState === 'error' ? 'Falta la humedad del suelo; calculamos con el resto de los datos.' : 'Falta validar el suelo y el mercado en campo.'
   };
-  return [{
+  const strategies: Strategy[] = [{
     ...common,
     id: 'baseline',
     baseline: true,
@@ -181,4 +181,23 @@ export function strategiesFor(parcel: Parcel): Strategy[] {
     }],
     risks: ['El ingreso usa categorías del catálogo, no precios de mercado.', 'Puede requerir ajustar la maquinaria de cosecha.']
   }];
+  const dateAt = (offset: number) => new Date(Date.UTC(2026, 10 + offset, 1)).toISOString().slice(0,10);
+  return strategies.map(strategy => {
+    const windows = strategy.windows.map(window => ({ ...window, start: dateAt(window.startMonth),
+      end: new Date(Date.UTC(2026,10+window.startMonth+window.months,0)).toISOString().slice(0,10) }));
+    const rests = [];
+    let cursor = 0;
+    for (const window of [...windows, {startMonth:24,months:0}]) {
+      if (window.startMonth > cursor) rests.push({start:dateAt(cursor),
+        end:new Date(Date.UTC(2026,10+window.startMonth,0)).toISOString().slice(0,10),
+        months:window.startMonth-cursor, reason:'Periodo sin siembra en esta secuencia de ejemplo',
+        suggestion:'Mantener cobertura o rastrojo para proteger el suelo'});
+      cursor = Math.max(cursor,window.startMonth+window.months);
+    }
+    return { ...strategy, windows, rests,
+      steps:windows.map((window,index) => ({cropName:window.crop, previousCropName:index ? windows[index-1]!.crop : parcel.crop,
+        start:window.start, end:window.end,
+        reasons:index === 0 ? strategy.reasons.map(reason => ({...reason,effect:'neutral' as const})) : [],
+        climate:{meanTemperature:null,rainMm:null,cycleDays:null}})) };
+  });
 }

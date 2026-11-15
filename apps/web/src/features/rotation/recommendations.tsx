@@ -1,16 +1,18 @@
 'use client';
 
 import { useState } from 'react';
-import { Droplets, Sprout, TrendingUp, ShieldCheck, CalendarDays, ChevronDown, Check, RotateCcw } from 'lucide-react';
+import { Droplets, Sprout, TrendingUp, ShieldCheck, CalendarDays, ChevronDown, Check, RotateCcw, TriangleAlert, Minus } from 'lucide-react';
 import type { Parcel, Priorities } from '@/features/parcels/types';
 import { useDemo } from '@/features/identity/demo-provider';
 import { apiClient, useMocks } from '@/shared/api/client';
+import { formatDate } from '@/shared/api/adapters';
 import { waitingNote } from '@/shared/api/messages';
 import Link from 'next/link';
 import { parcelUrl } from '@/features/parcels/parcel-tabs';
 import { useAsync } from '@/shared/api/use-async';
 import { EmptyState, LoadingState, Notice } from '@/shared/components/ui';
 import { axes, normalizedWeights, rankStrategies } from './ranking';
+import { summarizeRests } from './rests';
 import type { RankedStrategy, RecommendationResult } from './types';
 const icons = {
   water: Droplets,
@@ -23,6 +25,19 @@ function horizonMonths(horizonStart: string) {
   const [year, month] = horizonStart.split('-').map(Number) as [number, number];
   const start = month - 1;
   return { year, months: [...monthNames.slice(start), ...monthNames.slice(0, start)], range: `${monthNames[start]} ${year} — ${monthNames[(start + 23) % 12]} ${year + Math.floor((start + 23) / 12)}` };
+}
+function shortDate(value: string) {
+  const [year, month] = value.split('-').map(Number);
+  return `${monthNames[month! - 1]!.toLowerCase()} ${year}`;
+}
+function timelinePosition(start: string, end: string, horizonStart: string) {
+  const first = Date.parse(`${horizonStart}-01T00:00:00Z`);
+  const last = new Date(first);
+  last.setUTCMonth(last.getUTCMonth() + 24);
+  const duration = last.getTime() - first;
+  const left = Math.max(first, Date.parse(`${start}T00:00:00Z`));
+  const right = Math.min(last.getTime(), Date.parse(`${end}T00:00:00Z`) + 86400000);
+  return { left: `${(left-first)/duration*100}%`, width: `${Math.max(0, right-left)/duration*100}%` };
 }
 const validation = 'Esta sugerencia se basa en datos satelitales de 10 años y reglas FAO/SARE; valida disponibilidad de semilla, maquinaria y mercado con tu agrónomo local';
 function SequenceCard({
@@ -62,14 +77,23 @@ function SequenceCard({
         {[...horizon.months, ...horizon.months].map((month, i) => i % 3 === 0 ? <span key={i} style={{ gridColumn: `${i + 1} / span 3` }}>{month}</span> : null)}
       </div>
       <div className="timeline-tracks">
-        {strategy.windows.map((window, i) => <div key={i} className={`crop-window family-${window.family} ${window.current ? 'current-crop' : ''}`} style={{
-          gridColumn: `${window.startMonth + 1} / span ${Math.min(window.months, 24 - window.startMonth)}`
-        }} title={`${window.crop}: ${window.months} meses${window.current ? ', cultivo actual' : ''}`}>
+        {strategy.windows.map((window, i) => <div key={i} tabIndex={0} className={`crop-window family-${window.family} ${window.current ? 'current-crop' : ''}`} style={
+          window.start && window.end ? timelinePosition(window.start, window.end, horizonStart) :
+          { left: `${window.startMonth/24*100}%`, width: `${Math.min(window.months,24-window.startMonth)/24*100}%` }
+        } title={`${window.crop}: ${window.start ?? window.months} – ${window.end ?? 'meses'}${window.current ? ', cultivo actual' : ''}`}>
           <span>{window.crop}</span>
         </div>)}
+        {strategy.rests?.map(rest => <div key={rest.start} tabIndex={0} className="crop-window rest-window"
+          style={timelinePosition(rest.start, rest.end, horizonStart)}
+          title={`Descanso: ${rest.reason}. ${rest.suggestion}`} aria-label={`Descanso: ${shortDate(rest.start)} – ${shortDate(rest.end)}. ${rest.reason}. ${rest.suggestion}`}>
+          <span>Descanso</span>
+        </div>)}
       </div>
-      <p className="timeline-note"><span className="hatched-swatch" />Cultivo actual · horizonte de 24 meses</p>
+      <p className="timeline-note"><span className="hatched-swatch" />Cultivo actual · Descanso rayado: meses sin siembra</p>
     </div>
+    {!!strategy.rests?.length && (() => { const summary = summarizeRests(strategy.rests); return <div className="rest-list"><h4>Meses sin siembra</h4><ul>{summary.items.map(rest => <li key={rest.start}>
+      {shortDate(rest.start)} – {shortDate(rest.end)} · {rest.reason}
+    </li>)}</ul>{summary.suggestion && <p>Mientras tanto: {summary.suggestion}.</p>}</div>; })()}
     <div className="change-date">
       <CalendarDays size={17} />
       <div>
@@ -97,13 +121,21 @@ function SequenceCard({
     </div>
     <button className="reasons-toggle" aria-expanded={open} onClick={() => setExpanded(!open)}>Por qué y qué riesgos tiene<ChevronDown size={16} className={open ? 'rotate' : ''} /></button>
     {open && <div className="reasons-content">
-      {strategy.reasons.map((reason, i) => <div className="reason" key={i}>
-        <span className="reason-origin">{reason.origin ?? 'Motivo'}{reason.axis && <small>Pesó {weights[reason.axis] >= 0.3 ? 'mucho' : 'algo'}</small>}</span>
-        <p>{reason.text}</p>
-      </div>)}
+      <h4>Por qué</h4>
+      {strategy.steps?.some(step => step.reasons !== undefined) ? strategy.steps.map((step, i) => <section className="step-reasons" key={`${step.start}-${i}`}>
+        <h4>{i + 1} · {step.previousCropName ?? (i ? strategy.steps![i-1]!.cropName : 'Cultivo actual')} → {step.cropName}</h4>
+        <p className="muted">{formatDate(step.start)} – {formatDate(step.end)}</p>
+        <ul>{step.reasons?.map((reason, j) => {
+          const Icon = reason.effect === 'favor' ? Check : reason.effect === 'contra' ? TriangleAlert : Minus;
+          const label = reason.effect === 'favor' ? 'A favor' : reason.effect === 'contra' ? 'En contra' : 'Neutral';
+          return <li className={`step-reason effect-${reason.effect ?? 'neutral'}`} key={j}><Icon size={16} aria-hidden="true" /><span><strong>{label}: </strong>{reason.text}</span></li>;
+        })}</ul>
+        <p className="cycle-climate">Clima del ciclo: {step.climate?.meanTemperature == null ? 'temperatura sin dato' : `${step.climate.meanTemperature.toFixed(1)} °C`} · {step.climate?.rainMm == null ? 'lluvia sin dato' : `${Math.round(step.climate.rainMm)} mm de lluvia`} · {step.climate?.cycleDays == null ? 'duración sin dato' : `${Math.round(step.climate.cycleDays)} días`}</p>
+      </section>) : <ul>{strategy.reasons.filter(reason => !reason.text.startsWith('Pesos ')).map((reason, i) => <li key={i}>{reason.text}</li>)}</ul>}
+      <p className="weights-note">Calculado con tus prioridades: {axes.map(axis => `${axis.label.toLowerCase()} ${Math.round(weights[axis.key]*100)} %`).join(' · ')}. Ingreso es una heurística, no un precio.</p>
       <h4>Antes de decidir</h4>
       <ul>
-        {strategy.risks.map((risk, i) => <li key={i}>{risk}</li>)}
+        {[...new Set(strategy.risks)].map((risk, i) => <li key={i}>{risk}</li>)}
       </ul>
     </div>}
     <div className="confidence">

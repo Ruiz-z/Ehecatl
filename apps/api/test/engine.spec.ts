@@ -1,7 +1,7 @@
 import { crops, findCrop } from '../src/modules/crop-knowledge/crop-catalog.js';
 import { transition } from '../src/modules/rotation-engine/engine/transitions.js';
 import { viability, currentRisk } from '../src/modules/rotation-engine/engine/viability.js';
-import { recommend } from '../src/modules/rotation-engine/engine/sequences.js';
+import { recommend, rests } from '../src/modules/rotation-engine/engine/sequences.js';
 import { defaultWeights, normalizeWeights } from '../src/modules/farm-context/priorities/normalize.js';
 import { indicators } from './fixtures.js';
 
@@ -10,7 +10,7 @@ const input = () => ({ currentCropId: 'maize', history: [{ cropId: 'maize', plan
 describe('B12–B15 motor determinista y explicable', () => {
   it('prefiere cereal → leguminosa frente a repetir familia', () => {
     expect(transition(findCrop('maize')!, findCrop('cowpea')!).score).toBeGreaterThan(transition(findCrop('maize')!, findCrop('sorghum')!).score);
-    expect(transition(findCrop('maize')!, findCrop('cowpea')!).reasons.join()).toContain('nitrógeno');
+    expect(transition(findCrop('maize')!, findCrop('cowpea')!).reasons.map(reason => reason.text).join()).toContain('nitrógeno');
   });
   it('rechaza temperatura, agua, helada y duración insuficientes', () => {
     const data = indicators();
@@ -168,5 +168,57 @@ describe('B4 prioridades', () => {
   });
   it.each([{}, { ...defaultWeights, water: -1 }, { ...defaultWeights, water: '20' }, { ...defaultWeights, water: NaN }])('rechaza pesos inválidos', value => {
     expect(() => normalizeWeights(value)).toThrow();
+  });
+});
+
+describe('explicación y descansos', () => {
+  it('publica efectos, clima redondeado, pesos únicos y riesgos sin duplicados', () => {
+    const data = input();
+    data.indicators.climatology.filter(n => n.variable === 'T2M').forEach(n => { n.value = 24.123456; });
+    const result = recommend(data);
+    for (const item of [...result.recommendations, result.baseline]) {
+      expect(item.explanation.filter(text => text.startsWith('Pesos'))).toHaveLength(item.sequence.length ? 1 : 0);
+      expect(new Set(item.risks).size).toBe(item.risks.length);
+      for (const step of item.sequence) {
+        expect(step.reasons.some(reason => reason.effect === 'neutral')).toBe(true);
+        expect(step.climate.meanTemperature).toBe(24.1);
+        expect(Number.isInteger(step.climate.rainMm)).toBe(true);
+      }
+    }
+    const tr = transition(findCrop('maize')!, findCrop('cowpea')!, [{cropId:'cowpea', plantedAt:'2024-01-01', harvestedAt:'2024-04-01'}]);
+    expect(tr.reasons.find(r => r.text.includes('nitrógeno'))?.effect).toBe('favor');
+    expect(tr.reasons.find(r => r.text.includes('retorno'))?.effect).toBe('contra');
+    expect(transition(findCrop('maize')!, findCrop('maize')!).reasons[0].effect).toBe('contra');
+  });
+
+  it('deduplica el aviso de riego repetido y conserva desconocidos como null', () => {
+    const data = input();
+    data.indicators.windows.forEach(window => { window.irrigated = true; window.meanTemperature = null; window.precipitationMm = null; });
+    data.indicators.climatology = data.indicators.climatology.filter(n => !['T2M','PRECTOTCORR'].includes(n.variable));
+    const result = recommend(data);
+    for (const item of [...result.recommendations, result.baseline]) {
+      expect(item.risks.filter(r => r === 'Viabilidad hídrica depende de disponibilidad efectiva de riego')).toHaveLength(1);
+      expect(item.sequence.length).toBeGreaterThan(1);
+      expect(item.sequence.every(step => step.climate.meanTemperature === null && step.climate.rainMm === null)).toBe(true);
+    }
+    expect(transition(findCrop('sunflower')!, crops.find(crop => crop.family === 'Brassicaceae')!).reasons[0].effect).toBe('neutral');
+  });
+  const horizon = {start:'2025-01-01',end:'2025-12-31'};
+  it('detecta huecos al inicio, entre ciclos y al final', () => {
+    const gaps = rests([{start:'2025-03-01',end:'2025-04-30'},{start:'2025-07-01',end:'2025-08-31'}], [{start:'2025-01-01',end:'2025-12-31'}], horizon);
+    expect(gaps.map(r => [r.start,r.end,r.months])).toEqual([['2025-01-01','2025-02-28',2],['2025-05-01','2025-06-30',2],['2025-09-01','2025-12-31',4]]);
+    expect(gaps.every(r => r.reason.includes('Ningún cultivo'))).toBe(true);
+  });
+  it('no crea descansos sin huecos ni por compartir mes', () => {
+    expect(rests([{start:'2025-01-01',end:'2025-06-15'},{start:'2025-06-16',end:'2025-12-31'}], [], horizon)).toEqual([]);
+  });
+  it('sin ventanas explica todo el horizonte como fuera de temporada', () => {
+    expect(rests([], [], horizon)).toEqual([{...horizon,months:12,reason:'Fuera de temporada: frío o falta de agua',suggestion:'Mantener cobertura o rastrojo para proteger el suelo'}]);
+  });
+  it('separa descansos por temporada y omite huecos menores de un mes', () => {
+    const gaps = rests([], [{start:'2025-03-01',end:'2025-08-31'}], horizon);
+    expect(gaps.map(r => r.months)).toEqual([2,6,4]);
+    expect(gaps[0].reason).toContain('Fuera de temporada');
+    expect(rests([{start:'2025-01-20',end:'2025-12-31'}], [], horizon)).toEqual([]);
   });
 });

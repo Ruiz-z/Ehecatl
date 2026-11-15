@@ -1,12 +1,17 @@
 import { crops, findCrop, type Crop } from '../../crop-knowledge/crop-catalog.js';
 import type { History, Indicators, Weights } from '../../nasa-data/contracts.js';
 import { normalizeWeights } from '../../farm-context/priorities/normalize.js';
-import { transition } from './transitions.js';
+import { transition, type TransitionReason } from './transitions.js';
 import { currentRisk } from './viability.js';
 import { weightedScore } from './score.js';
 import { schedule } from './schedule.js';
 
-interface Step { cropId: string; cropName: string; windowId: string; start: string; end: string; occupiedWindowIds: string[] }
+interface Step {
+  cropId: string; cropName: string; windowId: string; start: string; end: string;
+  occupiedWindowIds: string[];
+  reasons: TransitionReason[];
+  climate: { meanTemperature: number | null; rainMm: number | null; cycleDays: number };
+}
 interface Candidate { id: string; score: number; sequence: Step[]; components: Weights; explanation: string[]; risks: string[] }
 const dayMs = 86_400_000;
 const day = (value: string) => Date.parse(`${value}T00:00:00Z`);
@@ -27,15 +32,24 @@ export function recommend(input: Input, catalog: Crop[] = crops) {
   if (missing) warnings.push('Datos NASA incompletos: confianza reducida');
   const generated = generate(input, catalog);
   const currentResult = generate(input, [current]);
-  const currentPlan = currentResult.candidates[0];
+  const horizonStart = new Date(day(indicators.period.end));
+  horizonStart.setUTCMonth(horizonStart.getUTCMonth() + 1, 1);
+  const horizonEnd = new Date(horizonStart);
+  horizonEnd.setUTCMonth(horizonEnd.getUTCMonth() + 24);
+  const horizon = { start: iso(horizonStart.getTime()), end: iso(horizonEnd.getTime() - dayMs) };
+  const complete = (candidate: Candidate) => ({ ...candidate,
+    rests: rests(candidate.sequence, indicators.windows, horizon),
+    risks: [...new Set(candidate.risks)],
+    explanation: [...candidate.explanation, `Pesos agua=${priorities.water}, suelo=${priorities.soil}, ingreso=${priorities.income}, riesgo=${priorities.risk}; ingreso es una heurística, no precio`] });
+  const currentPlan = currentResult.candidates[0] ? complete(currentResult.candidates[0]) : undefined;
   const baselineReasons = !windows.length ? ['Sin ventanas de cultivo disponibles']
     : currentResult.failures.length ? currentResult.failures : ['No cabe un ciclo del cultivo actual en las ventanas disponibles'];
   const baseline = currentPlan
     ? { ...currentPlan, id: 'baseline', viable: true as const }
     : { id: 'baseline', viable: false as const, score: null, components: null, sequence: [] as Step[],
-      explanation: baselineReasons, risks: [] as string[] };
+      explanation: baselineReasons, risks: [] as string[], rests: rests([], indicators.windows, horizon) };
   const recommendations = generated.candidates.filter(candidate => candidate.sequence.some(step => step.cropId !== current.id)).slice(0, 2)
-    .map(candidate => ({ ...candidate, delta: baseline.score === null ? null : Number((candidate.score-baseline.score).toFixed(2)) }));
+    .map(candidate => ({ ...complete(candidate), delta: baseline.score === null ? null : Number((candidate.score-baseline.score).toFixed(2)) }));
   if (![...recommendations, ...(currentPlan ? [currentPlan] : [])].some(c => c.sequence.length >= 2)) warnings.push('Menos de dos ciclos viables en 24 meses: secuencia reducida; considerar cobertura o barbecho');
   const viable = recommendations.length > 0 || baseline.viable;
   if (!viable) warnings.push('Ninguna opción viable; considerar cobertura o barbecho', ...generated.failures);
@@ -80,11 +94,18 @@ function generate(input: Input, catalog: Crop[]) {
           };
           const count = partial.sequence.length;
           const combined = Object.fromEntries((Object.keys(components) as (keyof Weights)[]).map(key => [key, (partial.components[key]*count+components[key])/(count+1)])) as unknown as Weights;
-          const sequence = [...partial.sequence, { cropId: crop.id, cropName: crop.name, windowId: window.id, start: iso(planted), end: iso(end), occupiedWindowIds }];
+          const sequence = [...partial.sequence, {
+            cropId: crop.id, cropName: crop.name, windowId: window.id,
+            start: iso(planted), end: iso(end), occupiedWindowIds, reasons: tr.reasons,
+            climate: {
+              meanTemperature: effective.meanTemperature === null ? null : Number(effective.meanTemperature.toFixed(1)),
+              rainMm: result.waterMm === null ? null : Math.round(result.waterMm),
+              cycleDays: crop.cycleDays,
+            },
+          }];
           next.push({ id: sequence.map(s => s.cropId).join('>'), sequence, components: combined, score: weightedScore(combined, priorities),
-            explanation: [...partial.explanation, ...tr.reasons.map(r => `${previous.name} → ${crop.name}: ${r}`),
-              `${crop.name}: NASA T2M=${effective.meanTemperature ?? 'faltante'} C; lluvia=${result.waterMm?.toFixed(0) ?? 'faltante'} mm/ciclo; ciclo=${crop.cycleDays} días`,
-              `Pesos agua=${priorities.water}, suelo=${priorities.soil}, ingreso=${priorities.income}, riesgo=${priorities.risk}; ingreso es una heurística, no precio`],
+            explanation: [...partial.explanation, ...tr.reasons.map(r => `${previous.name} → ${crop.name}: ${r.text}`),
+              `${crop.name}: NASA T2M=${effective.meanTemperature?.toFixed(1) ?? 'faltante'} C; lluvia=${result.waterMm?.toFixed(0) ?? 'faltante'} mm/ciclo; ciclo=${crop.cycleDays} días`],
             risks: [...continuationRisks, ...result.risks] });
           expanded = true;
         }
@@ -105,4 +126,42 @@ function generate(input: Input, catalog: Crop[]) {
 function compare(a: Candidate, b: Candidate): number {
   return b.score-a.score || b.components.risk-a.components.risk ||
     a.sequence.map(s => s.cropName).join('>').localeCompare(b.sequence.map(s => s.cropName).join('>'), 'en') || a.id.localeCompare(b.id, 'en');
+}
+
+export interface Rest { start: string; end: string; months: number; reason: string; suggestion: string }
+
+// Fechas inclusivas: se usan límites exclusivos internamente para no perder días.
+export function rests(sequence: { start: string; end: string }[], windows: { start: string; end: string }[], horizon: { start: string; end: string }): Rest[] {
+  const start = day(horizon.start), end = day(horizon.end) + dayMs;
+  const boundaries = new Set([start, end]);
+  for (const interval of [...sequence, ...windows]) {
+    for (const value of [day(interval.start), day(interval.end) + dayMs]) {
+      if (value > start && value < end) boundaries.add(value);
+    }
+  }
+  const points = [...boundaries].sort((a, b) => a-b);
+  const segments: { start: number; end: number; inWindow: boolean }[] = [];
+  for (let i = 0; i < points.length - 1; i++) {
+    const a = points[i], b = points[i+1];
+    if (sequence.some(step => day(step.start) <= a && day(step.end) + dayMs > a)) continue;
+    const inWindow = windows.some(window => day(window.start) <= a && day(window.end) + dayMs > a);
+    const previous = segments.at(-1);
+    if (previous && previous.end === a && previous.inWindow === inWindow) previous.end = b;
+    else segments.push({ start: a, end: b, inWindow });
+  }
+  return segments.filter(segment => {
+    const date = new Date(segment.start);
+    const nextMonth = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth()+1, 1));
+    // Cumple si contiene un mes calendario completo o un mes de fecha a fecha.
+    const fullMonthEnd = new Date(Date.UTC(nextMonth.getUTCFullYear(), nextMonth.getUTCMonth()+1, 1));
+    const anniversary = new Date(date);
+    anniversary.setUTCMonth(date.getUTCMonth()+1);
+    return segment.end >= anniversary.getTime() || segment.end >= fullMonthEnd.getTime();
+  }).map(segment => {
+    const a = new Date(segment.start), b = new Date(segment.end-dayMs);
+    return { start: iso(segment.start), end: iso(segment.end-dayMs),
+      months: (b.getUTCFullYear()-a.getUTCFullYear())*12+b.getUTCMonth()-a.getUTCMonth()+1,
+      reason: segment.inWindow ? 'Ningún cultivo completa su ciclo en este tramo' : 'Fuera de temporada: frío o falta de agua',
+      suggestion: 'Mantener cobertura o rastrojo para proteger el suelo' };
+  });
 }
