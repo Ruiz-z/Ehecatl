@@ -126,7 +126,7 @@ Empates: menor riesgo, nombre e identificador de secuencia; salida determinista.
 Si ninguna opción cabe, incluida la referencia: `status:no_viable_options`, lista
 vacía, referencia inviable, razones y sugerencia de cobertura/barbecho.
 Si solo cabe la referencia, `status:ok` y `recommendations:[]`.
-Ingreso es un indicador heurístico de oportunidad (no precio ni rentabilidad).
+Cosecha (`income`) es rendimiento relativo según FAO-33, no ingreso monetario. El respaldo sin historia conserva el indicador previo y se avisa.
 Una perenne debe caber en el horizonte y ocupar ventanas consecutivas.
 
 ## Aprobaciones pendientes
@@ -202,3 +202,9 @@ Cada recomendación y baseline añade `irrigationNeedMm` entero: suma de max(0,d
 Campo aditivo en recomendaciones y baseline: `riskGroups: [{type,text}]`. Tipos: `heat`, `temperature`, `frost`, `drought`, `water`, `data`, `schedule`, `other`. Calor resume el peor exceso sobre tolerancia (máxima y tolerancia del mismo ciclo) y ciclos afectados; `risks` conserva todos los textos originales. Baseline inviable: `riskGroups: []`. Clientes antiguos pueden omitir el campo.
 
 La UI usa `inputs.indicators.sources` y `warnings` para «Qué sabemos / Qué falta». El estado NASA usa `trends` y las anomalías del mes correspondiente; no se añaden campos ni umbrales al contrato de indicadores. La ausencia de tendencia no acredita normalidad.
+
+## Historia y ejes por datos (aditivo v1, 2026-11-15)
+
+Indicators añade `history?: {variable:string,year:number,month:number,value:number|null}[]` para las cinco variables POWER de spec 003 RF-3c. Geo lo devuelve siempre, incluso vacío. No se rellenan huecos. Caché indicators:v2.
+
+Cada paso añade `risk: {okYears,totalYears,failures:{heat,frost,temperature,water}} | null` y `yield: {relativePct,ky,irrigatedAssumed,kyEstimated,kySource} | null`. Menos de cinco años completos usa ambos campos nulos y respaldo compatible según spec 005 RF-12b. Clientes antiguos pueden omitirlos. El conteo incluye solamente calendarios con datos completos y años consecutivos reales, con días bisiestos. Las causas pueden solaparse; okYears cuenta años sin ninguna causa. `relativePct` promedia la función FAO acotada a 0..100 por año. `income` conserva nombre en API, base de datos y prioridades. Las etiquetas visibles usan Cosecha. Suelo sigue siendo regla SARE/FAO; agua no cambia. No cambia versión pública ni endpoints.

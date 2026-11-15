@@ -76,3 +76,7 @@ RF-1 a RF-8 con test en verde + demo: tres puntos distintos (Coahuila, Nevada y 
 ## Bloque A — Perfiles agrícolas de demo (2026-11-14)
 
 Los perfiles conservan correos, cultivos, riego y prioridades. Los puntos candidatos son San Pedro/Comarca Lagunera (25.76, −102.98), Fallon/Lahontan (39.47, −118.78) y San Martín/Mendoza (−33.08, −68.47). H3 requiere imagen satelital de parcelas, pico estacional de climatología NDVI ≥0.4 y opciones de rotación para los tres. La comprobación NASA/mapa y la reejecución del seed quedan a cargo del usuario; cambiar coordenadas no acredita esos criterios. No hay reglas regionales.
+
+## Historia mensual por año (2026-11-15)
+
+- RF-3c: La respuesta añade `history`, filas `{variable,year,month,value}` de los años base de POWER para T2M, T2M_MAX, T2M_MIN, PRECTOTCORR y ALLSKY_SFC_SW_DWN. Lluvia en mm/mes y radiación en MJ/m²/día. No interpola ni rellena. Conserva nulos observados y ordena por año, mes y variable. No incluye MODIS ni meses recientes. La clave de caché pasa a v2.
