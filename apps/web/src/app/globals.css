@@ -640,3 +640,8 @@ summary { min-height:44px; align-content:center; }
 .calendar-sowing-2 { background: var(--accent-soft); }
 .chart-legend .current-bar { width: 10px; height: 10px; background: var(--data-rain); }
 .chart-legend .current-line { border-top: 2px solid var(--data-temperature); }
+/* El paso muestra lo esencial; el resto queda en «Ver más detalle». */
+.cycle-water { display:flex; align-items:flex-start; gap:8px; margin-block:10px; }
+.cycle-water svg { flex-shrink:0; margin-top:3px; color:var(--data-rain); }
+.step-more { font-size:13px; margin-top:8px; }
+.step-more summary { cursor:pointer; color:var(--muted-foreground); min-height:32px; }

@@ -1,5 +1,12 @@
 # Registro de cambios
 
+## 2026-11-15 — «Por qué» resumido por paso
+
+- **Archivos:** `apps/web/src/features/rotation/{recommendations.tsx,step-summary.ts,step-summary.test.ts}`, `apps/web/package.json`, `apps/web/src/app/globals.css`, `docs/specs/spec-006-web-ui.md`, `docs/registro-cambios.md`.
+- **Qué se cambió:** spec primero (RF-12). Cada paso muestra un motivo a favor, lo que va en contra, el periodo por mes y el agua en una frase («La lluvia da 15 % del agua que necesita. El resto sale del riego.»). Los demás motivos, los mm de demanda, el clima del ciclo y las fechas exactas pasan a «Ver más detalle». Las etiquetas «A favor / En contra / Neutral» quedan solo para lector de pantalla.
+- **Por qué:** cada paso listaba hasta cinco motivos más dos renglones de cifras, y con tres pasos saturaba la tarjeta. No se quita información ni se cambia el API: solo se ordena qué se ve primero.
+- **Pendiente:** los motivos siguen redactados por el motor en lenguaje técnico («ruptura de hospederos»); reescribirlos toca `apps/api` y requiere revisión H4.
+
 ## 2026-11-15 — Propuesta del «Por qué» resumido
 
 - **Archivos:** `docs/propuesta-por-que-resumido.md`, `docs/registro-cambios.md`.
