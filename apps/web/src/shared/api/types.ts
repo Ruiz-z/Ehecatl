@@ -7,12 +7,12 @@ export interface Session { user: DemoUser; accessToken: string; expiresAt: numbe
 export interface Crop { id: string; name: string; family: string }
 export interface NewParcelInput { name: string; latitude: number; longitude: number; cropId: string; irrigation: boolean }
 export type MetricKey = 'rainfall' | 'temperature' | 'moisture' | 'ndvi';
-export interface MetricSummary { text: string; tone: 'warning' | 'good' }
+export interface MetricSummary { text: string; tone: 'warning' | 'good' | 'neutral' }
 export interface Indicators {
   observations: Observation[];
   series: TimePoint[];
   summaries: Partial<Record<MetricKey, MetricSummary>>;
-  ndvi: { value: number | null; label: string };
+  ndvi: { value: number | null; label: string; source?: string; date?: string };
   lastObservation: string;
   periodLabel: string;
   origin: 'live' | 'cache' | 'mock';

@@ -34,6 +34,8 @@ export interface Strategy {
   risks: string[];
   confidence: 'Alta' | 'Media' | 'Baja';
   confidenceReason: string;
+  known?: string[];
+  missing?: string[];
 }
 export interface RankedStrategy extends Strategy {
   score: number;

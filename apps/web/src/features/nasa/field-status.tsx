@@ -42,20 +42,17 @@ function Status({
           <span>Verdor de la zona</span>
           <span className="chip neutral-chip">NDVI</span>
         </div>
-        <strong>{data.ndvi.value === null ? '—' : data.ndvi.value.toFixed(2)}</strong>
         <p>{data.ndvi.label}</p>
-        {data.ndvi.value === null ? <small>MODIS no tiene una lectura confiable para este punto; no la inventamos.</small> : <>
-        <div className="ndvi-scale">
-          <i />
-          <i />
-          <i />
-          <i />
-        </div>
-        <div className="scale-labels">
-          <span>Menos</span>
-          <span>Más</span>
-        </div>
-        <small>MODIS · origen: {data.origin}</small></>}
+        {data.ndvi.value === null ? <small>MODIS no tiene una lectura confiable para este punto; no la inventamos.</small> : <details>
+          <summary>Ver dato NASA</summary>
+          <dl>
+            <div><dt>Variable</dt><dd>NDVI</dd></div>
+            <div><dt>Valor</dt><dd>{data.ndvi.value}</dd></div>
+            <div><dt>Fuente</dt><dd>{data.ndvi.source ?? 'MODIS'}</dd></div>
+            <div><dt>Fecha</dt><dd>{data.ndvi.date ?? data.lastObservation}</dd></div>
+            <div><dt>Origen</dt><dd>{mock ? 'mock · datos de ejemplo' : data.origin}</dd></div>
+          </dl>
+        </details>}
       </div>
       <div className="satellite-card" role="img" aria-label={`Vista satelital de la ubicación de ${parcel.name}`} style={{
         backgroundImage: `url(https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=${parcel.longitude - 0.018},${parcel.latitude - 0.018},${parcel.longitude + 0.018},${parcel.latitude + 0.018}&bboxSR=4326&size=400,400&format=jpg&f=image)`
@@ -74,7 +71,7 @@ function Status({
           <span><Icon size={19} />{observation.label}</span>
           <strong>{observation.value}</strong>
         </div>
-        <p className={`indicator-status ${observation.tone === 'good' ? 'good-text' : 'warning-text'}`}>{observation.tone === 'good' ? <CheckCircle2 size={15} /> : <TriangleAlert size={15} />}{observation.status}</p>
+        <p className={`indicator-status ${observation.tone === 'good' ? 'good-text' : observation.tone === 'warning' ? 'warning-text' : 'muted'}`}>{observation.tone === 'warning' ? <TriangleAlert size={15} /> : observation.tone === 'good' ? <CheckCircle2 size={15} /> : null}{observation.status}</p>
         <p>{observation.consequence}</p>
         <details>
           <summary>Ver dato NASA</summary>
@@ -82,6 +79,9 @@ function Status({
             <div>
               <dt>Variable</dt>
               <dd>{observation.variable}</dd>
+            </div>
+            <div>
+              <dt>Valor crudo</dt><dd>{observation.rawValue ?? observation.value}</dd>
             </div>
             <div>
               <dt>Fuente</dt>

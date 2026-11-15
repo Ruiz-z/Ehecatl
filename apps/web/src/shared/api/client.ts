@@ -1,8 +1,7 @@
 import { authenticateDemo } from '@/features/identity/demo-auth';
 export { demoPassword } from '@/features/identity/demo-auth';
 import { demoParcels } from '@/features/parcels/fixtures/parcels';
-import { observationsFor, seriesFor } from '@/features/nasa/fixtures/observations';
-import { demoClimateByOwner } from '@/features/identity/fixtures/users';
+import { observationsFor, mockIndicatorResponse } from '@/features/nasa/fixtures/observations';
 import { strategiesFor } from '@/features/rotation/fixtures/strategies';
 import { validateLogin } from '@/features/identity/validation';
 import { authClient } from './auth-client';
@@ -34,19 +33,7 @@ async function request<T>(path: string, method = 'GET', body?: unknown, token?: 
   return response.status === 204 ? (undefined as T) : response.json() as Promise<T>;
 }
 function mockIndicators(parcel: Parcel): Indicators {
-  const humid = demoClimateByOwner[parcel.ownerId] === 'humid';
-  return {
-    observations: observationsFor(parcel), series: seriesFor(parcel), origin: 'mock', warnings: [],
-    summaries: humid ? {
-      rainfall: { text: 'Lluvia suficiente para el ciclo', tone: 'good' }, temperature: { text: 'Dentro del rango habitual', tone: 'good' },
-      moisture: { text: 'Buena reserva de agua', tone: 'good' }, ndvi: { text: 'Vegetación en crecimiento', tone: 'good' }
-    } : {
-      rainfall: { text: '38 % menos que lo normal', tone: 'warning' }, temperature: { text: '2.1 °C más que lo normal', tone: 'warning' },
-      moisture: { text: 'Reserva de agua por debajo de lo normal', tone: 'warning' }, ndvi: { text: 'Menor actividad que lo normal', tone: 'warning' }
-    },
-    ndvi: { value: humid ? 0.59 : 0.28, label: humid ? 'Vegetación activa' : 'Actividad moderada' },
-    lastObservation: '31 oct 2026', periodLabel: 'nov 2025 – oct 2026'
-  };
+  return mapIndicators(mockIndicatorResponse(parcel));
 }
 const mock: ApiClient = {
   async login(input) {
@@ -68,7 +55,7 @@ const mock: ApiClient = {
     const first = observationsFor(parcel)[0]!;
     return {
       status: parcel.dataState === 'no-windows' ? 'no_viable_options' : 'ok', origin: 'mock', horizonStart: '2026-11',
-      confidence: parcel.dataState === 'error' ? 'Baja' : 'Media', warnings: [],
+      confidence: 'Baja', warnings: ['Datos de ejemplo: demanda del catálogo, sin cálculo ETc NASA.'],
       risk: { level: parcel.risk === 'high' ? 'high' : 'low', reasons: [`${first.value} de lluvia disponible. ${first.consequence}`] },
       strategies: parcel.dataState === 'no-windows' ? [] : strategiesFor(parcel)
     };

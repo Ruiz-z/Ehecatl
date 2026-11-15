@@ -43,7 +43,9 @@ export function strategiesFor(parcel: Parcel): Strategy[] {
   const next = humid ? ['Trigo', 'Vicia', 'Maíz'] : restricted ? ['Cebada', 'Caupí', 'Sorgo'] : ['Sorgo', 'Frijol', 'Cebada'];
   const alternative = humid ? ['Maíz', 'Soja', 'Avena'] : ['Girasol', 'Garbanzo', 'Avena'];
   const common = {
-    confidence: parcel.dataState === 'error' ? 'Baja' as const : 'Media' as const,
+    confidence: 'Baja' as const,
+    known: ['Datos de ejemplo; no son observaciones reales de esta parcela.'],
+    missing: ['Demanda del catálogo: faltan los insumos NASA para calcular ETc.'],
     confidenceReason: parcel.dataState === 'error' ? 'Falta la humedad del suelo; calculamos con el resto de los datos.' : 'Falta validar el suelo y el mercado en campo.'
   };
   const strategies: Strategy[] = [{

@@ -71,7 +71,7 @@ function Charts({
           <h3>{metric.title}</h3>
           <span>{metric.unit}</span>
         </div>
-        {summary && <p className={summary.tone === 'good' ? 'good-text' : 'warning-text'}>{summary.text}</p>}
+        {summary && <p className={summary.tone === 'good' ? 'good-text' : summary.tone === 'warning' ? 'warning-text' : 'muted'}>{summary.text}</p>}
         <div className="chart-legend">
           <span><i style={{
               background: metric.color

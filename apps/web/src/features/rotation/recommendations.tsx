@@ -161,7 +161,11 @@ function SequenceCard({
     </div>}
     <div className="confidence">
       <span className="chip neutral-chip"><ShieldCheck size={13} />Confianza {strategy.confidence.toLowerCase()}</span>
-      <p>{strategy.confidenceReason}</p>
+      <div><h4>Qué sabemos</h4>
+        <ul>{(strategy.known?.length ? strategy.known : ['Sin detalle del estado de las fuentes en esta respuesta.']).map(text => <li key={text}>{text}</li>)}</ul>
+        <h4>Qué falta</h4>
+        {strategy.missing?.length ? <ul>{strategy.missing.map(text => <li key={text}>{text}</li>)}</ul> : <p>{strategy.confidenceReason}</p>}
+      </div>
     </div>
     <Notice variant="info" label="INFO · VALIDACIÓN LOCAL" title="Valida antes de sembrar"><p>{validation}</p></Notice>
   </article>;

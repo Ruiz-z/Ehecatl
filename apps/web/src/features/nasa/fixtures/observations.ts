@@ -2,39 +2,37 @@ import { demoClimateByOwner } from '@/features/identity/fixtures/users';
 import type { Parcel } from '@/features/parcels/types';
 import type { Observation, TimePoint } from '../types';
 export type { Observation, TimePoint };
+// Datos sintéticos, usados únicamente por el modo de ejemplo marcado en pantalla.
+import { mapObservations, type ApiIndicators } from '@/shared/api/adapters';
 export function observationsFor(parcel: Parcel): Observation[] {
+  return mapObservations(mockIndicatorResponse(parcel));
+}
+export function mockIndicatorResponse(parcel: Parcel): ApiIndicators {
   const humid = demoClimateByOwner[parcel.ownerId] === 'humid';
-  return [{
-    label: 'Lluvia disponible',
-    variable: 'PRECTOTCORR',
-    value: humid ? '984 mm' : '248 mm',
-    status: humid ? 'Suficiente' : 'Escasa',
-    consequence: humid ? 'Hay agua para el siguiente ciclo.' : '38 % menos que lo normal. Cuida el agua del próximo ciclo.',
-    source: 'NASA POWER',
-    date: '31 oct 2026',
-    origin: 'mock',
-    tone: humid ? 'good' : 'warning'
-  }, {
-    label: 'Calor en el campo',
-    variable: 'T2M_MAX',
-    value: humid ? '27.2 °C' : '32.4 °C',
-    status: humid ? 'Esperado' : 'Elevado',
-    consequence: humid ? 'Dentro del rango habitual de la zona.' : '2.1 °C más que lo normal. El cultivo pierde más agua.',
-    source: 'NASA POWER',
-    date: '31 oct 2026',
-    origin: 'mock',
-    tone: humid ? 'good' : 'warning'
-  }, {
-    label: 'Humedad en raíz',
-    variable: 'GWETROOT',
-    value: humid ? '68 %' : '22 %',
-    status: humid ? 'Adecuada' : 'Baja',
-    consequence: humid ? 'El suelo mantiene una buena reserva.' : 'Riesgo de estrés por falta de agua.',
-    source: 'NASA POWER',
-    date: '31 oct 2026',
-    origin: 'mock',
-    tone: humid ? 'good' : 'warning'
-  }];
+  const keys = [
+    ['PRECTOTCORR','rainfall','rainfallNormal','mm/month'],
+    ['T2M','temperature','temperatureNormal','C'],
+    ['T2M_MAX','temperature','temperatureNormal','C'],
+    ['GWETROOT','moisture','moistureNormal','fraction'],
+    ['NDVI','ndvi','ndviNormal','index']
+  ] as const;
+  const monthly: ApiIndicators['monthly'] = [];
+  const climatology: ApiIndicators['climatology'] = [];
+  const anomalies: ApiIndicators['anomalies'] = [];
+  seriesFor(parcel).forEach((point,index) => {
+    const month = (index+10)%12+1;
+    const date = `${index < 2 ? 2025 : 2026}-${String(month).padStart(2,'0')}-01`;
+    for (const [variable,key,normalKey,unit] of keys) {
+      const scale = variable === 'GWETROOT' ? .01 : 1;
+      const value = point[key]!*scale, normal = point[normalKey]!*scale;
+      monthly.push({variable,date,value,unit,source:variable === 'NDVI' ? 'MODIS · ejemplo' : 'NASA POWER · ejemplo'});
+      climatology.push({variable,month,value:normal,samples:10});
+      anomalies.push({variable,date,value:value-normal,percent:normal ? (value-normal)/Math.abs(normal)*100 : null});
+    }
+  });
+  return {period:{start:'2025-11-01',end:'2026-10-31'},origin:'mock',monthly,climatology,anomalies,warnings:[],
+    sources:{power:{status:'available',reason:null},modis:{status:'available',reason:null}},
+    trends:[{type:'drought',active:!humid,evidence:[]},{type:'heat',active:!humid,evidence:[]},{type:'vegetation_stress',active:!humid,evidence:[]},{type:'erratic_rain',active:false,evidence:[]}]};
 }
 export function seriesFor(parcel: Parcel): TimePoint[] {
   const humid = demoClimateByOwner[parcel.ownerId] === 'humid';

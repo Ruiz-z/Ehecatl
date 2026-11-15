@@ -7,7 +7,8 @@ export interface Observation {
   source: string;
   date: string;
   origin: 'live' | 'cache' | 'mock';
-  tone: 'warning' | 'good';
+  tone: 'warning' | 'good' | 'neutral';
+  rawValue?: string;
 }
 export interface TimePoint {
   month: string;
