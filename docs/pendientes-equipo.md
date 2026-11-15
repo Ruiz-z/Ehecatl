@@ -1,6 +1,6 @@
 # Pendientes para el equipo
 
-Traspaso a 2026-11-14. Lo que Mau (front/infra) dejó planeado y **no** hizo, con contexto para retomarlo. El backend (`apps/api`, `apps/geo`) lo lleva el compañero; Mau no lo modifica.
+Traspaso a 2026-11-14. Lo que Mau (front/infra) dejó planeado y **no** hizo, con contexto para retomarlo. El backend también entra en el alcance autorizado para el balance ETo/ETc.
 
 ## Seguimiento — 2026-11-14
 
@@ -9,7 +9,8 @@ Traspaso a 2026-11-14. Lo que Mau (front/infra) dejó planeado y **no** hizo, co
 - **«Mantener lo actual» restituido:** spec 005 RF-1c, contrato, motor, fixture y adaptador web alineados. Se evalúa fuera del recorte del ranking y con las mismas reglas/pesos; si es inviable, se explican las causas con puntaje/diferencias nulos. Hasta dos alternativas más la referencia viable.
 - **Seed:** `GEO_URL` documentado en ambos entornos y fijado en Compose. Si un perfil no produce ninguna opción viable, el seed falla con las causas para revisar las condiciones declaradas; no altera datos NASA ni reglas por ubicación.
 - **Sensores:** decisión explícita del usuario: mantenerlos como **siguiente fase**. La spec 007 conserva su estado de borrador; no se propaga a la constitución ni a las specs 003/005/006 y no se implementan dispositivos, lecturas ni avisos. Las preguntas de hardware y H4 siguen abiertas.
-- **Ideas sin spec:** ETo/ETc y entrevista inicial permanecen en el backlog; visión artificial/dron continúa fuera de alcance. No se amplía el producto sin una spec.
+- **Balance ETo/ETc implementado:** specs 004/005 y contrato actualizados, Kc FAO-56, demanda por radiación mensual, agua y riesgo por parcela, desglose y niveles. Siguen pendientes riego por niveles, Penman-Monteith, Kc por etapa real y validación H4.
+- **Ideas sin spec:** entrevista inicial permanece en el backlog; visión artificial/dron continúa fuera de alcance. No se amplía el producto sin una spec.
 
 Las secciones siguientes conservan el contexto del traspaso original.
 
@@ -43,7 +44,7 @@ con riego declarado devuelven opciones. MODIS: 10/12 meses en Coahuila (faltan m
 - **MODIS:** huecos de NDVI; el fallback a Microsoft Planetary Computer entró con PR #12. Verificar cobertura en los puntos demo.
 
 ## 4. Ideas siguientes (sin spec)
-- **ETo/ETc (FAO-56, Boletín 56):** ETc = Kc × ETo, 1 mm = 1 L/m²; el lisímetro es la medida de campo. Va en una spec aparte (fuera de la 007).
+- **ETo/ETc:** balance implementado en specs 004/005; no depende de sensores de spec 007. Pendientes Penman-Monteith, Kc por etapa real y validación H4.
 - **Diagnóstico del dueño:** paso de entrevista inicial que surgió de las notas de la visita de la experta.
 - **Visión artificial/dron:** fuera de alcance de la beta.
 
@@ -52,10 +53,10 @@ Registrar cada cambio en `docs/registro-cambios.md`; commits sin `Co-Authored-By
 
 ## Replanteo del motor (siguiente fase)
 
-- Agua como balance de oferta y demanda, con base para ETc = Kc × ETo; distinguir lluvia, reserva del suelo y aporte de riego sin inventar mediciones.
+- **Hecho:** balance lluvia/ETc y fallback de catálogo explícito; no se inventan reserva de suelo ni aportes de riego.
 - Riego en niveles de disponibilidad efectiva, en lugar de una condición binaria.
 - Alternativas que difieran en el primer cultivo y ayuden a decidir el siguiente paso.
 - Confianza que no sea siempre baja: revisar cobertura, procedencia e incertidumbre de los insumos.
-- Puntaje en niveles comprensibles y explicables para el agricultor.
+- **Hecho:** niveles alto/medio/bajo y desglose ponderado agua + suelo + ingreso + riesgo.
 
-Estas propuestas requieren especificación y validación agronómica antes de implementarse.
+Lo implementado requiere validación agronómica H4; las demás propuestas requieren especificación antes de implementarse.

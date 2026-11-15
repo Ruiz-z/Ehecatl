@@ -13,6 +13,7 @@ Motor de rotación; el agricultor lo consulta al elegir cultivos; Administrador 
 
 ## Requisitos funcionales (EARS)
 - RF-1: EL SISTEMA mantiene un catálogo versionado en el repo con, por cultivo: nombre, familia botánica, rango de temperatura, demanda hídrica, duración del ciclo, ventana de siembra por clima, balance de nitrógeno (fija/consume), cobertura de suelo, tolerancia a sequía y `marketValueTier` (`bajo` | `medio` | `alto`, nivel categórico de valor comercial o forrajero por hectárea, con su fuente, p. ej. SIAP/FAOSTAT; si no hay fuente verificable se marca «estimado»).
+- RF-1b: EL SISTEMA exige `kc: {ini,mid,end}` entre 0.1 y 1.4 de FAO-56 Tabla 12, con `kcSource` identificando fila y selección dentro de rangos. Si usa categoría análoga, marca `kcEstimated: true`.
 - RF-2: EL SISTEMA guarda por cada cultivo su fuente (FAO/GAEZ u otra) y la expone en la API.
 - RF-3: CUANDO se consulta `GET /crops`, EL SISTEMA devuelve el catálogo completo.
 - RF-4: EL SISTEMA define compatibilidades de transición entre familias (buena, neutra, a evitar) con la razón agronómica.

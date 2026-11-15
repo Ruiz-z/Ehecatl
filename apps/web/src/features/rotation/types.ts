@@ -10,7 +10,8 @@ export interface CropWindow {
   end?: string;
 }
 export interface CycleClimate { meanTemperature: number | null; rainMm: number | null; cycleDays: number | null }
-export interface RotationStep { previousCropName?: string; cropName: string; start: string; end: string; reasons?: Reason[]; climate?: CycleClimate }
+export interface CycleWater { etoMm: number | null; kc: number; demandMm: number; rainMm: number | null; coveragePct: number | null; method: 'radiation' | 'catalog' }
+export interface RotationStep { previousCropName?: string; cropName: string; start: string; end: string; reasons?: Reason[]; climate?: CycleClimate; water?: CycleWater }
 export interface Rest { start: string; end: string; months: number; reason: string; suggestion: string }
 export interface Reason {
   effect?: 'favor' | 'contra' | 'neutral';
@@ -20,6 +21,7 @@ export interface Reason {
   axis?: keyof Priorities;
 }
 export interface Strategy {
+  irrigationNeedMm?: number;
   id: string;
   baseline: boolean;
   name: string;
