@@ -17,7 +17,6 @@ export function viability(crop: Crop, window: Window, indicators: Indicators, av
     if (water !== null && water < demandMm * .65) reasons.push(`Agua estimada ${water.toFixed(0)} mm insuficiente para ${demandMm} mm/ciclo`);
   } else risks.push('Viabilidad hídrica depende de disponibilidad efectiva de riego');
   if (water === null) risks.push('Falta precipitación: disponibilidad de agua incierta');
-  else if (water < demandMm) risks.push(`Déficit hídrico potencial: ${water.toFixed(0)}/${demandMm.toFixed(0)} mm`);
   if (indicators.trends.some(t => t.active && t.type === 'drought') && crop.droughtTolerance < 60) risks.push('Sequía observada y baja tolerancia del cultivo');
   if (indicators.trends.some(t => t.active && t.type === 'heat')) risks.push('Calor observado: posible estrés térmico');
   return { viable: reasons.length === 0, reasons, risks, waterMm: water };

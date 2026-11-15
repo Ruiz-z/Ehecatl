@@ -7,6 +7,7 @@
   "warnings": [
     "Fixture sintético exclusivo de tests",
     "Sin historial: menor confianza en la rotación",
+    "ETo del horizonte no disponible: se usa la suma de demandas de la secuencia",
     "Balance hídrico incompleto: demanda del catálogo o lluvia desconocida"
   ],
   "priorities": {
@@ -1202,6 +1203,7 @@
   },
   "recommendations": [
     {
+      "irrigationNeedMm": 67,
       "id": "alfalfa>canola",
       "sequence": [
         {
@@ -1259,7 +1261,7 @@
             "kc": 0.8099999999999999,
             "demandMm": 450,
             "rainMm": 383.2258064516129,
-            "coveragePct": 85.16129032258065,
+            "coveragePct": 85.2,
             "method": "catalog"
           },
           "reasons": [
@@ -1284,12 +1286,12 @@
         }
       ],
       "components": {
-        "water": 92.58064516129033,
+        "water": 95.69198751300728,
         "soil": 94,
         "income": 70,
         "risk": 93.7741935483871
       },
-      "score": 87.59,
+      "score": 88.37,
       "explanation": [
         "Maíz → Alfalfa: Alternar leguminosas favorece el balance de nitrógeno y rompe hospederos",
         "Maíz → Alfalfa: La leguminosa aporta fijación biológica de nitrógeno",
@@ -1305,12 +1307,13 @@
       "risks": [
         "Demanda estimada del catálogo: falta temperatura o radiación mensual válida para ETo",
         "Máxima mensual 32.0 C supera tolerancia 30 C",
-        "Déficit hídrico potencial: 383/450 mm"
+        "Agua faltante en 24 meses: ~67 mm: la lluvia no cubre la demanda"
       ],
       "rests": [],
       "delta": null
     },
     {
+      "irrigationNeedMm": 75,
       "id": "alfalfa>sunflower",
       "sequence": [
         {
@@ -1368,7 +1371,7 @@
             "kc": 0.8099999999999999,
             "demandMm": 400,
             "rainMm": 325.16129032258067,
-            "coveragePct": 81.29032258064517,
+            "coveragePct": 81.3,
             "method": "catalog"
           },
           "reasons": [
@@ -1393,12 +1396,12 @@
         }
       ],
       "components": {
-        "water": 90.64516129032259,
+        "water": 95.01075268817203,
         "soil": 92.5,
         "income": 67.5,
         "risk": 97.19354838709677
       },
-      "score": 86.96,
+      "score": 88.05,
       "explanation": [
         "Maíz → Alfalfa: Alternar leguminosas favorece el balance de nitrógeno y rompe hospederos",
         "Maíz → Alfalfa: La leguminosa aporta fijación biológica de nitrógeno",
@@ -1413,8 +1416,8 @@
       ],
       "risks": [
         "Demanda estimada del catálogo: falta temperatura o radiación mensual válida para ETo",
-        "Déficit hídrico potencial: 325/400 mm",
-        "Sin continuación viable en window-1; considerar barbecho"
+        "Sin continuación viable en window-1; considerar barbecho",
+        "Agua faltante en 24 meses: ~75 mm: la lluvia no cubre la demanda"
       ],
       "rests": [],
       "delta": null
@@ -1422,6 +1425,7 @@
   ],
   "baseline": {
     "id": "baseline",
+    "irrigationNeedMm": 0,
     "viable": false,
     "score": null,
     "components": null,

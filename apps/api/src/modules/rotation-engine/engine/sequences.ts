@@ -4,6 +4,7 @@ import { normalizeWeights } from '../../farm-context/priorities/normalize.js';
 import { transition, type TransitionReason } from './transitions.js';
 import { currentRisk } from './viability.js';
 import { weightedScore, riskScore } from './score.js';
+import { horizonEto } from './evapotranspiration.js';
 import { schedule } from './schedule.js';
 
 interface Step {
@@ -13,7 +14,7 @@ interface Step {
   reasons: TransitionReason[];
   climate: { meanTemperature: number | null; rainMm: number | null; cycleDays: number };
 }
-interface Candidate { id: string; score: number; sequence: Step[]; components: Weights; explanation: string[]; risks: string[] }
+interface Candidate { irrigationNeedMm: number; id: string; score: number; sequence: Step[]; components: Weights; explanation: string[]; risks: string[] }
 const dayMs = 86_400_000;
 const day = (value: string) => Date.parse(`${value}T00:00:00Z`);
 const iso = (value: number) => new Date(value).toISOString().slice(0, 10);
@@ -31,23 +32,32 @@ export function recommend(input: Input, catalog: Crop[] = crops) {
     windows.some(w => w.meanTemperature === null || w.precipitationMm === null || w.temperatureMin === null || w.temperatureMax === null);
   if (!history.length) warnings.push('Sin historial: menor confianza en la rotación');
   if (missing) warnings.push('Datos NASA incompletos: confianza reducida');
-  const generated = generate(input, catalog);
-  const currentResult = generate(input, [current]);
+
   const horizonStart = new Date(day(indicators.period.end));
   horizonStart.setUTCMonth(horizonStart.getUTCMonth() + 1, 1);
   const horizonEnd = new Date(horizonStart);
   horizonEnd.setUTCMonth(horizonEnd.getUTCMonth() + 24);
   const horizon = { start: iso(horizonStart.getTime()), end: iso(horizonEnd.getTime() - dayMs) };
+  const etoMm = horizonEto(day(indicators.fetchedAt.slice(0, 10)), day(horizon.end), indicators.climatology);
+  if (etoMm === null) {
+    warnings.push('ETo del horizonte no disponible: se usa la suma de demandas de la secuencia');
+    missing = true;
+  }
+  const generated = generate(input, catalog, etoMm);
+  const currentResult = generate(input, [current], etoMm);
   const complete = (candidate: Candidate) => ({ ...candidate,
+    irrigationNeedMm: Math.round(candidate.irrigationNeedMm),
+    sequence: candidate.sequence.map(step => ({...step, water: {...step.water,
+      coveragePct: step.water.coveragePct === null ? null : Number(step.water.coveragePct.toFixed(1))}})),
     rests: rests(candidate.sequence, indicators.windows, horizon),
-    risks: [...new Set(candidate.risks)],
+    risks: [...new Set([...candidate.risks, `Agua faltante en 24 meses: ~${Math.round(candidate.irrigationNeedMm)} mm${indicators.windows.some(w => w.irrigated) ? '; con riego depende de su disponibilidad efectiva' : ': la lluvia no cubre la demanda'}`])],
     explanation: [...candidate.explanation, `Pesos agua=${priorities.water}, suelo=${priorities.soil}, ingreso=${priorities.income}, riesgo=${priorities.risk}; ingreso es una heurística, no precio`] });
   const currentPlan = currentResult.candidates[0] ? complete(currentResult.candidates[0]) : undefined;
   const baselineReasons = !windows.length ? ['Sin ventanas de cultivo disponibles']
     : currentResult.failures.length ? currentResult.failures : ['No cabe un ciclo del cultivo actual en las ventanas disponibles'];
   const baseline = currentPlan
     ? { ...currentPlan, id: 'baseline', viable: true as const }
-    : { id: 'baseline', viable: false as const, score: null, components: null, sequence: [] as Step[],
+    : { id: 'baseline', irrigationNeedMm: 0, viable: false as const, score: null, components: null, sequence: [] as Step[],
       explanation: baselineReasons, risks: [] as string[], rests: rests([], indicators.windows, horizon) };
   const recommendations = generated.candidates.filter(candidate => candidate.sequence.some(step => step.cropId !== current.id)).slice(0, 2)
     .map(candidate => ({ ...complete(candidate), delta: baseline.score === null ? null : Number((candidate.score-baseline.score).toFixed(2)) }));
@@ -66,7 +76,7 @@ export function recommend(input: Input, catalog: Crop[] = crops) {
 }
 
 // La referencia y las alternativas pasan por la misma búsqueda y puntuación.
-function generate(input: Input, catalog: Crop[]) {
+function generate(input: Input, catalog: Crop[], etoMm: number | null) {
   const current = findCrop(input.currentCropId)!;
   const { indicators, history } = input;
   const decisionDay = day(indicators.fetchedAt.slice(0, 10));
@@ -74,7 +84,7 @@ function generate(input: Input, catalog: Crop[]) {
   const windows = indicators.windows.slice().sort((a, b) => a.start.localeCompare(b.start)).slice(0, 3);
   const failures = new Set<string>();
   const schedules = new Map<string, ReturnType<typeof schedule>>();
-  let beam: Candidate[] = [{ id: '', score: 0, sequence: [], components: { water: 0, soil: 0, income: 0, risk: 0 }, explanation: [], risks: [] }];
+  let beam: Candidate[] = [{ irrigationNeedMm: 0, id: '', score: 0, sequence: [], components: { water: 0, soil: 0, income: 0, risk: 0 }, explanation: [], risks: [] }];
   for (let cycle = 0; cycle < 3; cycle++) {
     const next: Candidate[] = [];
     for (const partial of beam) {
@@ -95,7 +105,7 @@ function generate(input: Input, catalog: Crop[]) {
           const tr = transition(previous, crop, [...history, ...partial.sequence.map(s => ({ cropId: s.cropId, plantedAt: s.start, harvestedAt: s.end }))]);
           const coverage = (water.coveragePct ?? 0)/100;
           const components: Weights = {
-            water: effective.irrigated ? 50+50*coverage : 100*coverage,
+            water: 0,
             soil: tr.score, income: crop.incomeOpportunity,
             risk: riskScore(crop, effective, indicators, coverage, previous.family === crop.family),
           };
@@ -110,7 +120,10 @@ function generate(input: Input, catalog: Crop[]) {
               cycleDays: crop.cycleDays,
             },
           }];
-          next.push({ id: sequence.map(s => s.cropId).join('>'), sequence, components: combined, score: weightedScore(combined, priorities),
+          const irrigationNeedMm = partial.irrigationNeedMm + Math.max(0, water.demandMm-(water.rainMm ?? 0));
+          const referenceMm = etoMm ?? sequence.reduce((sum, step) => sum+step.water.demandMm, 0);
+          combined.water = Math.max(0, Math.min(100, 100*(1-irrigationNeedMm/referenceMm)));
+          next.push({ irrigationNeedMm, id: sequence.map(s => s.cropId).join('>'), sequence, components: combined, score: weightedScore(combined, priorities),
             explanation: [...partial.explanation, ...tr.reasons.map(r => `${previous.name} → ${crop.name}: ${r.text}`),
               `${crop.name}: NASA T2M=${effective.meanTemperature?.toFixed(1) ?? 'faltante'} C; lluvia=${result.waterMm?.toFixed(0) ?? 'faltante'} mm/ciclo; ciclo=${crop.cycleDays} días`],
             risks: [...continuationRisks, ...result.risks] });

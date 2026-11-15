@@ -37,3 +37,15 @@ export function cycleDemand(crop: Crop, start: number, end: number, climatology:
     warning: 'Demanda estimada del catálogo: ETo del ciclo no positiva' };
   return { etoMm, kc, demandMm: etoMm*kc, method: 'radiation' as const, warning: null };
 }
+
+// Denominador común de la secuencia; aproximación heurística pendiente de H4.
+export function horizonEto(start: number, end: number, climatology: Indicators['climatology']): number | null {
+  let total = 0;
+  for (const {month, count} of cycleMonths(start, end)) {
+    const t = climatology.find(n => n.month === month && n.variable === 'T2M')?.value;
+    const rs = climatology.find(n => n.month === month && n.variable === 'ALLSKY_SFC_SW_DWN')?.value;
+    if (!Number.isFinite(t) || !Number.isFinite(rs) || rs! < 0) return null;
+    total += etoDaily(t!, rs!)*count;
+  }
+  return total > 0 ? total : null;
+}

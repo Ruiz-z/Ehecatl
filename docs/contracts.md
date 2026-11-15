@@ -161,5 +161,7 @@ en mm, coveragePct = 100 × min(1, lluvia/demanda). Método `radiation`
 con T2M y radiación mensual MJ/m²/día completos, o `catalog` si falta
 algún dato: etoMm=null y demandMm=waterMm del catálogo, con aviso.
 Lluvia desconocida y su cobertura son null; nunca se inventan aportes de riego.
-Valores sin redondeo de cálculo; la UI redondea para presentar. Clientes antiguos
+coveragePct se publica a un decimal; los cálculos internos conservan precisión. Clientes antiguos
 pueden omitir water; la UI muestra que no hay balance disponible.
+
+Cada recomendación y baseline añade `irrigationNeedMm` entero: suma de max(0,demandMm−rainMm), con demanda completa si lluvia es null; baseline inviable publica 0. Agua se calcula por secuencia como clamp(100 × (1−déficit acumulado/ETo del horizonte),0,100), igual con y sin riego. ETo recorre desde el día de decisión hasta el fin del horizonte de 24 meses; sin temperatura/radiación válida o ETo positiva usa suma de demandas de la secuencia, con aviso y confianza baja. El beam recalcula agua al extender; los otros ejes se promedian. Heurística pendiente de H4. Los riesgos hídricos se resumen una vez por secuencia, sin repetir déficit por ciclo. La tarjeta presenta agua faltante y aportes enteros; acepta respuestas antiguas sin irrigationNeedMm.
