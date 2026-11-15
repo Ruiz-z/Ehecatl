@@ -20,10 +20,10 @@ function localParcels(): Parcel[] {
   const stored: Parcel[] = JSON.parse(localStorage.getItem(parcelKey) ?? '[]');
   return [...demoParcels.filter(p => !stored.some(s => s.id === p.id)), ...stored];
 }
-export async function request<T>(path: string, method = 'GET', body?: unknown, token?: string): Promise<T> {
+export async function request<T>(path: string, method = 'GET', body?: unknown, token?: string, signal?: AbortSignal): Promise<T> {
   const bearer = token ?? authClient.getSession()?.accessToken;
   const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'}${path}`, {
-    method, headers: { 'Content-Type': 'application/json', ...(bearer ? { Authorization: `Bearer ${bearer}` } : {}) },
+    signal, method, headers: { 'Content-Type': 'application/json', ...(bearer ? { Authorization: `Bearer ${bearer}` } : {}) },
     body: body === undefined ? undefined : JSON.stringify(body)
   });
   if (response.status === 401) { authClient.logout(); throw new Error('Correo o contraseña incorrectos, o sesión vencida. Vuelve a iniciar sesión.'); }

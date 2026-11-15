@@ -17,14 +17,14 @@ export interface IssuedKey { device: Device; apiKey: string }
 export interface IrrigationCommand {
   id: string; durationSeconds: number; actualSeconds: number | null;
   status: 'PENDING' | 'DELIVERED' | 'DONE' | 'FAILED' | 'EXPIRED' | 'CANCELLED';
-  createdAt: string; origin: Device['origin']; requestedBy: { id: string; name: string };
+  createdAt: string; deliveredAt?: string | null; origin: Device['origin']; requestedBy: { id: string; name: string };
 }
 export const sensorsApi = {
-  irrigationHistory: (zoneId: string) => request<IrrigationCommand[]>(`/zones/${encodeURIComponent(zoneId)}/irrigation-commands`),
+  irrigationHistory: (zoneId: string, signal?: AbortSignal) => request<IrrigationCommand[]>(`/zones/${encodeURIComponent(zoneId)}/irrigation-commands`, 'GET', undefined, undefined, signal),
   water: (zoneId: string, durationSeconds: number) => request(`/zones/${encodeURIComponent(zoneId)}/irrigation-commands`, 'POST', { durationSeconds }),
   cancel: (id: string) => request(`/irrigation-commands/${encodeURIComponent(id)}`, 'DELETE'),
-  devices: (zoneId: string) => request<Device[]>(`/zones/${encodeURIComponent(zoneId)}/devices`),
-  readings: (zoneId: string, query: { from?: string; to?: string; cursor?: string } = {}) => request<ReadingPage>(`/zones/${encodeURIComponent(zoneId)}/readings?${new URLSearchParams(query)}`),
+  devices: (zoneId: string, signal?: AbortSignal) => request<Device[]>(`/zones/${encodeURIComponent(zoneId)}/devices`, 'GET', undefined, undefined, signal),
+  readings: (zoneId: string, query: { from?: string; to?: string; cursor?: string } = {}, signal?: AbortSignal) => request<ReadingPage>(`/zones/${encodeURIComponent(zoneId)}/readings?${new URLSearchParams(query)}`, 'GET', undefined, undefined, signal),
   create: (zoneId: string, input: DeviceConfig & { origin: Device['origin'] }) => request<IssuedKey>('/devices', 'POST', { ...input, zoneId }),
   update: (id: string, input: DeviceConfig & { zoneId: string }) => request<Device>(`/devices/${encodeURIComponent(id)}`, 'PATCH', input),
   rotate: (id: string) => request<IssuedKey>(`/devices/${encodeURIComponent(id)}/rotate-key`, 'POST'),

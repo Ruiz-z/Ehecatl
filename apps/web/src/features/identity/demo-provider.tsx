@@ -19,7 +19,11 @@ export function DemoProvider({ children }: { children: ReactNode }) {
   const [ready, setReady] = useState(false);
   const [error, setError] = useState('');
   useEffect(() => {
-    function sync() { setUser(authClient.getSession()?.user ?? null); setReady(true); }
+    function sync() {
+      const next = authClient.getSession()?.user ?? null;
+      setUser(current => JSON.stringify(current) === JSON.stringify(next) ? current : next);
+      setReady(true);
+    }
     sync(); window.addEventListener('storage', sync); window.addEventListener('ehecatl-auth', sync);
     const timer = window.setInterval(sync, 30000);
     return () => { window.clearInterval(timer); window.removeEventListener('storage', sync); window.removeEventListener('ehecatl-auth', sync); };
