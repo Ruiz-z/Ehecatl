@@ -8,6 +8,19 @@
 - **Verificación:** `pnpm --filter web lint`, `pnpm --filter web test` (54 aprobados) y `pnpm --filter web build` correctos. Se usó pnpm 10.34.9 existente en `/tmp` tras fallar el bloqueo de la instalación predeterminada por solo lectura; Node 26 advierte frente al 24 declarado. Playwright con Chromium: capturas del login a 1440 y 390 px, riel compacto y favicon a 16, 32 y 64 px en `/tmp/ehecatl-logo-*.png`, sin errores de página. Contraste revisado visualmente sobre la foto en ambas anchuras. Contenedor web reconstruido y recreado sin dependencias; enlace de favicon y SVG comprobados con respuesta 200 en localhost:3000.
 - **Decisiones:** se conserva el tallo en el favicon porque sigue legible a 16 px. Sin cambios fuera del plan. La pestaña nativa del navegador no se inspeccionó; se verificaron su enlace y recurso en Chromium.
 
+## 2026-11-15 — Propuesta del «Por qué» resumido
+
+- **Archivos:** `docs/propuesta-por-que-resumido.md`, `docs/registro-cambios.md`.
+- **Qué se cambió:** se documenta la propuesta de mostrar un motivo a favor, los motivos en contra y el agua en una frase por ciclo, con el resto en «Ver más detalle».
+- **Por qué:** la tarjeta mostraba más de veinte renglones con tres ciclos y saturaba al agricultor.
+
+## 2026-11-15 — Colores por renglón en el calendario del año
+
+- **Archivos:** `apps/web/src/features/nasa/field-charts.tsx`, `apps/web/src/app/globals.css`, `docs/design.md`, `docs/registro-cambios.md`.
+- **Qué se cambió:** cada renglón del calendario tiene su propia familia de color (lluvia en arena y azules, calor en azul, gris y naranja, tierra en cafés, plantas en amarillo y verdes, siembra en verde o gris). Las barras de lluvia pasan a azul y la línea de temperatura a naranja, con su muestra en la leyenda. El globo de la gráfica redondea a un decimal con unidad y el eje de temperatura usa grados enteros.
+- **Por qué:** todas las casillas compartían dos tonos y las gráficas eran negras, así que no se distinguía un renglón de otro. Además el globo mostraba «30.900000000000002» y el eje de calor números con decimales basura. El texto de cada casilla se conserva, así que el color no es la única señal.
+- **Verificación:** `pnpm --filter web lint`, tests (51) y build aprobados; capturas de Mendoza en Datos con lluvia y calor.
+
 ## 2026-11-15 — Integración con la rama remota antes del push de sensores
 
 - **Archivos:** `apps/api/src/modules/crop-knowledge/data/crops.json`, `apps/api/test/catalog.spec.ts`, `apps/web/src/{app/globals.css,features/nasa/field-charts.tsx,features/nasa/field-status.tsx,features/rotation/recommendations.tsx,features/rotation/types.ts,shared/api/adapters.ts,shared/api/adapters.test.ts,shared/api/client.ts,shared/api/types.ts}`, `docs/fixtures/recommendations.json`, `docs/pendientes-equipo.md` y este registro.
