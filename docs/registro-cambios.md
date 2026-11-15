@@ -11,6 +11,11 @@
 - **Entorno y límites:** pruebas PostgreSQL en la base separada `ehecatl_explanation_test_20261114`, con migraciones aplicadas únicamente allí; se conserva para repetir la verificación y no se tocó la base `ehecatl`. El sandbox impidió el pnpm predeterminado y la caché UV; se usaron un wrapper temporal al pnpm 10.33.4 ya instalado y `UV_CACHE_DIR` en `/tmp`, sin modificar dependencias ni configuración del proyecto. Node disponible 26.13.1, frente al 24 solicitado por el repo: advertencia de versión durante los comandos. No se ejecutó Compose ni navegador/capturas, por instrucción del usuario. No hay commits: `.git` es de solo lectura (`index.lock`); cambios conservados en el árbol de `feat/explicacion-y-descanso`, sin push.
 
 
+## 2026-11-14 — Botón para ver la contraseña en el login
+
+- **Archivos:** `apps/web/src/features/identity/login-screen.tsx`, `apps/web/src/app/globals.css`, `docs/registro-cambios.md`.
+- **Qué se cambió:** el campo de contraseña tiene un botón con icono de ojo que alterna entre ocultar y mostrar el texto (`aria-pressed` y etiqueta accesible).
+- **Por qué:** petición del usuario; permite comprobar lo que se escribe, sobre todo con contraseñas largas como la de la demo.
 
 ## 2026-11-14 — Arranque autónomo de Compose y comparación con el cultivo actual
 
