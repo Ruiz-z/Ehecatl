@@ -1,3 +1,4 @@
+import { groupRisks } from '../src/modules/rotation-engine/engine/risk-groups.js';
 import { crops, findCrop } from '../src/modules/crop-knowledge/crop-catalog.js';
 import { transition } from '../src/modules/rotation-engine/engine/transitions.js';
 import { viability, currentRisk } from '../src/modules/rotation-engine/engine/viability.js';
@@ -340,4 +341,68 @@ it('lluvia desconocida contabiliza toda la demanda y mantiene el aviso', () => {
       expect(plan.sequence.every(s => s.water.coveragePct === null)).toBe(true);
     }
   }
+});
+
+
+describe('Bloque A: confianza según insumos', () => {
+  const complete = () => {
+    const data = input();
+    data.indicators.climatology.push(...Array.from({length:12}, (_,i) => ({variable:'ALLSKY_SFC_SW_DWN',month:i+1,value:18,samples:10,unit:'MJ/m²/day'})));
+    data.indicators.monthly.push(...Array.from({length:12}, (_,i) => ({variable:'NDVI',date:`2024-${String(i+1).padStart(2,'0')}-01`,value:.5,unit:'index',source:'MODIS',resolution:'250m'})));
+    return data;
+  };
+  it('reserva baja para POWER incompleto o demanda de catálogo', () => {
+    expect(recommend(complete()).confidence).toBe('high');
+    for (const status of ['partial','unavailable'] as const) {
+      const data = complete(); data.indicators.sources.power.status = status;
+      expect(recommend(data).confidence).toBe('low');
+    }
+    expect(recommend(input()).confidence).toBe('low');
+  });
+  it('un mes reciente de POWER sin publicar solo reduce a media y lo explica', () => {
+    const data = complete();
+    const row = data.indicators.monthly.find(m => m.variable === 'PRECTOTCORR')!;
+    data.indicators.monthly.push({ ...row, date: '2026-10-01', value: null });
+    const result = recommend(data);
+    expect(result.confidence).toBe('medium');
+    expect(result.warnings.join()).toContain('aún no publica');
+  });
+  it('MODIS parcial, meses NDVI faltantes e histórico corto solo reducen a media', () => {
+    for (const status of ['partial','unavailable'] as const) {
+      const data = complete(); data.indicators.sources.modis.status = status;
+      expect(recommend(data).confidence).toBe('medium');
+      expect(recommend(data).warnings.join()).toContain('MODIS');
+    }
+    const data = complete(); data.indicators.monthly = data.indicators.monthly.filter(row => row.date !== '2024-02-01' || row.variable !== 'NDVI');
+    expect(recommend(data).confidence).toBe('medium');
+    const historical = complete(); historical.indicators.climatology[0].samples = 8;
+    expect(recommend(historical).confidence).toBe('medium');
+    expect(recommend(historical).warnings.join()).toContain('histórica');
+    expect(recommend({...complete(),history:[]}).confidence).toBe('medium');
+  });
+  it('secuencia corta no baja confianza y respaldo del horizonte solo baja a media', () => {
+    const data = complete(); data.indicators.windows = data.indicators.windows.slice(0,1);
+    expect(recommend(data).confidence).toBe('high');
+    data.indicators.climatology = data.indicators.climatology.filter(n => n.variable !== 'ALLSKY_SFC_SW_DWN' || n.month !== 12);
+    const result = recommend(data);
+    expect(result.confidence).toBe('medium');
+    expect(result.warnings.join()).toContain('ETo del horizonte');
+    expect(result.recommendations.every(r => r.sequence.every(s => s.water.method === 'radiation'))).toBe(true);
+  });
+  it('agrupa calor con el peor margen y conserva riesgos originales', () => {
+    const data = complete(); data.indicators.windows.forEach(w => { w.temperatureMax = 37.4; w.irrigated = true; });
+    const result = recommend(data, [findCrop('common-bean')!]);
+    const plan = result.recommendations[0];
+    expect(plan.riskGroups.filter(g => g.type === 'heat')).toHaveLength(1);
+    expect(plan.riskGroups.find(g => g.type === 'heat')?.text).toContain('37.4 °C');
+    expect(plan.riskGroups.find(g => g.type === 'heat')?.text).toContain(`en ${plan.sequence.length} de ${plan.sequence.length} ciclos`);
+    expect(plan.risks.join()).toContain('Máxima mensual');
+    expect(result.baseline.riskGroups).toBeDefined();
+  });
+});
+
+it('agrupa el peor margen térmico sin mezclar tolerancias ni contar ciclos sanos', () => {
+  const risks = ['Máxima mensual 37.4 C supera tolerancia 32 C','Máxima mensual 39.0 C supera tolerancia 38 C'];
+  const groups = groupRisks([[risks[0]],[risks[1]],[]],risks,100,true);
+  expect(groups.find(g => g.type === 'heat')?.text).toBe('Calor: hasta 37.4 °C, tolerancia 32 °C, en 2 de 3 ciclos');
 });

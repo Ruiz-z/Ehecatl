@@ -1,3 +1,4 @@
+import { groupRisks, type RiskGroup } from './risk-groups.js';
 import { crops, findCrop, type Crop } from '../../crop-knowledge/crop-catalog.js';
 import type { History, Indicators, Weights } from '../../nasa-data/contracts.js';
 import { normalizeWeights } from '../../farm-context/priorities/normalize.js';
@@ -14,7 +15,7 @@ interface Step {
   reasons: TransitionReason[];
   climate: { meanTemperature: number | null; rainMm: number | null; cycleDays: number };
 }
-interface Candidate { irrigationNeedMm: number; id: string; score: number; sequence: Step[]; components: Weights; explanation: string[]; risks: string[] }
+interface Candidate { cycleRisks: string[][]; irrigationNeedMm: number; id: string; score: number; sequence: Step[]; components: Weights; explanation: string[]; risks: string[] }
 const dayMs = 86_400_000;
 const day = (value: string) => Date.parse(`${value}T00:00:00Z`);
 const iso = (value: number) => new Date(value).toISOString().slice(0, 10);
@@ -27,11 +28,22 @@ export function recommend(input: Input, catalog: Crop[] = crops) {
   const priorities = normalizeWeights(input.priorities);
   const windows = indicators.windows.slice().sort((a, b) => a.start.localeCompare(b.start)).slice(0, 3);
   const warnings = [...indicators.warnings];
-  let missing = Object.values(indicators.sources).some(s => s.status !== 'available') ||
-    indicators.monthly.some(m => m.value === null) || !indicators.monthly.length ||
-    windows.some(w => w.meanTemperature === null || w.precipitationMm === null || w.temperatureMin === null || w.temperatureMax === null);
+  // Los meses más recientes de POWER tardan en publicarse: un hueco ahí baja la confianza a media, no a baja.
+  const powerMissing = indicators.sources.power.status !== 'available' || !indicators.monthly.some(m => m.variable !== 'NDVI' && m.value !== null);
+  const powerGaps = !powerMissing && indicators.monthly.some(m => m.variable !== 'NDVI' && m.value === null);
+  const observedMonths = (date: string) => Number(date.slice(0,4))*12+Number(date.slice(5,7));
+  const expectedMonths = observedMonths(indicators.period.end)-observedMonths(indicators.period.start)+1;
+  const ndviMonths = new Set(indicators.monthly.filter(m => m.variable === 'NDVI' && m.value !== null).map(m => m.date.slice(0,7))).size;
+  const modisMissing = indicators.sources.modis.status !== 'available' || ndviMonths < expectedMonths ||
+    indicators.monthly.some(m => m.variable === 'NDVI' && m.value === null);
+  const shortHistory = indicators.climatology.some(n => n.samples < 10);
+  const incompleteClimate = windows.some(w => w.meanTemperature === null || w.precipitationMm === null || w.temperatureMin === null || w.temperatureMax === null);
   if (!history.length) warnings.push('Sin historial: menor confianza en la rotación');
-  if (missing) warnings.push('Datos NASA incompletos: confianza reducida');
+  if (powerMissing) warnings.push('POWER incompleto o no disponible: faltan datos climáticos para la demanda');
+  if (powerGaps) warnings.push('POWER aún no publica los meses más recientes: la demanda usa la normal histórica');
+  if (modisMissing) warnings.push('MODIS incompleto o no disponible: faltan observaciones de vegetación');
+  if (shortHistory) warnings.push('Normal histórica con años faltantes: interpretar con menor confianza');
+  if (incompleteClimate) warnings.push('Clima de las ventanas incompleto: faltan márgenes de viabilidad');
 
   const horizonStart = new Date(day(indicators.period.end));
   horizonStart.setUTCMonth(horizonStart.getUTCMonth() + 1, 1);
@@ -41,11 +53,11 @@ export function recommend(input: Input, catalog: Crop[] = crops) {
   const etoMm = horizonEto(day(indicators.fetchedAt.slice(0, 10)), day(horizon.end), indicators.climatology);
   if (etoMm === null) {
     warnings.push('ETo del horizonte no disponible: se usa la suma de demandas de la secuencia');
-    missing = true;
   }
   const generated = generate(input, catalog, etoMm);
   const currentResult = generate(input, [current], etoMm);
-  const complete = (candidate: Candidate) => ({ ...candidate,
+  const complete = ({ cycleRisks, ...candidate }: Candidate) => ({ ...candidate,
+    riskGroups: groupRisks(cycleRisks, candidate.risks, candidate.irrigationNeedMm, indicators.windows.some(w => w.irrigated)),
     irrigationNeedMm: Math.round(candidate.irrigationNeedMm),
     sequence: candidate.sequence.map(step => ({...step, water: {...step.water,
       coveragePct: step.water.coveragePct === null ? null : Number(step.water.coveragePct.toFixed(1))}})),
@@ -58,7 +70,7 @@ export function recommend(input: Input, catalog: Crop[] = crops) {
   const baseline = currentPlan
     ? { ...currentPlan, id: 'baseline', viable: true as const }
     : { id: 'baseline', irrigationNeedMm: 0, viable: false as const, score: null, components: null, sequence: [] as Step[],
-      explanation: baselineReasons, risks: [] as string[], rests: rests([], indicators.windows, horizon) };
+      explanation: baselineReasons, riskGroups: [] as RiskGroup[], risks: [] as string[], rests: rests([], indicators.windows, horizon) };
   const recommendations = generated.candidates.filter(candidate => candidate.sequence.some(step => step.cropId !== current.id)).slice(0, 2)
     .map(candidate => ({ ...complete(candidate), delta: baseline.score === null ? null : Number((candidate.score-baseline.score).toFixed(2)) }));
   if (![...recommendations, ...(currentPlan ? [currentPlan] : [])].some(c => c.sequence.length >= 2)) warnings.push('Menos de dos ciclos viables en 24 meses: secuencia reducida; considerar cobertura o barbecho');
@@ -67,9 +79,11 @@ export function recommend(input: Input, catalog: Crop[] = crops) {
   const steps = [...baseline.sequence, ...recommendations.flatMap(r => r.sequence)];
   if (steps.some(step => step.water.method === 'catalog' || step.water.rainMm === null)) {
     warnings.push('Balance hídrico incompleto: demanda del catálogo o lluvia desconocida');
-    missing = true;
   }
-  const confidence = missing ? 'low' as const : !history.length || warnings.length ? 'medium' as const : 'high' as const;
+  const catalogDemand = steps.some(step => step.water.method === 'catalog');
+  const confidence = powerMissing || catalogDemand ? 'low' as const
+    : powerGaps || modisMissing || shortHistory || incompleteClimate || !history.length || etoMm === null || indicators.warnings.length
+      ? 'medium' as const : 'high' as const;
   const risk = currentRisk(current, indicators);
   return { status: viable ? 'ok' as const : 'no_viable_options' as const, confidence,
     warnings: [...new Set(warnings)], priorities, baseline, currentCropRisk: { ...risk, changeAt: recommendations[0]?.sequence[0].start ?? null }, recommendations };
@@ -84,7 +98,7 @@ function generate(input: Input, catalog: Crop[], etoMm: number | null) {
   const windows = indicators.windows.slice().sort((a, b) => a.start.localeCompare(b.start)).slice(0, 3);
   const failures = new Set<string>();
   const schedules = new Map<string, ReturnType<typeof schedule>>();
-  let beam: Candidate[] = [{ irrigationNeedMm: 0, id: '', score: 0, sequence: [], components: { water: 0, soil: 0, income: 0, risk: 0 }, explanation: [], risks: [] }];
+  let beam: Candidate[] = [{ cycleRisks: [], irrigationNeedMm: 0, id: '', score: 0, sequence: [], components: { water: 0, soil: 0, income: 0, risk: 0 }, explanation: [], risks: [] }];
   for (let cycle = 0; cycle < 3; cycle++) {
     const next: Candidate[] = [];
     for (const partial of beam) {
@@ -123,7 +137,7 @@ function generate(input: Input, catalog: Crop[], etoMm: number | null) {
           const irrigationNeedMm = partial.irrigationNeedMm + Math.max(0, water.demandMm-(water.rainMm ?? 0));
           const referenceMm = etoMm ?? sequence.reduce((sum, step) => sum+step.water.demandMm, 0);
           combined.water = Math.max(0, Math.min(100, 100*(1-irrigationNeedMm/referenceMm)));
-          next.push({ irrigationNeedMm, id: sequence.map(s => s.cropId).join('>'), sequence, components: combined, score: weightedScore(combined, priorities),
+          next.push({ cycleRisks: [...partial.cycleRisks, result.risks], irrigationNeedMm, id: sequence.map(s => s.cropId).join('>'), sequence, components: combined, score: weightedScore(combined, priorities),
             explanation: [...partial.explanation, ...tr.reasons.map(r => `${previous.name} → ${crop.name}: ${r.text}`),
               `${crop.name}: NASA T2M=${effective.meanTemperature?.toFixed(1) ?? 'faltante'} C; lluvia=${result.waterMm?.toFixed(0) ?? 'faltante'} mm/ciclo; ciclo=${crop.cycleDays} días`],
             risks: [...continuationRisks, ...result.risks] });
