@@ -1,5 +1,17 @@
 # Registro de cambios
 
+## 2026-11-14 — Explicación por pasos y descansos explícitos
+
+- **Archivos:** `docs/specs/spec-005-rotation-engine.md`, `docs/contracts.md`, `docs/fixtures/recommendations.json`, `apps/api/src/modules/rotation-engine/engine/{sequences,transitions}.ts`, `apps/api/test/{engine,contracts}.spec.ts`, `apps/web/src/shared/api/{adapters.ts,adapters.test.ts}`, `apps/web/src/features/rotation/{types.ts,recommendations.tsx,ranking.test.ts,fixtures/strategies.ts}`, `apps/web/src/app/globals.css`, `docs/pendientes-equipo.md`, `docs/registro-cambios.md`.
+- **Qué se cambió:** ampliación aditiva con razones y efectos por ciclo, clima redondeado y descansos con motivo; presentación en una sola fila y prioridades sin repetición.
+- **Por qué:** explicar las decisiones y los meses sin siembra sin inventar datos ni cambiar la puntuación agronómica.
+- **Contrato y compatibilidad:** se conservan `explanation` y `risks`; el fixture se regeneró desde sus propios insumos sintéticos. Los descansos usan todas las ventanas originales y también se publican en la referencia inviable. La web conserva el fallback plano; el mock muestra sus descansos como ejemplo y el clima desconocido como «sin dato».
+- **Verificación:** `pnpm lint`: 3 tareas satisfactorias; `pnpm test`: API 80 aprobadas y 6 omitidas, web 20 aprobadas, Geo 38 aprobadas y 5 omitidas; `pnpm --filter web build`: compilación, TypeScript y 6 páginas generadas correctamente. Las 11 omitidas requieren servicios vivos; no se desactivaron tests. `git diff --check` sin errores.
+- **RF de spec 005:** RF-1b cubierto con huecos al inicio/intermedios/finales, sin huecos, sin ventanas y cambio de temporada; RF-6/RF-6b con efectos favor/contra/neutral, temperatura redondeada, clima nulo, pesos únicos y aviso de riego repetido deduplicado. Las regresiones existentes cubren RF-1/RF-1c (referencia viable/inviable), RF-2/RF-3 (transición/viabilidad), RF-4 (riesgo), RF-5/RF-9 (prioridades) y RF-7/RF-8 (confianza y datos faltantes).
+- **Entorno y límites:** pruebas PostgreSQL en la base separada `ehecatl_explanation_test_20261114`, con migraciones aplicadas únicamente allí; se conserva para repetir la verificación y no se tocó la base `ehecatl`. El sandbox impidió el pnpm predeterminado y la caché UV; se usaron un wrapper temporal al pnpm 10.33.4 ya instalado y `UV_CACHE_DIR` en `/tmp`, sin modificar dependencias ni configuración del proyecto. Node disponible 26.13.1, frente al 24 solicitado por el repo: advertencia de versión durante los comandos. No se ejecutó Compose ni navegador/capturas, por instrucción del usuario. No hay commits: `.git` es de solo lectura (`index.lock`); cambios conservados en el árbol de `feat/explicacion-y-descanso`, sin push.
+
+
+
 ## 2026-11-14 — Arranque autónomo de Compose y comparación con el cultivo actual
 
 - **Archivos:** `.gitattributes`, `.env.example`, `docker-compose.yml`, `README.md`, `apps/api/{Dockerfile,package.json,.env.example,README.md,BACKEND.md}`, `apps/api/scripts/docker-entrypoint.sh`, `apps/api/prisma/seed.ts`, `apps/api/src/modules/rotation-engine/engine/sequences.ts`, `apps/api/test/{engine.spec.ts,contracts.spec.ts}`, `apps/web/src/shared/api/{adapters.ts,adapters.test.ts}`, `apps/web/src/features/rotation/{types.ts,recommendations.tsx}`, `docs/specs/{spec-001-identity.md,spec-005-rotation-engine.md,spec-006-web-ui.md}`, `docs/{contracts.md,fixtures/recommendations.json,pendientes-equipo.md,backend-verification.md,registro-cambios.md}`.
