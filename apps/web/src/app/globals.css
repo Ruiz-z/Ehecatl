@@ -593,3 +593,38 @@ summary { min-height:44px; align-content:center; }
 .indicator-help { display: inline-flex; align-items: baseline; gap: 8px; margin: 8px 0; }
 .indicator-help button { border: 1px solid var(--control-border); background: var(--card); border-radius: 50%; min-width: 32px; min-height: 32px; cursor: pointer; }
 .indicator-help button:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+/* Calendario anual: texto además de color y scroll contenido. */
+.year-calendar-scroll { max-width: 100%; overflow-x: auto; margin-bottom: 24px; isolation: isolate; }
+.year-calendar { width: 100%; min-width: 1060px; border-collapse: separate; border-spacing: 4px; table-layout: fixed; font-size: 13px; }
+.year-calendar th:first-child { position: sticky; left: 0; z-index: 1; background: var(--card); width: 160px; text-align: left; }
+.year-calendar th, .year-calendar td { padding: 2px; }
+.year-calendar button { width: 100%; text-align: left; padding: 10px 8px; border: 1px solid var(--control-border); border-radius: 8px; background: var(--card); color: var(--foreground); cursor: pointer; }
+.year-calendar button[aria-pressed="true"] { background: var(--accent-soft); border: 2px solid var(--foreground); }
+.year-calendar button:focus-visible, .year-calendar-scroll:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.calendar-tile { display: flex; align-items: center; justify-content: center; text-align: center; min-height: 58px; padding: 6px; border: 1px solid var(--control-border); border-radius: 6px; font-size: 13px; color: var(--foreground); }
+.calendar-zone-0 { background: var(--warning-soft); }
+.calendar-zone-1 { background: var(--background); }
+.calendar-zone-2 { background: var(--accent-soft); }
+.calendar-missing { background: repeating-linear-gradient(135deg, var(--card), var(--card) 6px, var(--border) 6px, var(--border) 7px); }
+.year-detail-strip { display: flex; gap: 8px; overflow-x: auto; padding: 12px 0; }
+.year-detail-strip > div { flex: 0 0 100px; display: grid; gap: 8px; text-align: center; font-size: 13px; }
+.year-detail-strip .calendar-tile { min-height: 88px; }
+.indicator-value { display: flex; flex-direction: column; align-items: flex-end; }
+.indicator-value strong { font-size: 40px; font-weight: 600; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+.indicator-value small { font-size: 13px; }
+.indicator-heading > span { flex-wrap: nowrap; }
+.indicator-title { display: inline-flex; align-items: center; gap: 8px; }
+.indicator-heading > span > svg { flex-shrink: 0; }
+.indicator-heading .indicator-help { margin: 0; position: relative; }
+.indicator-help > span:not([hidden]) { position: absolute; z-index: 2; top: 100%; right: 0; width: 230px; background: var(--card); border: 1px solid var(--control-border); padding: 12px; font-size: 14px; font-weight: 400; }
+.chart-legend .normal-dot { width: 10px; height: 10px; border: 2px solid var(--foreground); border-radius: 50%; background: var(--card); }
+.year-calendar tr:nth-child(2) .calendar-zone-2 { background: var(--warning-soft); }
+.year-calendar tr:nth-child(2) .calendar-zone-0 { background: var(--accent-soft); }
+.year-calendar button { scroll-margin-block: 100px; }
+/* El año completo cabe sin desplazar en escritorio; el scroll queda solo para pantallas angostas. */
+.year-calendar { min-width: 660px; border-spacing: 2px; font-size: 12px; }
+.year-calendar th:first-child { width: 112px; }
+.year-calendar button { padding: 8px 6px; font-size: 12px; line-height: 1.2; }
+.calendar-tile { min-height: 46px; padding: 2px; font-size: 11px; line-height: 1.15; }
+.year-detail-strip .calendar-tile { font-size: 12px; }

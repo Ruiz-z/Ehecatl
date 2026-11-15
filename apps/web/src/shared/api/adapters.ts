@@ -3,7 +3,7 @@ import { copy, moistureZone, vegetationZone } from '../../features/nasa/copy.ts'
 // a los modelos de vista del front. Sin acceso a red ni a localStorage.
 import type { DemoUser, Parcel, Priorities } from '@/features/parcels/types';
 import type { CropFamily, RecommendationResult, Strategy, RotationStep, Rest } from '@/features/rotation/types';
-import type { Observation, TimePoint } from '@/features/nasa/types';
+import type { Observation, TimePoint, SowingWindow } from '@/features/nasa/types';
 import type { Crop, Indicators, MetricKey, MetricSummary, Session } from './types';
 
 export interface ApiCrop { id: string; name: string; family: string }
@@ -12,6 +12,7 @@ export interface ApiParcel { id: string; ownerId: string; name: string; lat: num
 export interface ApiLogin { accessToken: string; expiresIn: number; user: { id: string; email: string; name: string; role: string } }
 export interface ApiMonthly { variable: string; date: string; value: number | null; unit: string; source: string }
 export interface ApiIndicators {
+  windows?: SowingWindow[];
   period: { start: string; end: string };
   origin: 'live' | 'cache' | 'mock';
   monthly: ApiMonthly[];
@@ -131,12 +132,17 @@ function normalOf(response: ApiIndicators, variable: string, date: string): numb
 }
 
 export function mapSeries(response: ApiIndicators): TimePoint[] {
-  const dates = [...new Set(response.monthly.map(row => row.date))].sort();
-  const at = (variable: string, date: string) => response.monthly.find(row => row.variable === variable && row.date === date)?.value ?? null;
+  const end = monthIndex(response.period.end);
+  const dates = Array.from({ length: 12 }, (_, i) => {
+    const index = end - 11 + i;
+    return `${Math.floor(index / 12)}-${String(index % 12 + 1).padStart(2, '0')}-01`;
+  });
+  const at = (variable: string, date: string) => response.monthly.find(row => row.variable === variable && row.date.slice(0, 7) === date.slice(0, 7))?.value ?? null;
   return dates.map(date => {
     const moisture = at('GWETROOT', date);
     const normalMoisture = normalOf(response, 'GWETROOT', date);
     return {
+      date: date.slice(0, 7),
       month: monthNames[Number(date.slice(5, 7)) - 1]!,
       rainfall: at('PRECTOTCORR', date), rainfallNormal: normalOf(response, 'PRECTOTCORR', date),
       temperature: at('T2M', date), temperatureNormal: normalOf(response, 'T2M', date),
@@ -202,7 +208,7 @@ function summarize(response: ApiIndicators, key: MetricKey, active: boolean | un
     : active && delta.percent < 0 ? copy.rain.low(Math.abs(Math.round(delta.percent))) : delta.percent > 0 ? copy.rain.high(Math.round(delta.percent)) : copy.rain.normal
     : key === 'temperature' ? active === undefined || delta?.value == null ? copy.insufficient
     : active && delta.value > 0 ? copy.heat.high(round(delta.value)) : copy.heat.normal
-    : key === 'moisture' ? copy.moisture.descriptions[moistureZone(row.value!*100)]!
+    : key === 'moisture' ? copy.moisture.zones[moistureZone(row.value!*100)]!
     : ndviLabel(response, row);
   const comparable = key === 'rainfall' || key === 'ndvi' ? delta?.percent != null : key === 'temperature' ? delta?.value != null : true;
   return { text, tone: comparable ? tone : 'neutral' };
@@ -211,7 +217,7 @@ function summarize(response: ApiIndicators, key: MetricKey, active: boolean | un
 export function mapIndicators(response: ApiIndicators): Indicators {
   const series = mapSeries(response);
   const ndvi = response.monthly.filter(row => row.variable === 'NDVI').sort((a,b) => a.date.localeCompare(b.date)).at(-1);
-  const lastRow = response.monthly.filter(row => row.value !== null).map(row => row.date).sort().at(-1);
+  const lastDataMonth = [last(response.monthly, 'PRECTOTCORR')?.date, last(response.monthly, 'T2M_MAX')?.date, last(response.monthly, 'T2M')?.date].filter((date): date is string => Boolean(date)).sort().at(-1)?.slice(0,7);
   const summaries: Partial<Record<MetricKey, MetricSummary>> = {};
   for (const key of ['rainfall', 'temperature', 'moisture', 'ndvi'] as const) {
     const type = key === 'rainfall' ? 'drought' : key === 'temperature' ? 'heat' : key === 'ndvi' ? 'vegetation_stress' : undefined;
@@ -225,8 +231,9 @@ export function mapIndicators(response: ApiIndicators): Indicators {
       source: ndvi?.source, date: ndvi ? formatMonth(ndvi.date) : undefined,
       zone: ndvi?.value != null && anomalyOf(response, ndvi)?.percent != null ? vegetationZone(anomalyOf(response, ndvi)!.percent!) : undefined,
       label: ndvi?.value != null ? ndviLabel(response, ndvi) : copy.vegetation.missing },
-    lastDataMonth: [last(response.monthly, 'PRECTOTCORR')?.date, last(response.monthly, 'T2M_MAX')?.date].filter((date): date is string => Boolean(date)).sort()[0]?.slice(0,7),
-    lastObservation: lastRow ? formatMonth(lastRow) : '',
+    windows: response.windows, period: response.period,
+    lastDataMonth,
+    lastObservation: lastDataMonth ? formatMonth(lastDataMonth) : '',
     periodLabel: `${formatDate(response.period.start)} / ${formatDate(response.period.end)}`,
     origin: response.origin,
     warnings: response.warnings

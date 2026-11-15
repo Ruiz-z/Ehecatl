@@ -247,3 +247,22 @@ test('la comparación ausente no recibe tono bueno aunque la tendencia esté ina
   assert.equal(result.summaries.rainfall?.tone, 'neutral');
   assert.equal(result.summaries.rainfall?.text, 'Sin comparación suficiente');
 });
+
+test('calendario: completa doce meses del periodo y conserva las ventanas sin inventarlas', () => {
+  const windows = [{id:'w',start:'2026-11-01',end:'2027-02-28',months:[11,12,1,2],irrigated:false}];
+  const result = mapIndicators({...indicators,windows});
+  assert.equal(result.series.length,12);
+  assert.equal(result.series[0]!.date,'2025-11');
+  assert.equal(result.series[0]!.rainfall,null);
+  assert.equal(result.series[11]!.date,'2026-10');
+  assert.deepEqual(result.windows,windows);
+  assert.equal(mapIndicators(indicators).windows,undefined);
+});
+test('Estado fecha el encabezado con clima y no con una lectura MODIS posterior', () => {
+  const result = mapIndicators({...indicators,monthly:[
+    {variable:'PRECTOTCORR',date:'2026-09-01',value:4,unit:'mm',source:'NASA POWER'},
+    {variable:'T2M_MAX',date:'2026-09-01',value:30,unit:'C',source:'NASA POWER'},
+    {variable:'NDVI',date:'2026-10-01',value:.4,unit:'index',source:'MODIS'}]});
+  assert.equal(result.lastDataMonth,'2026-09');
+  assert.equal(result.lastObservation,'septiembre de 2026');
+});

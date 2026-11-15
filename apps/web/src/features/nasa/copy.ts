@@ -1,4 +1,23 @@
 // heurística pendiente de H4
+export const rainfallCuts = [-25, 25] as const;
+// heurística pendiente de H4
+export const heatCuts = [-2, 2] as const;
+export const calendarCopy = {
+  title: 'Cómo fue el año', subtitle: 'Cada mes comparado con lo normal de los últimos 10 años.',
+  rows: ['Lluvia', 'Calor', 'Tierra', 'Plantas', 'Se puede sembrar'],
+  rain: ['Poca', 'Normal', 'Mucha'], heat: ['Más fresco', 'Normal', 'Más calor'],
+  plants: ['Más secas', 'Normal', 'Más verdes'], sow: ['No', 'Sí'], missing: 'Sin dato',
+  pending: (month: string) => `Todavía no hay datos de ${month}.`,
+  rainLow: (n: number) => `Llovió ${n} % menos de lo normal en el año.`,
+  rainHigh: (n: number) => `Llovió ${n} % más de lo normal en el año.`, rainNormal: 'Llovió lo normal en el año.',
+  heatHigh: (n: number) => `La temperatura promedio estuvo ${n} °C arriba de lo normal.`,
+  heatLow: (n: number) => `La temperatura promedio estuvo ${n} °C abajo de lo normal.`, heatNormal: 'La temperatura promedio estuvo como otros años.',
+  soil: (state: string) => `La tierra estuvo ${state} la mayor parte del año.`, soilStates: ['seca', 'regular', 'con buena reserva'],
+  sowMonths: (months: string) => `Meses en que el clima deja sembrar: ${months}.`,
+  noSowing: 'Este año el clima no deja ningún mes para sembrar sin riego.',
+  footer: (start: string, end: string) => `Datos de NASA. ${start} a ${end}.`
+} as const;
+// heurística pendiente de H4
 export const moistureCuts = [30, 50] as const;
 // heurística pendiente de H4
 export const vegetationCuts = [-20, 20] as const;

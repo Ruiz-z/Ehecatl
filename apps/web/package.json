@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start --hostname 0.0.0.0 --port 3000",
     "lint": "next typegen && eslint . && tsc --noEmit",
-    "test": "node --experimental-strip-types --test src/features/rotation/ranking.test.ts src/features/rotation/rests.test.ts src/features/identity/validation.test.ts src/features/parcels/parcel-tabs.test.ts src/shared/api/adapters.test.ts src/features/nasa/verdict.test.ts"
+    "test": "node --experimental-strip-types --test src/features/rotation/ranking.test.ts src/features/rotation/rests.test.ts src/features/identity/validation.test.ts src/features/parcels/parcel-tabs.test.ts src/shared/api/adapters.test.ts src/features/nasa/verdict.test.ts src/features/nasa/calendar.test.ts"
   },
   "dependencies": {
     "class-variance-authority": "latest",

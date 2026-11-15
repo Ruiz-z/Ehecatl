@@ -31,7 +31,7 @@ export function mockIndicatorResponse(parcel: Parcel): ApiIndicators {
       anomalies.push({variable,date,value:value-normal,percent:normal ? (value-normal)/Math.abs(normal)*100 : null});
     }
   });
-  return {period:{start:'2025-11-01',end:'2026-10-31'},origin:'mock',monthly,climatology,anomalies,warnings:[],
+  return {windows: parcel.dataState === 'no-windows' ? [] : [{id:'demo',start:'2026-06-01',end:'2026-08-31',months:[6,7,8],irrigated:parcel.irrigation}],period:{start:'2025-11-01',end:'2026-10-31'},origin:'mock',monthly,climatology,anomalies,warnings:[],
     sources:{power:{status:'available',reason:null},modis:{status:'available',reason:null}},
     trends:[{type:'drought',active:!humid,evidence:[]},{type:'heat',active:!humid,evidence:[]},{type:'vegetation_stress',active:!humid,evidence:[]},{type:'erratic_rain',active:false,evidence:[]}]};
 }
@@ -40,6 +40,7 @@ export function seriesFor(parcel: Parcel): TimePoint[] {
   return ['Nov', 'Dic', 'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct'].map((month, i) => {
     const wave = [12, 8, 6, 9, 15, 20, 24, 42, 53, 35, 16, 8][i];
     return {
+      date: `${i < 2 ? 2025 : 2026}-${String((i+10)%12+1).padStart(2,'0')}`,
       month,
       rainfall: humid ? wave * 3 + 20 : wave,
       rainfallNormal: humid ? wave * 2.8 + 18 : wave * 1.6,

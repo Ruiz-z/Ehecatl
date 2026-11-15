@@ -76,11 +76,9 @@ function Status({
         const Icon = icons[i] ?? Sprout;
         return <article className="indicator" key={observation.variable}>
         <div className="indicator-heading">
-          <span><Icon size={19} />{observation.label}</span>
-          <strong>{observation.value}</strong>
+          <span><Icon size={19} /><span className="indicator-title">{observation.label}{observation.variable !== 'GWETROOT' && <Help label={copy.charts.normal} text={copy.help.normal} />}</span></span>
+          <div className="indicator-value"><strong>{observation.value}</strong>{observation.variable === 'T2M_MAX' && <small>{copy.heat.note}</small>}</div>
         </div>
-        {observation.variable === 'T2M_MAX' && <small>{copy.heat.note}</small>}
-        {observation.variable !== 'GWETROOT' && <Help label={copy.charts.normal} text={copy.help.normal} />}
         {observation.zone !== undefined && <ZoneBar zone={observation.zone} labels={copy.moisture.zones} />}
         {observation.zone === undefined && <p className={`indicator-status ${observation.tone === 'good' ? 'good-text' : observation.tone === 'warning' ? 'warning-text' : 'muted'}`}>{observation.tone === 'warning' ? <TriangleAlert size={15} /> : observation.tone === 'good' ? <CheckCircle2 size={15} /> : null}{observation.status}</p>}
         <p>{observation.consequence}</p>
