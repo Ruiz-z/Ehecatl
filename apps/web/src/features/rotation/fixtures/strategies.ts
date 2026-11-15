@@ -216,6 +216,7 @@ export function strategiesFor(parcel: Parcel): Strategy[] {
       cursor = Math.max(cursor,window.startMonth+window.months);
     }
     return { ...strategy, windows, rests,
+      irrigationNeedMm: Math.round(windows.reduce((sum, window) => sum+(catalogWater[window.crop]?.demandMm ?? 0),0)),
       steps:windows.map((window,index) => ({cropName:window.crop, previousCropName:index ? windows[index-1]!.crop : parcel.crop,
         start:window.start, end:window.end,
         reasons:index === 0 ? strategy.reasons.map(reason => ({...reason,effect:'neutral' as const})) : [],

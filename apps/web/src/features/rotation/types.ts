@@ -21,6 +21,7 @@ export interface Reason {
   axis?: keyof Priorities;
 }
 export interface Strategy {
+  irrigationNeedMm?: number;
   id: string;
   baseline: boolean;
   name: string;

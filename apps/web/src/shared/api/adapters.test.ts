@@ -147,3 +147,12 @@ test('conserva balance ETc y fallback de catálogo sin inventarlo para respuesta
   assert.equal(mapRecommendations(response,crops).strategies[0]!.steps![0]!.water?.method,'catalog');
   assert.equal(mapRecommendations(recommendations,crops).strategies[0]!.steps![0]!.water,undefined);
 });
+
+test('mapea agua faltante aditiva y conserva compatibilidad sin el campo', () => {
+  const response = structuredClone(recommendations);
+  response.recommendations[0]!.irrigationNeedMm = 240;
+  assert.equal(mapRecommendations(response,crops).strategies[0]!.irrigationNeedMm,240);
+  assert.equal(mapRecommendations(recommendations,crops).strategies[0]!.irrigationNeedMm,undefined);
+  response.baseline = { ...response.recommendations[0]!,id:'baseline',viable:true,irrigationNeedMm:1330 };
+  assert.equal(mapRecommendations(response,crops).strategies.find(s => s.baseline)?.irrigationNeedMm,1330);
+});

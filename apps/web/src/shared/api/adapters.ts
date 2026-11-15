@@ -19,12 +19,14 @@ export interface ApiIndicators {
   warnings: string[];
 }
 export interface ApiRecommendation {
+  irrigationNeedMm?: number;
   id: string; score: number;
   sequence: (RotationStep & { cropId: string })[];
   rests?: Rest[];
   components: Priorities; explanation: string[]; risks: string[];
 }
 export interface ApiBaseline {
+  irrigationNeedMm?: number;
   id: string; viable: boolean; score: number | null; components: Priorities | null;
   sequence: ApiRecommendation['sequence']; rests?: Rest[]; explanation: string[]; risks: string[];
 }
@@ -86,7 +88,7 @@ export function mapRecommendations(response: ApiRecommendations, crops: Crop[]):
   const candidates = [...response.recommendations.map(item => ({ ...item, baseline: false })),
     ...(reference?.viable && reference.components && reference.score !== null ? [{ ...reference, components: reference.components, score: reference.score, baseline: true }] : [])];
   const strategies: Strategy[] = candidates.map(item => ({
-    id: item.id, baseline: item.baseline,
+    id: item.id, baseline: item.baseline, irrigationNeedMm: item.irrigationNeedMm,
     name: item.baseline ? 'Mantener lo actual' : item.sequence.map(step => step.cropName).join(' → '),
     axes: item.components,
     steps: item.sequence.map((step, index) => ({ ...step, water: step.water, previousCropName: index ? item.sequence[index-1]!.cropName : crops.find(crop => crop.id === response.inputs.currentCropId)?.name })),

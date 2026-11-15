@@ -115,8 +115,9 @@ function SequenceCard({
       </div>
     </div>
     <div className="score-breakdown">
-      <p>Desglose del puntaje: {contributions.map(part => `${part.label.toLowerCase()} ${part.value.toFixed(1)}`).join(' + ')}</p>
-      <div className="score-stack" role="img" aria-label={contributions.map(part => `${part.label}: ${part.value.toFixed(1)} puntos`).join(', ')}>
+      <p>{strategy.irrigationNeedMm == null ? 'Agua faltante en 24 meses: sin dato' : `Agua faltante en 24 meses: ~${Math.round(strategy.irrigationNeedMm)} mm`}</p>
+      <p>Desglose del puntaje: {contributions.map(part => `${part.label.toLowerCase()} ${Math.round(part.value)}`).join(' + ')}</p>
+      <div className="score-stack" role="img" aria-label={contributions.map(part => `${part.label}: ${Math.round(part.value)} puntos`).join(', ')}>
         {contributions.map(part => <span key={part.key} className={`score-part score-${part.key}`} style={{width: `${part.value}%`}} />)}
       </div>
     </div>
