@@ -1,5 +1,5 @@
 'use client';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Eye, EyeOff } from 'lucide-react';
 import { useState } from 'react';
 import { demoUsers } from './fixtures/users';
 import { useDemo } from './demo-provider';
@@ -11,6 +11,7 @@ export function LoginScreen() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [pending, setPending] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const { login } = useDemo();
   return <main id="main" className="login-page">
     <div className="login-top"><Brand /></div>
@@ -24,7 +25,7 @@ export function LoginScreen() {
         setPending(true); try { await login({ email, password }); } catch (e) { setError(e instanceof Error ? e.message : 'No pudimos iniciar sesión. Intenta de nuevo.'); } finally { setPending(false); }
       }}>
         <label className="login-field">Correo electrónico<input name="email" type="email" autoComplete="username" required value={email} aria-describedby={error ? 'login-error' : undefined} onChange={e => setEmail(e.target.value)} /></label>
-        <label className="login-field">Contraseña<input name="password" type="password" autoComplete="current-password" required value={password} aria-describedby={error ? 'login-error' : undefined} onChange={e => setPassword(e.target.value)} /></label>
+        <label className="login-field">Contraseña<span className="password-wrap"><input name="password" type={showPassword ? 'text' : 'password'} autoComplete="current-password" required value={password} aria-describedby={error ? 'login-error' : undefined} onChange={e => setPassword(e.target.value)} /><button type="button" className="password-toggle" aria-pressed={showPassword} aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'} onClick={() => setShowPassword(value => !value)}>{showPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button></span></label>
         {error && <p id="login-error" className="error-text" role="alert">{error}</p>}
         <button disabled={pending} className="button primary login-submit" type="submit">{pending ? 'Entrando…' : 'Entrar a mis parcelas'}<ArrowRight size={18} /></button>
       </form>

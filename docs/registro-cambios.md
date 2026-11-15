@@ -1,5 +1,11 @@
 # Registro de cambios
 
+## 2026-11-14 — Botón para ver la contraseña en el login
+
+- **Archivos:** `apps/web/src/features/identity/login-screen.tsx`, `apps/web/src/app/globals.css`, `docs/registro-cambios.md`.
+- **Qué se cambió:** el campo de contraseña tiene un botón con icono de ojo que alterna entre ocultar y mostrar el texto (`aria-pressed` y etiqueta accesible).
+- **Por qué:** petición del usuario; permite comprobar lo que se escribe, sobre todo con contraseñas largas como la de la demo.
+
 ## 2026-11-14 — Arranque autónomo de Compose y comparación con el cultivo actual
 
 - **Archivos:** `.gitattributes`, `.env.example`, `docker-compose.yml`, `README.md`, `apps/api/{Dockerfile,package.json,.env.example,README.md,BACKEND.md}`, `apps/api/scripts/docker-entrypoint.sh`, `apps/api/prisma/seed.ts`, `apps/api/src/modules/rotation-engine/engine/sequences.ts`, `apps/api/test/{engine.spec.ts,contracts.spec.ts}`, `apps/web/src/shared/api/{adapters.ts,adapters.test.ts}`, `apps/web/src/features/rotation/{types.ts,recommendations.tsx}`, `docs/specs/{spec-001-identity.md,spec-005-rotation-engine.md,spec-006-web-ui.md}`, `docs/{contracts.md,fixtures/recommendations.json,pendientes-equipo.md,backend-verification.md,registro-cambios.md}`.
