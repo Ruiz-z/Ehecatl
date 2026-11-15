@@ -8,9 +8,16 @@ describe('B11 catálogo trazable', () => {
     const families = new Set(crops.map(c => c.family));
     expect(familyRules).toHaveLength(families.size ** 2);
   });
-  it.each(['waterMm', 'cycleDays', 'family', 'sources', 'kc', 'kcSource'])('señala cultivo y campo %s faltante', field => {
+  it.each(['waterMm', 'cycleDays', 'family', 'sources', 'kc', 'kcSource', 'marketValueTier', 'marketValueSource'])('señala cultivo y campo %s faltante', field => {
     const broken = { ...crops[0], [field]: undefined };
     expect(() => validateCatalog([broken])).toThrow(new RegExp(`${crops[0].id}.*${field}`));
+  });
+  it('ingreso sale de categorías explícitas y marca estimaciones pendientes de H4', () => {
+    for (const crop of crops) {
+      expect(crop.incomeOpportunity).toBe({ bajo: 25, medio: 60, alto: 90 }[crop.marketValueTier]);
+      expect(crop.marketValueSource).toContain('estimado');
+    }
+    expect(() => validateCatalog([{ ...crops[0], incomeOpportunity: 17 }])).toThrow('incomeOpportunity');
   });
   it('rechaza duplicados, unidades inválidas y rangos invertidos', () => {
     expect(() => validateCatalog([crops[0], crops[0]])).toThrow('duplicate');

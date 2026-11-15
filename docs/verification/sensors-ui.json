@@ -1,0 +1,34 @@
+{
+  "verifiedOn": "2026-11-15",
+  "database": "aislada de QA; migraciones desde cero",
+  "hardware": "sin placa; simulador HTTP",
+  "nasa": "fixtures mock exclusivos de QA, marcados; no consulta NASA en vivo",
+  "browser": "Chrome headless; 1440x1000 y tablet 820x1180",
+  "passed": true,
+  "automatedChecks": {
+    "api": 102,
+    "simulator": 4,
+    "geo": 38,
+    "web": 20,
+    "passed": 164,
+    "skippedLive": 11,
+    "lint": "passed",
+    "localBuilds": "api, seed, web",
+    "dockerBuilds": "api, web",
+    "composeConfig": "passed"
+  },
+  "checks": [
+    "Login real de administrador desde navegador",
+    "Registro de dispositivo y clave visible una vez sin persistencia en navegador",
+    "Simulador HTTP y lecturas en historial con marca de ejemplo",
+    "Calibración v2 sin reescribir lecturas sin calibrar",
+    "Separación de dispositivos por zona",
+    "Zona conservada entre pestañas",
+    "Prioridades consultan el motor y producen alternativas distintas",
+    "Previsualización conserva preferencias guardadas del dueño",
+    "Agricultor consulta sin controles de administración",
+    "Tablet sin desbordamiento horizontal de página",
+    "Sin excepciones JavaScript"
+  ],
+  "notes": "Las claves y credenciales no forman parte de esta evidencia. El montaje, la calibración física y la comparación agronómica no se verifican aquí. Los procesos de QA se cierran y los registros de prueba se eliminan al terminar."
+}

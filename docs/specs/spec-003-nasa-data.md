@@ -40,6 +40,7 @@ Motor de rotación y dashboard (consumidores internos); el agricultor ve los ind
 - Respuesta cacheada < 500 ms. Sin credenciales necesarias en v1.
 
 ## Casos límite
+- Preparación ESP32 (2026-11-15): se conservan fuente, producto, fecha y resolución por observación en la UI. Las lecturas se presentan por separado; no se comparan datos de hoy contra promedios mensuales como si fueran simultáneos.
 - Punto en el océano o sin cobertura MODIS → NDVI no disponible.
 - Valores de relleno de POWER (`-999`) → se tratan como faltantes, nunca como datos.
 - Rango de fechas futuro o inválido → 400.

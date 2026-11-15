@@ -1,5 +1,11 @@
 # Pendientes para el equipo
 
+## Seguimiento — 2026-11-15: preparación de integración autorizada
+
+El usuario autorizó implementar la preparación sin hardware, desde el respaldo `c51dd4c`. Zonas, prioridades, dispositivos, lecturas, pantalla y simulador se documentan en [preparacion-sensores.md](preparacion-sensores.md). El estado de la spec 007 cambia solo para esta entrega; comparación, confianza, avisos agronómicos y actuación no se dan por implementados. Las decisiones del 14 de noviembre conservadas abajo son históricas y quedan sustituidas en este alcance por la autorización nueva.
+
+Siguen pendientes montaje del ESP32, profundidad y calibración del FC28, datos temporales comparables, H3/H4 y ensayo físico. Sin bomba ni servos desde la aplicación.
+
 Traspaso a 2026-11-14. Lo que Mau (front/infra) dejó planeado y **no** hizo, con contexto para retomarlo. El backend también entra en el alcance autorizado para el balance ETo/ETc.
 
 ## Seguimiento — 2026-11-14

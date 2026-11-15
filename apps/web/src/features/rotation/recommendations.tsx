@@ -170,104 +170,66 @@ function SequenceCard({
     <Notice variant="info" label="INFO · VALIDACIÓN LOCAL" title="Valida antes de sembrar"><p>{validation}</p></Notice>
   </article>;
 }
-export function Recommendations({
-  parcel
-}: {
-  parcel: Parcel;
-}) {
-  const state = useAsync(() => apiClient.getRecommendations(parcel), parcel.id);
-  if (state.status === 'loading') return <LoadingState note={useMocks ? undefined : waitingNote} />;
-  if (state.status === 'error') return <EmptyState title="No pudimos calcular qué sembrar"><p>{state.message}</p><button className="button primary" onClick={state.retry}>Reintentar</button></EmptyState>;
-  return <Advice parcel={parcel} result={state.data} />;
+export function Recommendations({ parcel }: { parcel: Parcel }) {
+  const initial = useAsync(() => apiClient.getRecommendations(parcel), parcel.zoneId ?? parcel.id);
+  if (initial.status === 'loading') return <LoadingState note={useMocks ? undefined : waitingNote} />;
+  if (initial.status === 'error') return <EmptyState title="No pudimos calcular qué sembrar"><p>{initial.message}</p><button className="button primary" onClick={initial.retry}>Reintentar</button></EmptyState>;
+  return <Advice key={parcel.zoneId ?? parcel.id} parcel={parcel} initial={initial.data} />;
 }
-function Advice({
-  parcel,
-  result
-}: {
-  parcel: Parcel;
-  result: RecommendationResult;
-}) {
-  const {
-    user
-  } = useDemo();
-  const defaults = user?.priorities ?? {
-    water: 25,
-    soil: 25,
-    income: 25,
-    risk: 25
-  };
+function Advice({ parcel, initial }: { parcel: Parcel; initial: RecommendationResult }) {
+  const { user } = useDemo();
+  const defaults = initial.priorities ?? user?.priorities ?? { water: 25, soil: 25, income: 25, risk: 25 };
   const [weights, setWeights] = useState<Priorities>(defaults);
-  const [saveError, setSaveError] = useState('');
+  const [saveMessage, setSaveMessage] = useState('');
+  const [saving, setSaving] = useState(false);
   const normalized = normalizedWeights(weights);
-  const ranked = rankStrategies(result.strategies, weights);
+  const state = useAsync(() => apiClient.getRecommendations(parcel, weights), `${parcel.zoneId ?? parcel.id}:${JSON.stringify(weights)}`, 350);
+  return <div className="recommendations">
+    <section className="priorities" id="prioridades">
+      <div className="section-heading"><div><h2>Ajusta tus prioridades</h2><p>Buscamos nuevas alternativas para los pesos elegidos. Guardar preferencias es opcional.</p></div><button className="text-button" onClick={() => setWeights(defaults)}><RotateCcw size={15} />Restablecer</button></div>
+      <div className="sliders">{axes.map(({ key, label, description }) => {
+        const Icon = icons[key];
+        return <label key={key} className="priority-slider"><span><Icon size={18} />{label}<output>{Math.round(normalized[key] * 100)} %</output></span><small>{description}</small>
+          <input type="range" min="0" max="100" step="1" value={weights[key]} aria-label={`Prioridad de ${label}`} aria-valuetext={`${weights[key]} de 100; peso normalizado ${Math.round(normalized[key] * 100)} por ciento`} onChange={event => { setSaveMessage(''); setWeights({ ...weights, [key]: Number(event.target.value) }); }} />
+          <span className="slider-extremes"><small>Menos</small><small>Más</small></span></label>;
+      })}</div>
+      {parcel.ownerId === user?.id ? <button className="button" disabled={saving || state.status !== 'ready'} onClick={async () => {
+        setSaving(true); setSaveMessage('');
+        try { const saved = await apiClient.savePriorities(weights); setWeights(saved); setSaveMessage('Prioridades guardadas.'); }
+        catch (e) { setSaveMessage(e instanceof Error ? e.message : 'No se pudo guardar.'); } finally { setSaving(false); }
+      }}>Guardar prioridades</button> : <p className="form-note">Puedes explorar alternativas sin modificar las prioridades guardadas del dueño.</p>}
+      <p role="status">{saveMessage}</p><p className="form-note">Pesos normalizados a 100 %. Ingreso usa categorías estimadas de cultivos, no ganancias ni precios en tiempo real.</p>
+    </section>
+    {state.status === 'loading' ? <LoadingState note="Recalculando alternativas con tus prioridades…" /> : state.status === 'error'
+      ? <EmptyState title="No pudimos actualizar las recomendaciones"><p>{state.message}</p><button className="button" onClick={state.retry}>Reintentar</button></EmptyState>
+      : <DecisionCards parcel={parcel} result={state.data} weights={weights} />}
+  </div>;
+}
+function DecisionCards({ parcel, result, weights }: { parcel: Parcel; result: RecommendationResult; weights: Priorities }) {
   const mock = result.origin === 'mock';
+  const normalized = normalizedWeights(result.priorities ?? weights);
+  const ranked: RankedStrategy[] = mock ? rankStrategies(result.strategies, weights)
+    : [...result.strategies].sort((a, b) => (b.score ?? 0) - (a.score ?? 0)).map(strategy => ({ ...strategy, score: Math.round(strategy.score!), delta: strategy.delta ?? null }));
   const horizon = horizonMonths(result.horizonStart);
   const hasBaseline = ranked.some(strategy => strategy.baseline);
-  const baselineWarning = result.baselineUnavailableReasons && <Notice variant="risk" label="ESTRATEGIA ACTUAL" title="Mantener lo actual no es viable">
-    <ul>{result.baselineUnavailableReasons.map(reason => <li key={reason}>{reason}</li>)}</ul>
-    <p>Las alternativas no muestran diferencia de puntaje porque no hay una referencia viable.</p>
-  </Notice>;
+  const baselineWarning = result.baselineUnavailableReasons && <Notice variant="risk" label="ESTRATEGIA ACTUAL" title="Mantener lo actual no es viable"><ul>{result.baselineUnavailableReasons.map(reason => <li key={reason}>{reason}</li>)}</ul><p>Las alternativas no muestran diferencia de puntaje porque no hay referencia viable.</p></Notice>;
   if (result.status === 'no_viable_options' || !ranked.length) return <div className="no-windows">
-    <CalendarDays size={32} />
-    <h2>No hay una ventana segura para sembrar</h2>
-    <p>{mock ? 'En este ejemplo, el agua disponible no alcanza para completar un ciclo en los próximos 24 meses.' : 'Ningún cultivo del catálogo completa su ciclo en las ventanas calculadas para los próximos 24 meses.'}</p>
-    <Notice variant="risk" label={mock ? 'RIESGO · AGUA' : 'SIN OPCIONES VIABLES'} title="Sin ventana segura"><p><strong>0 ventanas viables en los próximos 24 meses.</strong> Conserva la cobertura del suelo y revisa la disponibilidad de agua con tu agrónomo antes de planear una siembra.</p></Notice>
-    <p className="muted">No mostramos puntajes de cultivos que no son viables.</p>
-    {baselineWarning}
-    {result.warnings.filter(text => text.length < 120).length > 0 && <ul className="muted">{result.warnings.filter(text => text.length < 120).map(text => <li key={text}>{text}</li>)}</ul>}
+    <CalendarDays size={32} /><h2>No encontramos cultivos viables con estas condiciones</h2>
+    <p>Ningún cultivo del catálogo completa su ciclo con las condiciones calculadas para los próximos 24 meses.</p>
+    <Notice variant="risk" label="SIN OPCIONES VIABLES" title="Revisa las causas antes de sembrar"><p>Conserva la cobertura del suelo y revisa agua, temperatura y duración de los ciclos con tu agrónomo. Esto no significa necesariamente que existan cero ventanas climáticas.</p></Notice>
+    {baselineWarning}{result.warnings.length > 0 && <ul className="muted">{result.warnings.map(text => <li key={text}>{text}</li>)}</ul>}
   </div>;
-  return <div className="recommendations">
-    <div className="section-heading">
-      <div>
-        <h2>Qué sembrar después</h2>
-        <p>{hasBaseline ? 'Compara la estrategia actual y dos alternativas.' : 'Compara las mejores opciones para tu zona.'}</p>
-      </div>
-      <span className="chip neutral-chip">{horizon.range}</span>
-    </div>
-    {result.risk.level === 'high' && <Notice variant="risk" label="RIESGO · CULTIVO ACTUAL" title={`${parcel.crop} corre riesgo en esta zona`}>
-      {result.risk.reasons.length ? <ul>{result.risk.reasons.map(reason => <li key={reason}>{reason}</li>)}</ul> : <p>Revisa los datos de la zona antes del siguiente ciclo.</p>}
-      <Link className="text-button" href={parcelUrl(parcel.id, 'datos')}>Ver datos de lluvia →</Link>
-    </Notice>}
+  return <>
+    {mock && <span className="chip warning-chip">Datos de ejemplo</span>}
+    <div className="section-heading"><div><h2>Qué sembrar después</h2><p>{hasBaseline ? 'Compara la estrategia actual y las alternativas disponibles.' : 'Compara las mejores opciones para tu zona.'}</p></div><span className="chip neutral-chip">{horizon.range}</span></div>
+    {result.risk.level === 'high' && <Notice variant="risk" label="RIESGO · CULTIVO ACTUAL" title={`${parcel.crop} corre riesgo en esta zona`}><ul>{result.risk.reasons.map(reason => <li key={reason}>{reason}</li>)}</ul><Link className="text-button" href={parcelUrl(parcel.id, 'datos', parcel.zoneId)}>Ver datos de lluvia →</Link></Notice>}
     {baselineWarning}
     {ranked[0].baseline && <div className="baseline-wins" role="status"><Check size={18} />Con tus prioridades y los datos disponibles, mantener lo actual tiene el mayor puntaje.</div>}
-    <div className="inputs-used">
-      <span><i />Datos NASA <small>clima de 10 años</small></span>
-      <span><i />Tu parcela <small>{parcel.irrigation ? 'con riego' : 'de temporal'} · {parcel.crop}</small></span>
-      <span><i />Tus prioridades <small>ajustables abajo</small></span>
-    </div>
+    <div className="inputs-used"><span><i />Datos NASA <small>contexto climático</small></span><span><i />Tu zona <small>{parcel.irrigation ? 'con riego' : 'de temporal'} · {parcel.crop}</small></span><span><i />Prioridades <small>calculadas por el motor</small></span></div>
     <p className="sr-only" aria-live="polite">Mejor opción: {ranked[0].name}, {ranked[0].score} puntos.</p>
     <p className="comparison-hint">{ranked.length} {ranked.length === 1 ? 'estrategia' : 'estrategias'} · Desplaza para comparar →</p>
     <div className="sequence-grid" tabIndex={0} role="region" aria-label="Comparación de estrategias; usa las flechas para recorrerlas">
       {ranked.map((strategy, index) => <SequenceCard key={strategy.id} strategy={strategy} index={index} weights={normalized} horizonStart={result.horizonStart} irrigated={parcel.irrigation} />)}
     </div>
-    <section id="prioridades" className="priorities">
-      <div className="section-heading">
-        <div>
-          <h2>Ajusta tus prioridades</h2>
-          <p>Mueve los controles y compara cómo cambia el orden.</p>
-        </div>
-        <button className="text-button" onClick={() => setWeights(defaults)}><RotateCcw size={15} />Restablecer</button>
-      </div>
-      <button className="button" onClick={async () => { try { await apiClient.savePriorities(weights); setSaveError('Prioridades guardadas.'); } catch (e) { setSaveError(e instanceof Error ? e.message : 'No se pudo guardar.'); } }}>Guardar prioridades</button><p role="status">{saveError}</p>
-      <div className="sliders">
-        {axes.map(({
-          key,
-          label,
-          description
-        }) => {
-          const Icon = icons[key];
-          return <label key={key} className="priority-slider">
-          <span><Icon size={18} />{label}<output>{Math.round(normalized[key] * 100)} %</output></span>
-          <small>{description}</small>
-          <input type="range" min="0" max="100" step="1" value={weights[key]} aria-label={`Prioridad de ${label}`} aria-valuetext={`${weights[key]} de 100; peso normalizado ${Math.round(normalized[key] * 100)} por ciento`} onChange={event => setWeights({
-              ...weights,
-              [key]: Number(event.target.value)
-            })} />
-          <span className="slider-extremes"><small>Menos</small><small>Más</small></span>
-        </label>;
-        })}
-      </div>
-      <p className="form-note">Los pesos se normalizan a 100 %. Ingreso compara categorías de cultivos, no precios en tiempo real.</p>
-    </section>
-  </div>;
+  </>;
 }

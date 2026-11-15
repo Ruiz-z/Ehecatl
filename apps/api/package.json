@@ -8,9 +8,11 @@
     "build:seed": "tsc -p tsconfig.seed.json && node scripts/copy-assets.mjs --seed",
     "start": "node --env-file-if-exists=.env dist/main.js",
     "lint": "prisma generate && tsc --noEmit",
-    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand && node --test scripts/simulate-device.test.mjs",
     "prisma:generate": "prisma generate",
-    "prisma:seed": "prisma db seed"
+    "prisma:seed": "prisma db seed",
+    "sensors:simulate": "node --env-file-if-exists=.env scripts/simulate-device.mjs",
+    "readings:prune": "node --env-file-if-exists=.env scripts/prune-readings.mjs"
   },
   "dependencies": {
     "@nestjs/common": "12.5.0",

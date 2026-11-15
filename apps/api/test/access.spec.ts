@@ -113,6 +113,19 @@ describe('B2–B5/B17 HTTP real de Nest, persistencia simulada', () => {
     expect(result.body.inputs.currentCropId).toBe('maize'); expect(result.body.inputs.indicators.origin).toBe('live');
     expect(result.body.recommendations.length).toBeGreaterThan(0); expect(result.body.priorities).toEqual(priorities);
   });
+  it('previsualiza nuevas prioridades sin guardar y conserva permisos', async () => {
+    const path = `/zones/${zoneId}/recommendations`;
+    const body = { priorities: { water: 0, soil: 0, income: 100, risk: 0 } };
+    await request(app.getHttpServer()).post(path).send(body).expect(401);
+    await request(app.getHttpServer()).post(path).auth(token(otherId), { type: 'bearer' }).send(body).expect(403);
+    await request(app.getHttpServer()).post(path).auth(token(ownerId), { type: 'bearer' }).send({ priorities: { water: -1 } }).expect(400);
+    const preview = await request(app.getHttpServer()).post(path).auth(token(ownerId), { type: 'bearer' }).send(body).expect(200);
+    const stored = await request(app.getHttpServer()).get(path).auth(token(ownerId), { type: 'bearer' }).expect(200);
+    expect(preview.body.priorities).toEqual(body.priorities);
+    expect(stored.body.priorities).toEqual(priorities);
+    expect(preview.body.recommendations[0].id).not.toBe(stored.body.recommendations[0].id);
+    expect(preview.body.recommendations[0].explanation.join()).toContain('ingreso=100');
+  });
   it('mutaciones ajenas se rechazan antes de escribir', async () => {
     await request(app.getHttpServer()).delete(`/parcels/${parcelId}`).auth(token(otherId), { type: 'bearer' }).expect(403);
     await request(app.getHttpServer()).patch(`/zones/${zoneId}`).auth(token(otherId), { type: 'bearer' }).send({ name: 'Hacked' }).expect(403);
