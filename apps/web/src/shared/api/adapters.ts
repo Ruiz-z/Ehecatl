@@ -12,6 +12,7 @@ export interface ApiParcel { id: string; ownerId: string; name: string; lat: num
 export interface ApiLogin { accessToken: string; expiresIn: number; user: { id: string; email: string; name: string; role: string } }
 export interface ApiMonthly { variable: string; date: string; value: number | null; unit: string; source: string; resolution?: string }
 export interface ApiIndicators {
+  history?: { variable: string; year: number; month: number; value: number | null }[];
   windows?: SowingWindow[];
   period: { start: string; end: string };
   origin: 'live' | 'cache' | 'mock';
