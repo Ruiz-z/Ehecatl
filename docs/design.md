@@ -28,7 +28,7 @@ Dirección visual para `apps/web` (tareas F). Referencia: **OneSoil** (app web d
 2. **Mis parcelas** — panel: buscador + lista de parcelas (nombre, lugar, cultivo actual, chip de riesgo o "Sin datos NASA aún"). Mapa con un pin por parcela; al elegir una, el mapa vuela a ella.
 3. **Nueva parcela** — mapa para colocar el punto (o lat/lon manual), nombre, cultivo actual, riego sí/no. Funciona para cualquier lugar del mundo.
 4. **Parcela · Estado** — pestañas **Estado | Datos | Qué sembrar**. Estado: dos tarjetas lado a lado (NDVI de la zona + imagen satelital), cifras clave (lluvia vs. normal, temperatura vs. normal, humedad de suelo).
-5. **Parcela · Datos** — gráficas apiladas con tooltip (ver §6): lluvia acumulada, grados-día de crecimiento / temperatura, humedad de suelo, NDVI. Rango de fechas arriba a la derecha.
+5. **Parcela · Datos** — calendario de doce meses y un detalle a la vez (ver §6).
 6. **Parcela · Qué sembrar** — banner de riesgo (si aplica), 2–3 tarjetas de secuencia (ver §7), prioridades como sliders al pie.
 7. **Estados:** vacío, cargando (skeleton), error de datos, sin ventanas de cultivo.
 
@@ -86,11 +86,10 @@ Familia de cultivo (chips y barras de la tira): gramínea `#E8A23B`, leguminosa 
 - Iconos: **lucide-react**, trazo 1.75, 20 px.
 
 ## 6. Gráficas
-- Una sola librería (la que ya traiga shadcn charts / Recharts). Eje X fechas, sin cuadrícula vertical, cuadrícula horizontal muy tenue.
-- **Tooltip fijo** al pasar el cursor: etiqueta oscura con valor y fecha, como en la referencia.
-- Mostrar siempre la **línea de lo normal** (media 10 años) y resaltar la desviación en texto: "38 % menos que lo normal" (rojo/ámbar si es adverso, verde si no).
-- Debajo de cada gráfica: fuente y rango ("NASA POWER · nov 2025 – oct 2026").
-- Series distinguibles sin color (trazo, marcador, etiqueta directa); validar con daltonismo.
+- Calendario del año como pieza principal en Datos: tabla accesible de doce meses y cinco renglones (Lluvia, Calor, Tierra, Plantas, Se puede sembrar). Texto y color juntos; sin dato rayado. En móvil, scroll dentro del contenedor y primera columna fija.
+- Un solo detalle seleccionado con botones aria-pressed, Lluvia por defecto. Barras de lluvia con marcas de normal; línea de temperatura promedio sin suavizado y con eje ajustado al rango real, normal punteada. Tierra y Plantas usan tiras ampliadas con valores debajo, sin línea ni eje.
+- Tokens existentes para todos los colores, foco visible, tablas de valores con encabezados y ámbitos. Los textos aprobados y umbrales orientativos se centralizan en copy.ts (heurística pendiente de H4).
+- Resúmenes anuales sin extrapolar faltantes, nota de mes pendiente y pie «Datos de NASA. {inicio} a {fin}.». Se conserva la marca de datos de ejemplo.
 
 ## 7. Tarjeta de secuencia ("Qué sembrar después")
 - **Siempre 3 tarjetas lado a lado** (spec 006 RF-4): **Estrategia actual** («Mantener lo actual», borde gris, etiqueta «Si no cambias») + las 2 mejores alternativas. Cada alternativa muestra la diferencia contra la actual («+18 puntos»). Si la actual gana, se dice y se explica.
