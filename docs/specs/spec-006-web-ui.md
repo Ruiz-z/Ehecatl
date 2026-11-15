@@ -44,3 +44,9 @@ RF-1 a RF-7 + demo manual del flujo: login → crear/abrir parcela → ver datos
 
 ## Dudas abiertas
 - Ninguna bloqueante. La dirección visual (tema claro de alto contraste, legible bajo el sol) está en [`docs/design.md`](../design.md).
+
+## Bloque A — Estado coherente y límites visibles (2026-11-14)
+
+- RF-4d: Estado y tonos usan exclusivamente `trends` del API; no duplican umbrales. Una tendencia ausente o una normal faltante se muestra como información insuficiente, nunca «Normal». Lluvia presenta el mes y el acumulado de los últimos doce meses completos frente a la normal de esos mismos meses; cobertura incompleta se declara sin extrapolar.
+- RF-4e: NDVI se interpreta con la anomalía del mismo mes/punto: «59 % más verde que lo normal para octubre»; sin normal o porcentaje definido, se dice. El índice absoluto, fuente, fecha y origen quedan en «Ver dato NASA». Las gráficas usan las mismas tendencias para sus tonos.
+- RF-4f: La tarjeta lista «Qué sabemos / Qué falta» desde estado de fuentes y todos los warnings, sin truncarlos. Consume riesgos agrupados con fallback compatible a `risks`. No se modifica el diseño del carrusel ni se añade superficie/ahorro (fuera de Bloque A).

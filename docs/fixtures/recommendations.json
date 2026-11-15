@@ -23,16 +23,16 @@
   },
   "inputs": {
     "point": {
-      "lat": 25.4,
-      "lon": -101
+      "lat": 25.76,
+      "lon": -102.98
     },
     "currentCropId": "maize",
     "historyCount": 0,
     "indicators": {
       "version": 1,
       "point": {
-        "lat": 25.4,
-        "lon": -101
+        "lat": 25.76,
+        "lon": -102.98
       },
       "period": {
         "start": "2024-01-01",
@@ -1309,6 +1309,20 @@
         "Máxima mensual 32.0 C supera tolerancia 30 C",
         "Agua faltante en 24 meses: ~67 mm: la lluvia no cubre la demanda"
       ],
+      "riskGroups": [
+        {
+          "type": "data",
+          "text": "Demanda estimada del catálogo: falta temperatura o radiación mensual válida para ETo"
+        },
+        {
+          "type": "heat",
+          "text": "Calor: hasta 32.0 °C, tolerancia 30 °C, en 1 de 2 ciclos"
+        },
+        {
+          "type": "water",
+          "text": "Agua faltante en 24 meses: ~67 mm: la lluvia no cubre la demanda"
+        }
+      ],
       "rests": [],
       "delta": null
     },
@@ -1419,6 +1433,20 @@
         "Sin continuación viable en window-1; considerar barbecho",
         "Agua faltante en 24 meses: ~75 mm: la lluvia no cubre la demanda"
       ],
+      "riskGroups": [
+        {
+          "type": "data",
+          "text": "Demanda estimada del catálogo: falta temperatura o radiación mensual válida para ETo"
+        },
+        {
+          "type": "schedule",
+          "text": "Sin continuación viable en window-1; considerar barbecho"
+        },
+        {
+          "type": "water",
+          "text": "Agua faltante en 24 meses: ~75 mm: la lluvia no cubre la demanda"
+        }
+      ],
       "rests": [],
       "delta": null
     }
@@ -1433,6 +1461,7 @@
     "explanation": [
       "Maíz: Agua insuficiente para la demanda del ciclo; Ciclo de 120 días excede el horizonte o ventana disponible; Mejor lluvia disponible 360 mm frente a demanda de 600 mm/ciclo"
     ],
+    "riskGroups": [],
     "risks": [],
     "rests": [
       {
