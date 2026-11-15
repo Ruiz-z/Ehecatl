@@ -11,12 +11,12 @@ interface Candidate { id: string; score: number; sequence: Step[]; components: W
 const dayMs = 86_400_000;
 const day = (value: string) => Date.parse(`${value}T00:00:00Z`);
 const iso = (value: number) => new Date(value).toISOString().slice(0, 10);
+interface Input { currentCropId: string; history: History[]; priorities: Weights; indicators: Indicators }
 
-export function recommend(input: { currentCropId: string; history: History[]; priorities: Weights; indicators: Indicators }, catalog: Crop[] = crops) {
+export function recommend(input: Input, catalog: Crop[] = crops) {
   const current = findCrop(input.currentCropId);
   if (!current) throw new Error('Current crop not in catalog');
   const { indicators, history } = input;
-  const decisionDay = day(indicators.fetchedAt.slice(0, 10));
   const priorities = normalizeWeights(input.priorities);
   const windows = indicators.windows.slice().sort((a, b) => a.start.localeCompare(b.start)).slice(0, 3);
   const warnings = [...indicators.warnings];
@@ -25,6 +25,33 @@ export function recommend(input: { currentCropId: string; history: History[]; pr
     windows.some(w => w.meanTemperature === null || w.precipitationMm === null || w.temperatureMin === null);
   if (!history.length) warnings.push('Sin historial: menor confianza en la rotación');
   if (missing) warnings.push('Datos NASA incompletos: confianza reducida');
+  const generated = generate(input, catalog);
+  const currentResult = generate(input, [current]);
+  const currentPlan = currentResult.candidates[0];
+  const baselineReasons = !windows.length ? ['Sin ventanas de cultivo disponibles']
+    : currentResult.failures.length ? currentResult.failures : ['No cabe un ciclo del cultivo actual en las ventanas disponibles'];
+  const baseline = currentPlan
+    ? { ...currentPlan, id: 'baseline', viable: true as const }
+    : { id: 'baseline', viable: false as const, score: null, components: null, sequence: [] as Step[],
+      explanation: baselineReasons, risks: [] as string[] };
+  const recommendations = generated.candidates.filter(candidate => candidate.sequence.some(step => step.cropId !== current.id)).slice(0, 2)
+    .map(candidate => ({ ...candidate, delta: baseline.score === null ? null : Number((candidate.score-baseline.score).toFixed(2)) }));
+  if (![...recommendations, ...(currentPlan ? [currentPlan] : [])].some(c => c.sequence.length >= 2)) warnings.push('Menos de dos ciclos viables en 24 meses: secuencia reducida; considerar cobertura o barbecho');
+  const viable = recommendations.length > 0 || baseline.viable;
+  if (!viable) warnings.push('Ninguna opción viable; considerar cobertura o barbecho', ...generated.failures);
+  const confidence = missing ? 'low' as const : !history.length || warnings.length ? 'medium' as const : 'high' as const;
+  const risk = currentRisk(current, indicators);
+  return { status: viable ? 'ok' as const : 'no_viable_options' as const, confidence,
+    warnings: [...new Set(warnings)], priorities, baseline, currentCropRisk: { ...risk, changeAt: recommendations[0]?.sequence[0].start ?? null }, recommendations };
+}
+
+// La referencia y las alternativas pasan por la misma búsqueda y puntuación.
+function generate(input: Input, catalog: Crop[]) {
+  const current = findCrop(input.currentCropId)!;
+  const { indicators, history } = input;
+  const decisionDay = day(indicators.fetchedAt.slice(0, 10));
+  const priorities = normalizeWeights(input.priorities);
+  const windows = indicators.windows.slice().sort((a, b) => a.start.localeCompare(b.start)).slice(0, 3);
   const failures = new Set<string>();
   const schedules = new Map<string, ReturnType<typeof schedule>>();
   let beam: Candidate[] = [{ id: '', score: 0, sequence: [], components: { water: 0, soil: 0, income: 0, risk: 0 }, explanation: [], risks: [] }];
@@ -72,13 +99,7 @@ export function recommend(input: { currentCropId: string; history: History[]; pr
   for (const candidate of beam.filter(c => c.sequence.length).sort(compare)) {
     if (!unique.has(candidate.id)) unique.set(candidate.id, candidate);
   }
-  const recommendations = [...unique.values()].sort(compare).slice(0, 3);
-  if (!recommendations.some(c => c.sequence.length >= 2)) warnings.push('Menos de dos ciclos viables en 24 meses: secuencia reducida; considerar cobertura o barbecho');
-  if (!recommendations.length) warnings.push('Ninguna opción viable; considerar cobertura o barbecho', ...[...failures].sort());
-  const confidence = missing ? 'low' as const : !history.length || warnings.length ? 'medium' as const : 'high' as const;
-  const risk = currentRisk(current, indicators);
-  return { status: recommendations.length ? 'ok' as const : 'no_viable_options' as const, confidence,
-    warnings: [...new Set(warnings)], priorities, currentCropRisk: { ...risk, changeAt: recommendations[0]?.sequence[0].start ?? null }, recommendations };
+  return { candidates: [...unique.values()].sort(compare), failures: [...failures].sort() };
 }
 
 function compare(a: Candidate, b: Candidate): number {

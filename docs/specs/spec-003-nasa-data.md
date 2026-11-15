@@ -54,6 +54,10 @@ RF-1 a RF-8 con test en verde + demo: tres puntos distintos (Coahuila, Nevada y 
 ## Dudas abiertas
 - Ninguna bloqueante. Si se crea cuenta de Earthdata, se abre spec de ampliación para SMAP/IMERG.
 
+## Empaquetado verificado — 2026-11-14
+
+- La imagen runtime de Geo incluye `libexpat1`, biblioteca del sistema requerida por `rasterio` en `python:3.12-slim`. Dependencia autorizada explícitamente por el usuario tras reproducir `ImportError: libexpat.so.1` en Compose limpio. El build comprueba `import rasterio` para impedir que una imagen incompleta llegue a la demo. No cambia el contrato ni los filtros o proveedores NASA.
+
 ## Decisión de respaldo MODIS — 2026-11-14
 
 - Autorizado como fix acotado: ORNL sigue siendo principal; solo se añade Planetary Computer como respaldo del mismo producto NASA y se permite `rasterio` para lectura puntual y reproyección. No se añaden sensores, credenciales del usuario ni cambios al motor, perfiles demo o POWER.

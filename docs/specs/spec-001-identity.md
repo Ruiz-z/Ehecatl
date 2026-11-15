@@ -34,6 +34,7 @@ RF-1 a RF-6 con test en verde + demo: dos agricultores ven parcelas distintas y 
 
 ## Decisiones
 - Login normal (email + password) con usuarios sembrados; sin selector de perfil.
+- I5: Compose espera a PostgreSQL y Geo saludables; aplica migraciones y ejecuta el seed antes de escuchar HTTP. El seed se compila durante el build y usa `GEO_URL=http://geo:8000`. Requiere `JWT_SECRET` y `SEED_DEMO_PASSWORD` en el `.env` raíz no versionado; falla explícitamente si falta configuración o precarga NASA utilizable. Un reinicio repite el seed idempotente (restablece los perfiles demo y sus prioridades).
 
 ## Dudas abiertas
 - Ninguna bloqueante.

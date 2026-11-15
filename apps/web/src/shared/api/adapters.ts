@@ -23,10 +23,15 @@ export interface ApiRecommendation {
   sequence: { cropId: string; cropName: string; start: string; end: string }[];
   components: Priorities; explanation: string[]; risks: string[];
 }
+export interface ApiBaseline {
+  id: string; viable: boolean; score: number | null; components: Priorities | null;
+  sequence: ApiRecommendation['sequence']; explanation: string[]; risks: string[];
+}
 export interface ApiRecommendations {
   status: 'ok' | 'no_viable_options'; origin: 'live' | 'cache' | 'mock'; confidence: 'high' | 'medium' | 'low';
   warnings: string[]; currentCropRisk: { level: 'low' | 'high'; reasons: string[]; changeAt: string | null };
   inputs: { indicators: { period: { end: string } } }; recommendations: ApiRecommendation[];
+  baseline?: ApiBaseline;
 }
 
 const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
@@ -76,18 +81,21 @@ export function mapRecommendations(response: ApiRecommendations, crops: Crop[]):
   // El horizonte arranca el mes siguiente al fin del periodo observado (docs/contracts.md).
   const horizon = monthIndex(response.inputs.indicators.period.end) + 1;
   const horizonStart = `${Math.floor(horizon / 12)}-${String((horizon % 12) + 1).padStart(2, '0')}`;
-  const strategies: Strategy[] = response.recommendations.map(item => ({
-    id: item.id, baseline: false,
-    name: item.sequence.map(step => step.cropName).join(' → '),
-    axes: Object.fromEntries(Object.entries(item.components).map(([key, value]) => [key, Math.round(value)])) as unknown as Priorities,
+  const reference = response.baseline;
+  const candidates = [...response.recommendations.map(item => ({ ...item, baseline: false })),
+    ...(reference?.viable && reference.components && reference.score !== null ? [{ ...reference, components: reference.components, score: reference.score, baseline: true }] : [])];
+  const strategies: Strategy[] = candidates.map(item => ({
+    id: item.id, baseline: item.baseline,
+    name: item.baseline ? 'Mantener lo actual' : item.sequence.map(step => step.cropName).join(' → '),
+    axes: item.components,
     windows: item.sequence.map(step => {
       const startMonth = Math.max(0, monthIndex(step.start) - horizon);
       return {
-        crop: step.cropName, family: familyOf(crops.find(crop => crop.id === step.cropId)?.family ?? ''),
+        crop: step.cropName, family: familyOf(crops.find(crop => crop.id === step.cropId)?.family ?? ''), current: item.baseline,
         startMonth, months: Math.max(1, monthIndex(step.end) - monthIndex(step.start) + 1)
       };
     }),
-    changeAt: item.sequence[0] ? formatDate(item.sequence[0].start) : 'Sin fecha',
+    changeAt: item.baseline ? 'Se conserva el cultivo actual' : item.sequence[0] ? formatDate(item.sequence[0].start) : 'Sin fecha',
     reasons: item.explanation.map(text => ({ text })),
     risks: item.risks,
     confidence: confidenceLabel[response.confidence],
@@ -96,7 +104,8 @@ export function mapRecommendations(response: ApiRecommendations, crops: Crop[]):
   return {
     status: response.status, origin: response.origin, confidence: confidenceLabel[response.confidence],
     warnings: response.warnings, risk: { level: response.currentCropRisk.level, reasons: response.currentCropRisk.reasons },
-    horizonStart, strategies
+    horizonStart, strategies,
+    baselineUnavailableReasons: reference && !reference.viable ? reference.explanation : undefined
   };
 }
 
