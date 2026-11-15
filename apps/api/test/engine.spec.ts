@@ -49,7 +49,7 @@ describe('B12–B15 motor determinista y explicable', () => {
     const data = input(); data.indicators.windows = data.indicators.windows.slice(0, 1);
     const result = recommend({ ...data, history: [] });
     expect(result.recommendations[0].sequence).toHaveLength(1);
-    expect(result.confidence).toBe('medium'); expect(result.warnings.join()).toContain('Menos de dos');
+    expect(result.confidence).toBe('low'); expect(result.warnings.join()).toContain('Menos de dos');
     data.indicators.sources.modis.status = 'unavailable';
     expect(recommend(data).confidence).toBe('low');
   });
@@ -221,4 +221,45 @@ describe('explicación y descansos', () => {
     expect(gaps[0].reason).toContain('Fuera de temporada');
     expect(rests([{start:'2025-01-20',end:'2025-12-31'}], [], horizon)).toEqual([]);
   });
+});
+
+import { riskScore } from '../src/modules/rotation-engine/engine/score.js';
+
+describe('balance de agua y márgenes medidos RF-10 a RF-13', () => {
+  it('el mismo cultivo puntúa distinto según lluvia y riego', () => {
+    const run = (rain: number, irrigated: boolean) => {
+      const data = input();
+      data.indicators.windows.forEach(w => {w.precipitationMm=rain;w.irrigated=irrigated;});
+      return recommend(data,[findCrop('maize')!]).baseline;
+    };
+    const wet = run(1200,false), dry = run(500,false), irrigated = run(500,true);
+    expect(wet.components!.water).toBe(100);
+    expect(dry.components!.water).toBeLessThan(wet.components!.water);
+    expect(irrigated.components!.water).toBeCloseTo(50+.5*dry.components!.water,8);
+    expect(dry.score).toBeLessThan(wet.score!);
+  });
+  it('mide calor, óptimo, helada cercana, déficit, tendencias y familia', () => {
+    const data = indicators(), crop = findCrop('maize')!;
+    const climate={...data.windows[0],meanTemperature:crop.tempOptMax+2,temperatureMax:crop.tempMax+3,temperatureMin:1};
+    expect(riskScore(crop,climate,data,1,false)).toBe(62);
+    expect(riskScore(crop,{...climate,irrigated:true},data,.5,false)).toBe(54.5);
+    expect(riskScore(crop,climate,data,.5,true)).toBe(27);
+    data.trends=[{type:'heat',active:true,evidence:[]},{type:'drought',active:true,evidence:[]}];
+    expect(riskScore({...crop,droughtTolerance:59},climate,data,.5,true)).toBe(2);
+    expect(riskScore(crop,{...climate,temperatureMax:100,meanTemperature:100},data,0,true)).toBe(0);
+  });
+});
+
+it('la radiación de dos climas cambia agua para el mismo cultivo y fechas', () => {
+  const run = (rs: number) => {
+    const data = input();
+    data.indicators.windows.forEach(w => {w.irrigated=true;});
+    data.indicators.climatology.push(...Array.from({length:12},(_,i)=>({variable:'ALLSKY_SFC_SW_DWN',month:i+1,value:rs,samples:10,unit:'MJ/m²/day'})));
+    return recommend(data,[findCrop('maize')!]).baseline;
+  };
+  const cool = run(15), sunny = run(30);
+  expect(cool.sequence.map(s=>[s.start,s.end])).toEqual(sunny.sequence.map(s=>[s.start,s.end]));
+  expect(sunny.sequence[0].water.method).toBe('radiation');
+  expect(sunny.sequence[0].water.demandMm).toBeCloseTo(2*cool.sequence[0].water.demandMm,8);
+  expect(sunny.components!.water).toBeLessThan(cool.components!.water);
 });

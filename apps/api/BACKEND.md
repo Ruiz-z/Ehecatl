@@ -60,9 +60,9 @@ mensuales se usa el resumen de la ventana y se advierte. No se asigna la lluvia 
 de 65% de la demanda, se advierte entre 65% y 100%. Riego permite la opción con
 un riesgo explícito de abastecimiento. Las normales no son pronósticos.
 
-El puntaje de agua combina demanda relativa y tolerancia; suelo combina
+El puntaje de agua usa cobertura lluvia/ETc (ver constantes abajo); suelo combina
 transición, fijación de nitrógeno, ruptura de hospederos, historial y cobertura;
-riesgo resta puntos por avisos climáticos y repetición de familia. Cada factor
+riesgo resta puntos por márgenes térmicos, déficit, tendencias y repetición de familia. Cada factor
 se publica con sus pesos. El motor explora un haz de hasta 60 candidatos por
 ventana y devuelve las dos mejores alternativas determinísticamente; es una búsqueda
 heurística, no garantiza el óptimo global. Empates: riesgo, nombre e ID.
@@ -85,3 +85,16 @@ historial y prioridades según el JSON de seed. La precarga puede tardar varios
 minutos; un fallo termina el proceso y se reintenta al recuperar la fuente con
 `docker compose up -d api`. En desarrollo local las migraciones y el seed se
 ejecutan manualmente con los comandos anteriores.
+
+
+## ETo/ETc y puntaje contextual — heurísticas H4
+
+- ETo diaria = 0.0135 × (T2M + 17.8) × Rs × 0.408; Rs mensual NASA en MJ/m²/día. No usa T2M_MAX−T2M_MIN: son extremos mensuales. Es una aproximación por radiación, no Penman-Monteith FAO-56.
+- ETo del ciclo suma cada día inclusivo, con años bisiestos y meses parciales. Kc estacional = 0.20 ini + 0.25 (ini+mid)/2 + 0.35 mid + 0.20 (mid+end)/2. ETc = ETo × Kc estacional.
+- Kc de FAO-56 Tabla 12; fila y selección en kcSource. Mostaza usa canola y sarraceno la categoría cereales (kcEstimated=true). Sin temperatura/radiación válida en cualquier mes, o ETo no positiva, demanda=waterMm y method=catalog con aviso y confianza baja. No se suma un respaldo parcial con ETo.
+- coverage=min(1,lluvia/ETc). Sin riego: agua=100 coverage; con riego: agua=50+50 coverage. Sin lluvia: cobertura publicada null, puntaje conservador coverage=0 y aviso; no se supone aporte medido de riego.
+- Viabilidad sin riego exige lluvia ≥ 0.65 ETc; déficit entre 0.65 y 1. Suelo e ingreso no cambian.
+- Seguridad: 100 menos calor 4 puntos/°C sobre tempMax (tope 30), media fuera del óptimo 3 puntos/°C (tope 20), mínima <2 °C en sensible 20, déficit 30(1−coverage) sin riego o 15(1−coverage) con riego, sequía activa y tolerancia <60: 15, calor activo: 10, repetir familia: 20. Resultado acotado 0–100; márgenes desconocidos se avisan, sin inventar temperatura.
+- Desglose = cada eje × peso normalizado. Nivel alto ≥70, medio ≥50, bajo <50. La UI conserva decimales en los aportes para reducir discrepancias de redondeo.
+
+Todas las constantes, fracciones de etapas y penalizaciones requieren validación H4. Siguen pendientes riego por niveles efectivos, Penman-Monteith y Kc según etapas reales.

@@ -3,12 +3,13 @@ import type { History, Indicators, Weights } from '../../nasa-data/contracts.js'
 import { normalizeWeights } from '../../farm-context/priorities/normalize.js';
 import { transition, type TransitionReason } from './transitions.js';
 import { currentRisk } from './viability.js';
-import { weightedScore } from './score.js';
+import { weightedScore, riskScore } from './score.js';
 import { schedule } from './schedule.js';
 
 interface Step {
   cropId: string; cropName: string; windowId: string; start: string; end: string;
   occupiedWindowIds: string[];
+  water: { etoMm: number | null; kc: number; demandMm: number; rainMm: number | null; coveragePct: number | null; method: 'radiation' | 'catalog' };
   reasons: TransitionReason[];
   climate: { meanTemperature: number | null; rainMm: number | null; cycleDays: number };
 }
@@ -25,9 +26,9 @@ export function recommend(input: Input, catalog: Crop[] = crops) {
   const priorities = normalizeWeights(input.priorities);
   const windows = indicators.windows.slice().sort((a, b) => a.start.localeCompare(b.start)).slice(0, 3);
   const warnings = [...indicators.warnings];
-  const missing = Object.values(indicators.sources).some(s => s.status !== 'available') ||
+  let missing = Object.values(indicators.sources).some(s => s.status !== 'available') ||
     indicators.monthly.some(m => m.value === null) || !indicators.monthly.length ||
-    windows.some(w => w.meanTemperature === null || w.precipitationMm === null || w.temperatureMin === null);
+    windows.some(w => w.meanTemperature === null || w.precipitationMm === null || w.temperatureMin === null || w.temperatureMax === null);
   if (!history.length) warnings.push('Sin historial: menor confianza en la rotación');
   if (missing) warnings.push('Datos NASA incompletos: confianza reducida');
   const generated = generate(input, catalog);
@@ -53,6 +54,11 @@ export function recommend(input: Input, catalog: Crop[] = crops) {
   if (![...recommendations, ...(currentPlan ? [currentPlan] : [])].some(c => c.sequence.length >= 2)) warnings.push('Menos de dos ciclos viables en 24 meses: secuencia reducida; considerar cobertura o barbecho');
   const viable = recommendations.length > 0 || baseline.viable;
   if (!viable) warnings.push('Ninguna opción viable; considerar cobertura o barbecho', ...generated.failures);
+  const steps = [...baseline.sequence, ...recommendations.flatMap(r => r.sequence)];
+  if (steps.some(step => step.water.method === 'catalog' || step.water.rainMm === null)) {
+    warnings.push('Balance hídrico incompleto: demanda del catálogo o lluvia desconocida');
+    missing = true;
+  }
   const confidence = missing ? 'low' as const : !history.length || warnings.length ? 'medium' as const : 'high' as const;
   const risk = currentRisk(current, indicators);
   return { status: viable ? 'ok' as const : 'no_viable_options' as const, confidence,
@@ -85,18 +91,19 @@ function generate(input: Input, catalog: Crop[]) {
           let plan = schedules.get(key);
           if (!plan) { plan = schedule(crop, window, indicators, start); schedules.set(key, plan); }
           if (!plan.scheduled) { failures.add(`${crop.name}: ${plan.reasons.join('; ')}`); continue; }
-          const { result, effective, start: planted, end, occupiedWindowIds } = plan.scheduled;
+          const { result, effective, water, start: planted, end, occupiedWindowIds } = plan.scheduled;
           const tr = transition(previous, crop, [...history, ...partial.sequence.map(s => ({ cropId: s.cropId, plantedAt: s.start, harvestedAt: s.end }))]);
+          const coverage = (water.coveragePct ?? 0)/100;
           const components: Weights = {
-            water: Math.max(0, Math.min(100, (1-crop.waterMm/1300)*70 + crop.droughtTolerance*.3)),
+            water: effective.irrigated ? 50+50*coverage : 100*coverage,
             soil: tr.score, income: crop.incomeOpportunity,
-            risk: Math.max(0, 100-result.risks.length*18-(previous.family === crop.family ? 20 : 0)),
+            risk: riskScore(crop, effective, indicators, coverage, previous.family === crop.family),
           };
           const count = partial.sequence.length;
           const combined = Object.fromEntries((Object.keys(components) as (keyof Weights)[]).map(key => [key, (partial.components[key]*count+components[key])/(count+1)])) as unknown as Weights;
           const sequence = [...partial.sequence, {
             cropId: crop.id, cropName: crop.name, windowId: window.id,
-            start: iso(planted), end: iso(end), occupiedWindowIds, reasons: tr.reasons,
+            start: iso(planted), end: iso(end), occupiedWindowIds, water, reasons: tr.reasons,
             climate: {
               meanTemperature: effective.meanTemperature === null ? null : Number(effective.meanTemperature.toFixed(1)),
               rainMm: result.waterMm === null ? null : Math.round(result.waterMm),

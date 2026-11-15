@@ -30,6 +30,9 @@ describe('B1 fixtures de contratos entre apps', () => {
       expect(item.rests).toBeInstanceOf(Array);
       for (const step of item.sequence) {
         expect(step.reasons.every((r: {effect: string}) => ['favor','contra','neutral'].includes(r.effect))).toBe(true);
+        expect(['catalog','radiation']).toContain(step.water.method);
+        expect(step.water.demandMm).toBeGreaterThan(0);
+        expect(step.water.coveragePct).toBeCloseTo(Math.min(1, step.water.rainMm/step.water.demandMm)*100,8);
         expect(step.climate).toHaveProperty('meanTemperature');
         expect(Number.isInteger(step.climate.rainMm)).toBe(true);
         expect(Number.isInteger(step.climate.cycleDays)).toBe(true);
