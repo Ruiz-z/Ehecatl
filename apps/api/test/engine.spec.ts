@@ -224,7 +224,7 @@ describe('explicación y descansos', () => {
   });
 });
 
-import { riskScore } from '../src/modules/rotation-engine/engine/score.js';
+import { estimatedRiskScore } from '../src/modules/rotation-engine/engine/score.js';
 
 describe('balance de agua y márgenes medidos RF-10 a RF-13', () => {
   it('el mismo cultivo puntúa distinto según lluvia y riego', () => {
@@ -242,12 +242,12 @@ describe('balance de agua y márgenes medidos RF-10 a RF-13', () => {
   it('mide calor, óptimo, helada cercana, déficit, tendencias y familia', () => {
     const data = indicators(), crop = findCrop('maize')!;
     const climate={...data.windows[0],meanTemperature:crop.tempOptMax+2,temperatureMax:crop.tempMax+3,temperatureMin:1};
-    expect(riskScore(crop,climate,data,1,false)).toBe(62);
-    expect(riskScore(crop,{...climate,irrigated:true},data,.5,false)).toBe(54.5);
-    expect(riskScore(crop,climate,data,.5,true)).toBe(27);
+    expect(estimatedRiskScore(crop,climate,data,1,false)).toBe(62);
+    expect(estimatedRiskScore(crop,{...climate,irrigated:true},data,.5,false)).toBe(54.5);
+    expect(estimatedRiskScore(crop,climate,data,.5,true)).toBe(27);
     data.trends=[{type:'heat',active:true,evidence:[]},{type:'drought',active:true,evidence:[]}];
-    expect(riskScore({...crop,droughtTolerance:59},climate,data,.5,true)).toBe(2);
-    expect(riskScore(crop,{...climate,temperatureMax:100,meanTemperature:100},data,0,true)).toBe(0);
+    expect(estimatedRiskScore({...crop,droughtTolerance:59},climate,data,.5,true)).toBe(2);
+    expect(estimatedRiskScore(crop,{...climate,temperatureMax:100,meanTemperature:100},data,0,true)).toBe(0);
   });
 });
 
@@ -348,6 +348,7 @@ describe('Bloque A: confianza según insumos', () => {
   const complete = () => {
     const data = input();
     data.indicators.climatology.push(...Array.from({length:12}, (_,i) => ({variable:'ALLSKY_SFC_SW_DWN',month:i+1,value:18,samples:10,unit:'MJ/m²/day'})));
+    data.indicators.history = historicalRows();
     data.indicators.monthly.push(...Array.from({length:12}, (_,i) => ({variable:'NDVI',date:`2024-${String(i+1).padStart(2,'0')}-01`,value:.5,unit:'index',source:'MODIS',resolution:'250m'})));
     return data;
   };
@@ -405,4 +406,86 @@ it('agrupa el peor margen térmico sin mezclar tolerancias ni contar ciclos sano
   const risks = ['Máxima mensual 37.4 C supera tolerancia 32 C','Máxima mensual 39.0 C supera tolerancia 38 C'];
   const groups = groupRisks([[risks[0]],[risks[1]],[]],risks,100,true);
   expect(groups.find(g => g.type === 'heat')?.text).toBe('Calor: hasta 37.4 °C, tolerancia 32 °C, en 2 de 3 ciclos');
+});
+
+import { simulateCycle } from '../src/modules/rotation-engine/engine/historical.js';
+import { kcSeason } from '../src/modules/rotation-engine/engine/evapotranspiration.js';
+import type { HistoricalMonth } from '../src/modules/nasa-data/contracts.js';
+const historicalRows = (): HistoricalMonth[] => Array.from({length:10}, (_,i) => Array.from({length:12}, (_,m) =>
+  Object.entries({T2M:20,T2M_MAX:25,T2M_MIN:i < 2 ? 0 : 10,PRECTOTCORR:300,ALLSKY_SFC_SW_DWN:18})
+    .map(([variable,value]) => ({variable,value,year:2010+i,month:m+1})))).flat(2);
+
+describe('RF-5 y RF-12: frecuencia y cosecha históricas', () => {
+  const crop = findCrop('maize')!;
+  it('dos años con helada entre diez dan 80 y causas por año, no por mes', () => {
+    const result = simulateCycle(crop,'2025-01-01','2025-04-30',historicalRows(),false);
+    expect(result).toEqual({okYears:8,totalYears:10,failures:{heat:0,frost:2,temperature:0,water:0},relativeYieldPct:100});
+  });
+  it('calcula Ky contra lluvia mensual prorrateada y acota a cero y cien', () => {
+    const rows = historicalRows().map(r => ({...r,value:r.variable === 'PRECTOTCORR' ? 10 : r.value}));
+    const result = simulateCycle(crop,'2025-01-16','2025-01-31',rows,false);
+    const demand = etoDaily(20,18)*kcSeason(crop.kc)*16;
+    expect(result.relativeYieldPct).toBeCloseTo(100*Math.max(0,1-crop.ky*(1-(10*16/31)/demand)),8);
+    expect(result.failures.water).toBe(10);
+    expect(simulateCycle(crop,'2025-01-16','2025-01-31',rows,true).relativeYieldPct).toBe(100);
+    expect(simulateCycle(crop,'2025-01-16','2025-01-31',rows,true).failures.water).toBe(0);
+  });
+  it('no rellena huecos ni enlaza el último año con el primero', () => {
+    const rows = historicalRows();
+    expect(simulateCycle(crop,'2025-12-15','2026-02-28',rows,true).totalYears).toBe(9);
+    expect(simulateCycle(crop,'2025-01-01','2025-04-30',rows.filter(r => !(r.year === 2010 && r.month === 2 && r.variable === 'T2M')),true).totalYears).toBe(9);
+    expect(simulateCycle(crop,'2025-01-01','2025-04-30',rows.map(r => r.variable === 'ALLSKY_SFC_SW_DWN' ? {...r,value:null} : r),true).totalYears).toBe(0);
+  });
+  it('pondera temperaturas por días, cuenta causas simultáneas y respeta límites', () => {
+    const rows = historicalRows().map(r => ({...r,value: r.variable === 'T2M_MAX' ? crop.tempMax : r.variable === 'T2M_MIN' ? 0 : r.variable === 'T2M' ? crop.tempMin : r.value}));
+    expect(simulateCycle(crop,'2025-01-01','2025-01-31',rows,true).failures).toEqual({heat:0,frost:10,temperature:0,water:0});
+    const failed = rows.map(r => ({...r,value:r.variable === 'T2M_MAX' ? 50 : r.variable === 'T2M' ? 40 : r.variable === 'PRECTOTCORR' ? 0 : r.value}));
+    expect(simulateCycle(crop,'2025-01-01','2025-01-31',failed,false).failures).toEqual({heat:10,frost:10,temperature:10,water:10});
+  });
+  it('mantiene días reales de febrero incluidos bisiestos', () => {
+    const rows = historicalRows().map(r => ({...r,value:r.variable === 'PRECTOTCORR' ? 100 : r.value}));
+    const result = simulateCycle(crop,'2024-02-15','2024-03-05',rows,false);
+    const expected = Array.from({length:10},(_,i) => {
+      const days = new Date(Date.UTC(2010+i,2,0)).getUTCDate();
+      const rain = 100*(days-14)/days+100*5/31;
+      const demand = etoDaily(20,18)*kcSeason(crop.kc)*(days-14+5);
+      return 100*Math.max(0,Math.min(1,1-crop.ky*(1-Math.min(1,rain/demand))));
+    }).reduce((a,b)=>a+b)/10;
+    expect(result.relativeYieldPct).toBeCloseTo(expected,8);
+  });
+  const complete = () => {
+    const data = input(); data.indicators.history = historicalRows();
+    data.indicators.climatology.push(...Array.from({length:12},(_,i)=>({variable:'ALLSKY_SFC_SW_DWN',month:i+1,value:18,samples:10,unit:'MJ/m²/day'})));
+    return data;
+  };
+  it('publica datos por paso y promedia ejes; tendencias y familia no restan riesgo', () => {
+    const data = complete();
+    const result = recommend(data);
+    for (const plan of [...result.recommendations,result.baseline]) {
+      expect(plan.sequence.every(s => s.risk && s.yield)).toBe(true);
+      expect(plan.components!.risk).toBeCloseTo(plan.sequence.reduce((sum,s)=>sum+100*s.risk!.okYears/s.risk!.totalYears,0)/plan.sequence.length,8);
+      expect(plan.components!.income).toBeCloseTo(plan.sequence.reduce((sum,s)=>sum+s.yield!.relativePct,0)/plan.sequence.length,8);
+    }
+    data.indicators.trends = [{type:'drought',active:true,evidence:[]},{type:'heat',active:true,evidence:[]}];
+    expect(recommend(data).baseline.components!.risk).toBe(result.baseline.components!.risk);
+    expect(result.baseline.components!.risk).toBe(80);
+    expect(recommend(data,[...crops].reverse())).toEqual(recommend(data));
+    data.indicators.history!.reverse();
+    expect(recommend(data)).toEqual(recommend({...data,indicators:{...data.indicators,history:[...data.indicators.history!].reverse()}}));
+  });
+  it('sin historia o con cuatro años conserva puntajes anteriores y avisa', () => {
+    const data = complete(); delete data.indicators.history;
+    const result = recommend(data);
+    expect(result.confidence).toBe('medium');
+    expect(result.baseline.components!.risk).toBe(80);
+    expect(result.warnings).toContain('Sin historia suficiente: riesgo estimado con el promedio');
+    for (const plan of [...result.recommendations,result.baseline]) {
+      expect(plan.sequence.every(s=>s.risk === null && s.yield === null)).toBe(true);
+      expect(plan.components!.income).toBeCloseTo(plan.sequence.reduce((sum,s)=>sum+findCrop(s.cropId)!.incomeOpportunity,0)/plan.sequence.length,8);
+    }
+    data.indicators.history = historicalRows().filter(r=>r.year < 2014);
+    expect(recommend(data)).toEqual(result);
+    data.indicators.history = historicalRows().filter(r=>r.year < 2015);
+    expect(recommend(data).baseline.sequence.every(s=>s.risk?.totalYears === 5)).toBe(true);
+  });
 });

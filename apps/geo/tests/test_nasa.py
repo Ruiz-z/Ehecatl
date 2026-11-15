@@ -174,3 +174,27 @@ def test_modis_endpoint_shares_dates_and_reports_failed_batches(monkeypatch, fai
     assert bool(ndvi_recent) is not fail_all
     assert bool(ndvi_historic) is not fail_all
     assert body["sources"]["power"]["status"] == "available"
+
+
+def test_history_baseline_only_without_filling(monkeypatch):
+    async def power(client, lat, lon, first, last):
+        if first.year == 2024:
+            return [indicator("T2M", 1, 99, 2024)]
+        return [indicator("T2M", 2, None, 2020), indicator("PRECTOTCORR", 1, 31, 2019),
+                indicator("T2M", 1, 15, 2019), indicator("RH2M", 1, 50, 2019),
+                indicator("T2M_MAX", 1, 25, 2019), indicator("T2M_MIN", 1, 5, 2019),
+                indicator("ALLSKY_SFC_SW_DWN", 1, 18, 2019)]
+    async def modis(*args):
+        return [indicator("NDVI", 1, .5, 2019)]
+    monkeypatch.setattr("app.routes.indicators.fetch_power", power)
+    monkeypatch.setattr("app.routes.indicators.fetch_modis", modis)
+    async def run():
+        async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://test") as client:
+            return (await client.get("/indicators", params=dict(lat=0, lon=0, start="2024-01-01", end="2024-12-31"))).json()
+    body = asyncio.run(run())
+    rows = body["history"]
+    assert len(rows) == 6
+    assert rows == sorted(rows, key=lambda r: (r["year"], r["month"], r["variable"]))
+    assert rows[-1] == dict(variable="T2M", year=2020, month=2, value=None)
+    assert next(r for r in rows if r["variable"] == "PRECTOTCORR")["value"] == 31
+    assert not any(r["year"] == 2024 or r["variable"] in ("RH2M", "NDVI") for r in rows)

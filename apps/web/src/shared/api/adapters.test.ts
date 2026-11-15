@@ -293,3 +293,17 @@ test('Estado fecha el encabezado con clima y no con una lectura MODIS posterior'
   assert.equal(result.lastDataMonth,'2026-09');
   assert.equal(result.lastObservation,'septiembre de 2026');
 });
+
+test('conserva los campos históricos por paso y tolera el respaldo nulo', () => {
+  const risk = {okYears:8,totalYears:10,failures:{heat:0,frost:2,temperature:0,water:0}};
+  const yieldData = {relativePct:100,ky:1.25,irrigatedAssumed:true,kyEstimated:false,kySource:'FAO-66 tabla 1, Maize'};
+  const response = {...recommendations,recommendations:[{...recommendations.recommendations[0]!,sequence:[
+    {...recommendations.recommendations[0]!.sequence[0]!,risk,yield:yieldData},
+    {...recommendations.recommendations[0]!.sequence[1]!,risk:null,yield:null}
+  ]}]};
+  const steps = mapRecommendations(response,crops).strategies[0]!.steps!;
+  assert.deepEqual(steps[0]!.risk,risk);
+  assert.deepEqual(steps[0]!.yield,yieldData);
+  assert.equal(steps[1]!.risk,null);
+  assert.equal(steps[1]!.yield,null);
+});

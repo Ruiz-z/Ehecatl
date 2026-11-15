@@ -124,7 +124,7 @@ describe('B2–B5/B17 HTTP real de Nest, persistencia simulada', () => {
     expect(preview.body.priorities).toEqual(body.priorities);
     expect(stored.body.priorities).toEqual(priorities);
     expect(preview.body.recommendations[0].id).not.toBe(stored.body.recommendations[0].id);
-    expect(preview.body.recommendations[0].explanation.join()).toContain('ingreso=100');
+    expect(preview.body.recommendations[0].explanation.join()).toContain('cosecha=100');
   });
   it('mutaciones ajenas se rechazan antes de escribir', async () => {
     await request(app.getHttpServer()).delete(`/parcels/${parcelId}`).auth(token(otherId), { type: 'bearer' }).expect(403);

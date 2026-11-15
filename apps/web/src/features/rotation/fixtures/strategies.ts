@@ -202,7 +202,7 @@ export function strategiesFor(parcel: Parcel): Strategy[] {
       text: 'Diversificas las cosechas y las opciones de venta.',
       axis: 'income'
     }],
-    risks: ['El ingreso usa categorías del catálogo, no precios de mercado.', 'Puede requerir ajustar la maquinaria de cosecha.']
+    risks: ['Cosecha de ejemplo. No es un rendimiento calculado con NASA.', 'Puede requerir ajustar la maquinaria de cosecha.']
   }];
   const dateAt = (offset: number) => new Date(Date.UTC(2026, 10 + offset, 1)).toISOString().slice(0,10);
   return strategies.map(strategy => {
@@ -220,7 +220,7 @@ export function strategiesFor(parcel: Parcel): Strategy[] {
     return { ...strategy, windows, rests,
       irrigationNeedMm: Math.round(windows.reduce((sum, window) => sum+(catalogWater[window.crop]?.demandMm ?? 0),0)),
       steps:windows.map((window,index) => ({cropName:window.crop, previousCropName:index ? windows[index-1]!.crop : parcel.crop,
-        start:window.start, end:window.end,
+        start:window.start, end:window.end, risk:null, yield:null,
         reasons:index === 0 ? strategy.reasons.map(reason => ({...reason,effect:'neutral' as const})) : [],
         water:catalogWater[window.crop] ? {...catalogWater[window.crop]!,etoMm:null,rainMm:null,coveragePct:null,method:'catalog' as const} : undefined,
         climate:{meanTemperature:null,rainMm:null,cycleDays:null}})) };
