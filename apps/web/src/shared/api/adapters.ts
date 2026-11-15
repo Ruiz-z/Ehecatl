@@ -89,7 +89,7 @@ export function mapRecommendations(response: ApiRecommendations, crops: Crop[]):
     id: item.id, baseline: item.baseline,
     name: item.baseline ? 'Mantener lo actual' : item.sequence.map(step => step.cropName).join(' → '),
     axes: item.components,
-    steps: item.sequence.map((step, index) => ({ ...step, previousCropName: index ? item.sequence[index-1]!.cropName : crops.find(crop => crop.id === response.inputs.currentCropId)?.name })),
+    steps: item.sequence.map((step, index) => ({ ...step, water: step.water, previousCropName: index ? item.sequence[index-1]!.cropName : crops.find(crop => crop.id === response.inputs.currentCropId)?.name })),
     rests: item.rests ?? [],
     windows: item.sequence.map(step => {
       const startMonth = Math.max(0, monthIndex(step.start) - horizon);

@@ -11,9 +11,9 @@ import Link from 'next/link';
 import { parcelUrl } from '@/features/parcels/parcel-tabs';
 import { useAsync } from '@/shared/api/use-async';
 import { EmptyState, LoadingState, Notice } from '@/shared/components/ui';
-import { axes, normalizedWeights, rankStrategies } from './ranking';
+import { axes, normalizedWeights, rankStrategies, scoreContributions, scoreLevel } from './ranking';
 import { summarizeRests } from './rests';
-import type { RankedStrategy, RecommendationResult } from './types';
+import type { RankedStrategy, RecommendationResult, CycleWater } from './types';
 const icons = {
   water: Droplets,
   soil: Sprout,
@@ -40,20 +40,33 @@ function timelinePosition(start: string, end: string, horizonStart: string) {
   return { left: `${(left-first)/duration*100}%`, width: `${Math.max(0, right-left)/duration*100}%` };
 }
 const validation = 'Esta sugerencia se basa en datos satelitales de 10 años y reglas FAO/SARE; valida disponibilidad de semilla, maquinaria y mercado con tu agrónomo local';
+function cycleWaterText(water: CycleWater | undefined, irrigated: boolean): string {
+  if (!water) return 'Balance de agua no disponible';
+  const method = water.method === 'catalog' ? 'demanda estimada del catálogo' : 'ETc';
+  const rain = water.rainMm === null ? 'lluvia sin dato' : `la lluvia da ${Math.round(water.rainMm)} mm`;
+  const coverage = water.coveragePct === null ? 'cobertura sin dato' : `${Math.round(water.coveragePct)} %`;
+  let consequence = 'la lluvia cubre la demanda estimada';
+  if (water.coveragePct === null) consequence = 'falta lluvia para calcular el déficit';
+  else if (water.coveragePct < 100) consequence = irrigated ? 'el resto depende del riego' : 'déficit de lluvia; sin riego declarado';
+  return `Necesita ~${Math.round(water.demandMm)} mm (${method}) · ${rain} (${coverage}) · ${consequence}`;
+}
 function SequenceCard({
   strategy,
   index,
   weights,
-  horizonStart
+  horizonStart,
+  irrigated
 }: {
   strategy: RankedStrategy;
   index: number;
   weights: Priorities;
   horizonStart: string;
+  irrigated: boolean;
 }) {
   const horizon = horizonMonths(horizonStart);
   const [expanded, setExpanded] = useState<boolean | null>(null);
   const open = expanded ?? index === 0;
+  const contributions = scoreContributions(strategy.axes, weights);
   return <article tabIndex={0} aria-label={`Opción ${index + 1}: ${strategy.name}`} className={`sequence-card ${index === 0 ? 'best' : ''} ${strategy.baseline ? 'baseline' : ''}`}>
     <div className="sequence-label">
       <span>{index === 0 ? <><Check size={13} />Mejor ajuste para ti</> : strategy.baseline ? 'Si no cambias' : 'Otra opción viable'}</span>
@@ -63,7 +76,7 @@ function SequenceCard({
       <h3>{strategy.name}</h3>
       <div className="score">
         {strategy.score}
-        <small>/100</small>
+        <small>/100 · {scoreLevel(strategy.score)}</small>
       </div>
     </div>
     {(strategy.baseline || strategy.delta !== null) && <p className={`score-delta ${strategy.baseline ? 'muted' : strategy.delta! < 0 ? 'negative' : ''}`}>{strategy.baseline ? 'Estrategia actual · referencia' : `${strategy.delta! >= 0 ? '+' : ''}${strategy.delta} puntos frente a mantener lo actual`}</p>}
@@ -101,6 +114,12 @@ function SequenceCard({
         <strong>{strategy.changeAt}</strong>
       </div>
     </div>
+    <div className="score-breakdown">
+      <p>Desglose del puntaje: {contributions.map(part => `${part.label.toLowerCase()} ${part.value.toFixed(1)}`).join(' + ')}</p>
+      <div className="score-stack" role="img" aria-label={contributions.map(part => `${part.label}: ${part.value.toFixed(1)} puntos`).join(', ')}>
+        {contributions.map(part => <span key={part.key} className={`score-part score-${part.key}`} style={{width: `${part.value}%`}} />)}
+      </div>
+    </div>
     <div className="axis-bars">
       {axes.map(({
         key,
@@ -130,6 +149,7 @@ function SequenceCard({
           const label = reason.effect === 'favor' ? 'A favor' : reason.effect === 'contra' ? 'En contra' : 'Neutral';
           return <li className={`step-reason effect-${reason.effect ?? 'neutral'}`} key={j}><Icon size={16} aria-hidden="true" /><span><strong>{label}: </strong>{reason.text}</span></li>;
         })}</ul>
+        <p className="cycle-water">{cycleWaterText(step.water, irrigated)}</p>
         <p className="cycle-climate">Clima del ciclo: {step.climate?.meanTemperature == null ? 'temperatura sin dato' : `${step.climate.meanTemperature.toFixed(1)} °C`} · {step.climate?.rainMm == null ? 'lluvia sin dato' : `${Math.round(step.climate.rainMm)} mm de lluvia`} · {step.climate?.cycleDays == null ? 'duración sin dato' : `${Math.round(step.climate.cycleDays)} días`}</p>
       </section>) : <ul>{strategy.reasons.filter(reason => !reason.text.startsWith('Pesos ')).map((reason, i) => <li key={i}>{reason.text}</li>)}</ul>}
       <p className="weights-note">Calculado con tus prioridades: {axes.map(axis => `${axis.label.toLowerCase()} ${Math.round(weights[axis.key]*100)} %`).join(' · ')}. Ingreso es una heurística, no un precio.</p>
@@ -213,7 +233,7 @@ function Advice({
     <p className="sr-only" aria-live="polite">Mejor opción: {ranked[0].name}, {ranked[0].score} puntos.</p>
     <p className="comparison-hint">{ranked.length} {ranked.length === 1 ? 'estrategia' : 'estrategias'} · Desplaza para comparar →</p>
     <div className="sequence-grid" tabIndex={0} role="region" aria-label="Comparación de estrategias; usa las flechas para recorrerlas">
-      {ranked.map((strategy, index) => <SequenceCard key={strategy.id} strategy={strategy} index={index} weights={normalized} horizonStart={result.horizonStart} />)}
+      {ranked.map((strategy, index) => <SequenceCard key={strategy.id} strategy={strategy} index={index} weights={normalized} horizonStart={result.horizonStart} irrigated={parcel.irrigation} />)}
     </div>
     <section id="prioridades" className="priorities">
       <div className="section-heading">

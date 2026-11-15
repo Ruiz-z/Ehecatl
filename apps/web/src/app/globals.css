@@ -563,3 +563,12 @@ summary { min-height:44px; align-content:center; }
 .effect-favor svg { color:var(--accent-text); }
 .effect-contra svg { color:var(--notice-amber); }
 .cycle-climate,.weights-note { font-size:13px; margin-block:12px; color:var(--muted-foreground); }
+
+.score-breakdown { display: grid; gap: 8px; margin-block: 16px; font-size: 12px; font-variant-numeric: tabular-nums; }
+.score-stack { display: flex; height: 12px; overflow: hidden; border: 1px solid var(--control-border); border-radius: 4px; background: var(--surface); }
+.score-part { display: block; height: 100%; border-inline-end: 1px solid var(--card); }
+.score-water { background: var(--foreground); }
+.score-soil { background: var(--accent); }
+.score-income { background: var(--earth); }
+.score-risk { background: var(--crop-other); }
+.cycle-water { margin-block: 8px; font-size: 13px; }
