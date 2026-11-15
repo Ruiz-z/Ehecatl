@@ -489,3 +489,100 @@ describe('RF-5 y RF-12: frecuencia y cosecha históricas', () => {
     expect(recommend(data).baseline.sequence.every(s=>s.risk?.totalYears === 5)).toBe(true);
   });
 });
+
+import { schedule } from '../src/modules/rotation-engine/engine/schedule.js';
+
+describe('RF-14: mejor fecha de siembra', () => {
+  const setup = () => {
+    const data = indicators();
+    const window = {...data.windows[0], start:'2025-08-01', end:'2026-02-28', durationDays:212, irrigated:true};
+    data.windows = [window];
+    data.climatology = Array.from({length:12},(_,i) => Object.entries({T2M:20,T2M_MIN:10,T2M_MAX:25,PRECTOTCORR:300,ALLSKY_SFC_SW_DWN:18}).map(([variable,value])=>({variable,value,month:i+1,samples:10,unit:''}))).flat();
+    data.history = historicalRows().map(r=>({...r,value:r.variable === 'T2M' && r.month >= 8 && r.month <= 10 && r.year < 2016 ? 35 : r.variable === 'T2M_MIN' ? 10 : r.value}));
+    return {data,window,crop:{...findCrop('oats')!,cycleDays:30}};
+  };
+  it('prefiere noviembre a agosto y desempata con la fecha más temprana', () => {
+    const {data,window,crop} = setup();
+    const result = schedule(crop,window,data,Date.parse('2025-08-01T00:00:00Z'));
+    expect(new Date(result.scheduled!.start).toISOString().slice(0,10)).toBe('2025-11-01');
+    data.history!.reverse();
+    expect(schedule(crop,window,data,Date.parse('2025-08-01T00:00:00Z'))).toEqual(result);
+  });
+  it('rechaza todas las fechas por debajo de 70 % y publica la razón', () => {
+    const {data,window,crop} = setup();
+    data.history = data.history!.map(r=>({...r,value:r.variable === 'T2M' && r.year < 2016 ? 35 : r.value}));
+    const result = schedule(crop,window,data,Date.parse('2025-08-01T00:00:00Z'));
+    expect(result.scheduled).toBeNull();
+    expect(result.reasons.join()).toContain('Solo 4 de 10 años dentro de lo que aguanta el cultivo');
+  });
+  it('acepta exactamente siete de diez años', () => {
+    const {data,window,crop} = setup();
+    data.history = data.history!.map(r=>({...r,value:r.variable === 'T2M' ? r.year < 2013 ? 35 : 20 : r.value}));
+    expect(schedule(crop,window,data,Date.parse('2025-08-01T00:00:00Z')).scheduled).not.toBeNull();
+  });
+  it('con cuatro años completos conserva toda la salida sin historia', () => {
+    const {data,window,crop} = setup();
+    const start = Date.parse('2025-08-17T00:00:00Z');
+    const previous = schedule(crop,window,{...data,history:[]},start);
+    data.history = data.history!.filter(r=>r.year < 2014);
+    expect(schedule(crop,window,data,start)).toEqual(previous);
+    expect(new Date(previous.scheduled!.start).toISOString().slice(0,10)).toBe('2025-08-17');
+  });
+});
+
+describe('RF-14b: causa del descanso', () => {
+  const horizon = {start:'2025-01-01',end:'2025-03-31'};
+  const crop = {...findCrop('maize')!,frostSensitive:true};
+  const reason = (temperature:number, rain:number, irrigated:boolean, catalog = [crop]) => {
+    const data = indicators();
+    data.windows = [{...data.windows[0],...horizon,irrigated}];
+    data.climatology = [1,2,3].flatMap(month=>Object.entries({T2M:temperature,T2M_MIN:temperature-5,T2M_MAX:temperature+5,PRECTOTCORR:rain,ALLSKY_SFC_SW_DWN:18}).map(([variable,value])=>({variable,value,month,samples:10,unit:''})));
+    return rests([],data.windows,horizon,data,catalog)[0].reason;
+  };
+  it('identifica calor, frío y agua, y respeta riego', () => {
+    expect(reason(45,300,true)).toBe('Hace demasiado calor para los cultivos del catálogo en este tramo');
+    expect(reason(-5,300,true)).toBe('Hace demasiado frío para los cultivos del catálogo en este tramo');
+    expect(reason(24,0,false)).toBe('Falta lluvia y no hay riego declarado en este tramo');
+    expect(reason(24,0,true)).toBe('Ningún cultivo completa su ciclo en este tramo');
+  });
+  it('sin causa dominante o sin catálogo conserva el respaldo', () => {
+    expect(reason(45,300,true,[])).toBe('Ningún cultivo completa su ciclo en este tramo');
+    expect(reason(24,300,true,[{...crop,tempMax:20},{...crop,tempMin:30}])).toBe('Ningún cultivo completa su ciclo en este tramo');
+  });
+  it('cuenta cada cultivo una vez por causa y no depende del orden', () => {
+    const catalog = [{...crop,tempMax:20},{...crop,tempMax:22},{...crop,tempMin:30}];
+    expect(reason(24,300,true,catalog)).toBe('Hace demasiado calor para los cultivos del catálogo en este tramo');
+    expect(reason(24,300,true,[...catalog].reverse())).toBe(reason(24,300,true,catalog));
+  });
+});
+
+it('RF-14b desempata cultivos afectados por cantidad de meses afectados', () => {
+  const data = indicators();
+  const horizon = {start:'2025-01-01',end:'2025-03-31'};
+  data.windows = [{...data.windows[0],...horizon,irrigated:true}];
+  data.climatology = [1,2,3].flatMap(month=>[
+    {variable:'T2M',month,value:month === 1 ? 10 : 35,samples:10,unit:'C'},
+    {variable:'T2M_MIN',month,value:5,samples:10,unit:'C'},
+  ]);
+  const catalog = [{...findCrop('oats')!,tempMin:0,tempMax:30,frostSensitive:false}, {...findCrop('maize')!,tempMin:15,tempMax:40,frostSensitive:false}];
+  expect(rests([],data.windows,horizon,data,catalog)[0].reason).toBe('Hace demasiado calor para los cultivos del catálogo en este tramo');
+});
+
+it('RF-14 lleva el rechazo histórico a las razones públicas y no reutiliza historia de otra petición', () => {
+  const data = input();
+  data.indicators.history = historicalRows().map(row=>({...row,value:row.variable === 'T2M' ? 55 : row.variable === 'T2M_MIN' ? 10 : row.value}));
+  const rejected = recommend(data);
+  expect(rejected.status).toBe('no_viable_options');
+  expect(rejected.baseline.explanation.join()).toContain('Solo 0 de 10 años dentro de lo que aguanta el cultivo');
+  expect(rejected.warnings.join()).toContain('Solo 0 de 10 años dentro de lo que aguanta el cultivo');
+  data.indicators.history = historicalRows();
+  expect(recommend(data).status).toBe('ok');
+});
+
+it('RF-14b reconoce frío histórico sin helada aunque el promedio pase', () => {
+  const data = indicators();
+  const horizon = {start:'2025-01-01',end:'2025-03-31'};
+  data.windows = [{...data.windows[0],...horizon,irrigated:true}];
+  data.history = historicalRows().map(row=>({...row,value:row.variable === 'T2M' && row.year < 2016 ? 5 : row.variable === 'T2M_MIN' ? 2 : row.value}));
+  expect(rests([],data.windows,horizon,data,[findCrop('maize')!])[0].reason).toBe('Hace demasiado frío para los cultivos del catálogo en este tramo');
+});

@@ -1,17 +1,24 @@
 import type { Crop } from '../../crop-knowledge/crop-catalog.js';
 import type { Indicators, Window } from '../../nasa-data/contracts.js';
 import { cycleDemand, cycleMonths } from './evapotranspiration.js';
+import { simulateCycle } from './historical.js';
 import { viability } from './viability.js';
+
+export const minHistoricalSuccess = 0.7;
 
 const dayMs = 86_400_000;
 const timestamp = (date: string) => Date.parse(`${date}T00:00:00Z`);
 
-// Busca la primera siembra factible dentro de la ventana, usando solamente
-// los meses ocupados por el cultivo. Una helada de enero no veta todo el verano.
-export function schedule(crop: Crop, window: Window, indicators: Indicators, earliest: number) {
+// Compara los arranques viables; sin cinco años conserva la primera fecha.
+export function schedule(crop: Crop, window: Window, indicators: Indicators, earliest: number, simulate: typeof simulateCycle = simulateCycle) {
   const horizonEnd = Math.max(...indicators.windows.map(w => timestamp(w.end)));
   const limit = crop.perennial ? horizonEnd : timestamp(window.end);
   const reasons = new Set<string>();
+  let best: { start: number; end: number; effective: Window; result: ReturnType<typeof viability>;
+    water: { etoMm: number | null; kc: number; demandMm: number; rainMm: number | null; coveragePct: number | null; method: 'radiation' | 'catalog' };
+    occupiedWindowIds: string[] } | null = null;
+  let bestSuccess = -1;
+  let bestHistory: ReturnType<typeof simulateCycle> | null = null;
   let bestWater: number | null = null;
   let bestDemand: number | null = null;
   for (let start = earliest; start <= timestamp(window.end);) {
@@ -41,8 +48,13 @@ export function schedule(crop: Crop, window: Window, indicators: Indicators, ear
       coveragePct: rainMm === null ? null : 100*Math.min(1, Math.max(0, rainMm)/demand.demandMm), method: demand.method };
     if (!unsuitable && result.viable) {
       if (knownDays < crop.cycleDays || rainDays < crop.cycleDays) result.risks.push('Climatología mensual incompleta: se usó el resumen de la ventana');
-      return { scheduled: { start, end, effective, result, water,
-        occupiedWindowIds: indicators.windows.filter(w => timestamp(w.start) <= end && timestamp(w.end) >= start).map(w => w.id) }, reasons: [] as string[] };
+      const candidate = { start, end, effective, result, water,
+        occupiedWindowIds: indicators.windows.filter(w => timestamp(w.start) <= end && timestamp(w.end) >= start).map(w => w.id) };
+      const simulation = simulate(crop, new Date(start).toISOString().slice(0,10), new Date(end).toISOString().slice(0,10), indicators.history, window.irrigated);
+      if (simulation.totalYears < 5) return { scheduled: candidate, reasons: [] as string[] };
+      const success = simulation.okYears/simulation.totalYears;
+      if (!bestHistory || success > bestHistory.okYears/bestHistory.totalYears) bestHistory = simulation;
+      if (success >= minHistoricalSuccess && success > bestSuccess) { best = candidate; bestSuccess = success; }
     }
     if (unsuitable) reasons.add('Meses del ciclo fuera del rango térmico del cultivo');
     if (result.waterMm !== null && (bestWater === null || result.waterMm > bestWater)) {
@@ -53,6 +65,8 @@ export function schedule(crop: Crop, window: Window, indicators: Indicators, ear
     const first = new Date(start);
     start = Date.UTC(first.getUTCFullYear(), first.getUTCMonth()+1, 1);
   }
+  if (best) return { scheduled: best, reasons: [] as string[] };
+  if (bestHistory) reasons.add(`Solo ${bestHistory.okYears} de ${bestHistory.totalYears} años dentro de lo que aguanta el cultivo`);
   if (bestWater !== null && !window.irrigated) reasons.add(`Mejor lluvia disponible ${bestWater.toFixed(0)} mm frente a demanda de ${bestDemand?.toFixed(0)} mm/ciclo`);
   return { scheduled: null, reasons: [...reasons] };
 }
